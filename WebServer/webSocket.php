@@ -22,6 +22,11 @@
  */
 use Workerman\Worker;
 use Workerman\Lib\Timer;
+use Judge\Judge;
+
+use Constant\LANGUAGE_TYPE;
+use Constant\MESSAGE_CODE;
+use Constant\MESSAGE_TYPE;
 
 require_once 'Workerman/Autoloader.php';
 include_once 'common.php';
@@ -59,7 +64,7 @@ $worker->onWorkerStart = function($worker) {
             }
         }
     });
-    log('WebSocket server now listening on port 8080.');
+    logs('WebSocket server now listening on port 8080.');
 };
 
 /**
@@ -68,7 +73,7 @@ $worker->onWorkerStart = function($worker) {
  * @param $worker
  */
 $worker->onWorkerReload = function($worker) {
-    log('WebSocket server now reloading.');
+    logs('WebSocket server now reloading.');
 };
 
 /**
@@ -77,7 +82,7 @@ $worker->onWorkerReload = function($worker) {
  * @param $worker
  */
 $worker->onWorkerStop = function($worker) {
-    log('WebSocket server now stopped.', 1);
+    logs('WebSocket server now stopped.', 1);
 };
 
 /**
@@ -86,6 +91,10 @@ $worker->onWorkerStop = function($worker) {
  * @param $connection
  */
 $worker->onConnect = function($connection) {
+    /**
+     * @param $connection Workerman\Connection\TcpConnection
+     * @param $http_header
+     */
     $connection->onWebSocketConnect = function($connection, $http_header) {
         //连接验证
         if(false) {
@@ -97,10 +106,38 @@ $worker->onConnect = function($connection) {
 /**
  * 收到消息
  *
- * @param $connection
+ * @param $connection Workerman\Connection\TcpConnection
  * @param $data string 数据
  */
 $worker->onMessage = function($connection, $data) {
+    $data = json_decode($data);
+    switch($data['code']) {
+        case MESSAGE_TYPE::JUDGE:
+            switch($data['language']) {
+                case 'c':
+                    $judge = new Judge(LANGUAGE_TYPE::C, $data['code']);
+                    break;
+                case 'cpp':
+                    $judge = new Judge(LANGUAGE_TYPE::CPP, $data['code']);
+                    break;
+                case 'java':
+                    $judge = new Judge(LANGUAGE_TYPE::JAVA, $data['code']);
+                    break;
+                default:
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::UNKNOWN_LANGUAGE
+                    ]));
+                    return;
+            }
+            $judge->saveCode();
+            $judge->start();
+            $judge->saveResult();
+            $connection->send(json_encode([
+                'code' => MESSAGE_CODE::SUCCESS,
+                'data' => $judge->result()
+            ]));
+            break;
+    }
 };
 
 /**
@@ -119,7 +156,7 @@ $worker->onClose = function($connection) {
  * @param $msg
  */
 $worker->onError = function($connection, $code, $msg) {
-    log($code.' '.$msg, 2);
+    logs($code.' '.$msg, 2);
 };
 
 Worker::runAll();

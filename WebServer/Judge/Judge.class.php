@@ -17,16 +17,33 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/3
- * Time: 20:25
+ * Date: 2016/11/4
+ * Time: 13:34
  */
 
-/**
- * 日志格式
- *
- * @param $msg
- * @param int [$type] 0 = Normal, 1 = Warning, 2 = Error
- */
-function logs($msg, $type = 0) {
-    echo date('Y-m-d H:i:s').'  '.($type == 1 ? 'W' : $type == 2 ? 'E' : ' ').'  '.$msg;
+
+namespace Judge;
+
+
+class Judge {
+    private $language;
+    private $code;
+
+    public function __construct($language, $code) {
+        $this->language = $language;
+        $this->code = $code;
+    }
+
+    public function start() {
+    }
+
+    public function result() {
+        return [];
+    }
+
+    public function saveCode() {
+    }
+
+    public function saveResult() {
+    }
 }

@@ -17,16 +17,16 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/3
- * Time: 20:25
+ * Date: 2016/11/4
+ * Time: 13:50
  */
 
-/**
- * 日志格式
- *
- * @param $msg
- * @param int [$type] 0 = Normal, 1 = Warning, 2 = Error
- */
-function logs($msg, $type = 0) {
-    echo date('Y-m-d H:i:s').'  '.($type == 1 ? 'W' : $type == 2 ? 'E' : ' ').'  '.$msg;
+
+namespace Constant;
+
+
+abstract class LANGUAGE_TYPE {
+    const C = 0;
+    const CPP = 1;
+    const JAVA = 2;
 }
