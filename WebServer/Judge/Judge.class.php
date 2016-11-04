@@ -25,25 +25,93 @@
 namespace Judge;
 
 
+use Constant\LANGUAGE_TYPE;
+
 class Judge {
     private $language;
     private $code;
+    private $question;
+    public $result = [];
 
-    public function __construct($language, $code) {
+    /**
+     * Judge constructor.
+     *
+     * @param $question_id
+     * @param $language
+     * @param $code
+     */
+    public function __construct($question_id, $language, $code) {
+        $this->question = $this->getQuestion($question_id);
         $this->language = $language;
         $this->code = $code;
     }
 
-    public function start() {
+    /**
+     * 开始测试
+     *
+     * @param string $id Process ID
+     * @param string $ip Remote Ip
+     */
+    public function start($id = '', $ip = '') {
+        include_once '../config.php';
+        $path = uniqid(CONFIG['judge temp'].$id.'-'.$ip.'-', true);
+        while(is_dir($path)) {
+            $path .= 'n';
+        }
+        $path .= '/';
+        mkdir($path, 0666, true);
+        $judge = $this->getJudger($path, $this->code, $this->question);
+        $this->result = $judge->start();
     }
 
-    public function result() {
-        return [];
-    }
-
+    /**
+     * 保存代码
+     */
     public function saveCode() {
+        //TODO: Save code to database
     }
 
+    /**
+     * 保存测试结果
+     */
     public function saveResult() {
+        //TODO: Save result to database
+    }
+
+    /**
+     * 获取问题信息
+     *
+     * @param $question_id
+     *
+     * @return array
+     */
+    private function getQuestion($question_id) {
+        //TODO: Get question information from database
+        return [
+            'test_case'    => '',
+            'answer'       => '',
+            'time_limit'   => '',
+            'memory_limit' => ''
+        ];
+    }
+
+    /**
+     * @param $temp_path
+     * @param $code
+     * @param $question
+     *
+     * @return Judger
+     *
+     */
+    private function getJudger($temp_path, $code, $question) {
+        switch($this->language) {
+            case LANGUAGE_TYPE::C:
+                break;
+            case LANGUAGE_TYPE::CPP:
+                return new CppJudge($temp_path, $code, $question);
+            case LANGUAGE_TYPE::JAVA:
+                break;
+        }
+        return null;
     }
 }

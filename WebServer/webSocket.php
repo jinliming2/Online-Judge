@@ -29,7 +29,8 @@ use Constant\MESSAGE_CODE;
 use Constant\MESSAGE_TYPE;
 
 require_once 'Workerman/Autoloader.php';
-include_once 'common.php';
+require_once 'config.php';
+require_once 'common.php';
 
 //心跳包间隔（秒）
 define('HEARTBEAT_TIME', 300);
@@ -37,8 +38,10 @@ define('HEARTBEAT_TIME', 300);
 //守护进程模式
 Worker::$daemonize = true;
 //日志
-Worker::$stdoutFile = __DIR__.'/log/ws_'.date('Y-m-d').'.log';
-Worker::$logFile = __DIR__.'/log/workerman.log';
+mkdir(CONFIG['stdout file'], 0660, true);
+mkdir(CONFIG['log file'], 0660, true);
+Worker::$stdoutFile = CONFIG['stdout file'].'ws_'.date('Y-m-d').'.log';
+Worker::$logFile = CONFIG['log file'].'workerman.log';
 
 $worker = new Worker('websocket://[::]:8080');
 
@@ -107,7 +110,7 @@ $worker->onConnect = function($connection) {
  * 收到消息
  *
  * @param $connection Workerman\Connection\TcpConnection
- * @param $data string 数据
+ * @param $data       string 数据
  */
 $worker->onMessage = function($connection, $data) {
     $data = json_decode($data);
@@ -115,13 +118,13 @@ $worker->onMessage = function($connection, $data) {
         case MESSAGE_TYPE::JUDGE:
             switch($data['language']) {
                 case 'c':
-                    $judge = new Judge(LANGUAGE_TYPE::C, $data['code']);
+                    $judge = new Judge($data['qid'], LANGUAGE_TYPE::C, $data['code']);
                     break;
                 case 'cpp':
-                    $judge = new Judge(LANGUAGE_TYPE::CPP, $data['code']);
+                    $judge = new Judge($data['qid'], LANGUAGE_TYPE::CPP, $data['code']);
                     break;
                 case 'java':
-                    $judge = new Judge(LANGUAGE_TYPE::JAVA, $data['code']);
+                    $judge = new Judge($data['qid'], LANGUAGE_TYPE::JAVA, $data['code']);
                     break;
                 default:
                     $connection->send(json_encode([
@@ -134,7 +137,7 @@ $worker->onMessage = function($connection, $data) {
             $judge->saveResult();
             $connection->send(json_encode([
                 'code' => MESSAGE_CODE::SUCCESS,
-                'data' => $judge->result()
+                'data' => $judge->result
             ]));
             break;
     }
