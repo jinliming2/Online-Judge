@@ -124,7 +124,7 @@ $worker->onMessage = function($connection, $data) {
                     'code' => MESSAGE_CODE::SUCCESS,
                     'data' => $judge->result
                 ]));
-            } catch (\Exception $e) {
+            } catch (Exception\UnknownLanguageException $e) {
                 $connection->send(json_encode([
                     'code' => $e->getCode(),
                     'message' => $e->getMessage()

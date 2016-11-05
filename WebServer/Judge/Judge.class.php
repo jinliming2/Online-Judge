@@ -28,6 +28,8 @@ namespace Judge;
 use Constant\LANGUAGE_TYPE;
 use Constant\MESSAGE_CODE;
 
+use Exception;
+
 class Judge {
     private $language;
     private $code;
@@ -54,7 +56,7 @@ class Judge {
      * @param string $id Process ID
      * @param string $ip Remote Ip
      *
-     * @throws \Exception
+     * @throws Exception\UnknownLanguageException
      */
     public function start($id = '', $ip = '') {
         include_once '../config.php';
@@ -67,7 +69,7 @@ class Judge {
         try {
             $judge = $this->getJudger($this->code, $this->question);
             $this->result = $judge->start();
-        } catch (\Exception $e) {
+        } catch (Exception\UnknownLanguageException $e) {
             $this->clean();
             throw $e;
         }
@@ -102,7 +104,7 @@ class Judge {
      * @param $question
      *
      * @return Judger
-     * @throws \Exception
+     * @throws Exception\UnknownLanguageException
      */
     private function getJudger($code, $question) {
         switch($this->language) {
@@ -113,7 +115,7 @@ class Judge {
             case LANGUAGE_TYPE::JAVA:
                 return null;  //TODO: JAVA Judger
             default:
-                throw new \Exception('Unknown Language', MESSAGE_CODE::UNKNOWN_LANGUAGE);
+                throw new Exception\UnknownLanguageException;
         }
     }
 
