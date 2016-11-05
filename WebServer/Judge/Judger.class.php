@@ -23,7 +23,6 @@
 
 
 namespace Judge;
-require_once '../Constant/JudgeResult.class.php';
 
 use Constant\JUDGE_RESULT;
 

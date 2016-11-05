@@ -25,4 +25,5 @@ define('CONFIG', [
     'stdout file' => __DIR__.'/log/',  //运行日志存储目录，以‘/’结尾
     'log file'    => __DIR__.'/log/',  //WorkerMan日志存储目录，以‘/’结尾
     'judge temp'  => __DIR__.'/tmp/',  //评测时的临时文件目录，以‘/’结尾
+    'mongoDB'     => 'mongodb://localhost:27017',  //MongoDB数据库链接
 ]);

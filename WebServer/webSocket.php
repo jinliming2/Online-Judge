@@ -116,29 +116,21 @@ $worker->onMessage = function($connection, $data) {
     $data = json_decode($data);
     switch($data['code']) {
         case MESSAGE_TYPE::JUDGE:
-            switch($data['language']) {
-                case 'c':
-                    $judge = new Judge($data['qid'], LANGUAGE_TYPE::C, $data['code']);
-                    break;
-                case 'cpp':
-                    $judge = new Judge($data['qid'], LANGUAGE_TYPE::CPP, $data['code']);
-                    break;
-                case 'java':
-                    $judge = new Judge($data['qid'], LANGUAGE_TYPE::JAVA, $data['code']);
-                    break;
-                default:
-                    $connection->send(json_encode([
-                        'code' => MESSAGE_CODE::UNKNOWN_LANGUAGE
-                    ]));
-                    return;
+            $judge = new Judge($data['qid'], $data['language'], $data['code']);
+            try {
+                $judge->start($connection->worker->id, $connection->getRemoteIp());
+                $judge->save();
+                $connection->send(json_encode([
+                    'code' => MESSAGE_CODE::SUCCESS,
+                    'data' => $judge->result
+                ]));
+            } catch (\Exception $e) {
+                $connection->send(json_encode([
+                    'code' => $e->getCode(),
+                    'message' => $e->getMessage()
+                ]));
             }
-            $judge->saveCode();
-            $judge->start();
-            $judge->saveResult();
-            $connection->send(json_encode([
-                'code' => MESSAGE_CODE::SUCCESS,
-                'data' => $judge->result
-            ]));
+            $judge->clean();
             break;
     }
 };
