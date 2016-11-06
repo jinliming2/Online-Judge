@@ -25,6 +25,7 @@
 namespace Database;
 require_once __DIR__.'/../config.php';
 
+use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\Query;
@@ -101,5 +102,26 @@ final class Question extends Database {
             return (string)$insert;
         }
         return false;
+    }
+
+    /**
+     * @param ObjectID|string $id
+     *
+     * @return \stdClass|null
+     * @throws \InvalidArgumentException
+     */
+    public function getOne($id) {
+        if(is_string($id)) {
+            $id = new ObjectID($id);
+        }
+        if(!($id instanceof ObjectID)) {
+            throw new \InvalidArgumentException;
+        }
+        $query = new Query(['_id' => $id]);
+        $rows = Database::$connection->executeQuery(Question::$table, $query)->toArray();
+        if(count($rows) > 0) {
+            return $rows[0];
+        }
+        return null;
     }
 }
