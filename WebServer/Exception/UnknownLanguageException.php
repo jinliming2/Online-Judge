@@ -17,15 +17,16 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/4
- * Time: 13:51
+ * Date: 2016/11/5
+ * Time: 16:19
  */
 
 
-namespace Constant;
+namespace Exception;
+use Constant\MESSAGE_CODE;
 
 
-abstract class MESSAGE_CODE {
-    const SUCCESS = 0;
-    const UNKNOWN_LANGUAGE = 1;
+class UnknownLanguageException extends \Exception {
+    public $code = MESSAGE_CODE::UNKNOWN_LANGUAGE;
+    public $message = '未知的代码语言';
 }
