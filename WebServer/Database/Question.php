@@ -37,14 +37,26 @@ use Exception;
  * @package Database
  */
 final class Question extends Database {
+    private static $obj = null;
     private static $table = 'question';
+
 
     /**
      * Question constructor.
      */
-    public function __construct() {
+    protected function __construct() {
         parent::__construct();
         Question::$table = Database::$database.'.'.Question::$table;
+    }
+
+    /**
+     * @return Question
+     */
+    public static function getInstance() {
+        if(Question::$obj == null) {
+            Question::$obj = new Question();
+        }
+        return Question::$obj;
     }
 
     /**

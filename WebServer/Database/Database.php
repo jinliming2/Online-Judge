@@ -29,6 +29,10 @@ require_once __DIR__.'/../config.php';
 use MongoDB\Driver\Manager;
 
 
+/**
+ * Class Database
+ * @package Database
+ */
 abstract class Database {
     protected static $database = 'Judge';  //数据库名
 
@@ -37,9 +41,14 @@ abstract class Database {
      */
     protected static $connection = null;
 
-    public function __construct() {
+    /**
+     * Database constructor.
+     */
+    protected function __construct() {
         if(Database::$connection == null) {
             Database::$connection = new Manager(CONFIG['mongoDB']);
         }
     }
+
+    public static abstract function getInstance();
 }

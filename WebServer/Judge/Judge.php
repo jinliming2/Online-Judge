@@ -26,10 +26,14 @@ namespace Judge;
 
 
 use Constant\LANGUAGE_TYPE;
-use Constant\MESSAGE_CODE;
 
+use Database\Question;
 use Exception;
 
+/**
+ * Class Judge
+ * @package Judge
+ */
 class Judge {
     private $language;
     private $code;
@@ -90,12 +94,12 @@ class Judge {
      * @return array
      */
     private function getQuestion($question_id) {
-        //TODO: Get question information from database
+        $q = Question::getInstance()->getOne($question_id);
         return [
-            'test_case'    => '',
-            'answer'       => '',
-            'time_limit'   => '',
-            'memory_limit' => ''
+            'test_case'    => $q['test'],
+            'answer'       => file_get_contents($q['answer']),
+            'time_limit'   => $q['time'],
+            'memory_limit' => $q['memory']
         ];
     }
 
