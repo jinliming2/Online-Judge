@@ -17,15 +17,29 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/4
- * Time: 14:39
+ * Date: 2016/11/5
+ * Time: 15:45
  */
 
-define('CONFIG', [
-    'stdout file' => __DIR__.'/log/',  //运行日志存储目录，以‘/’结尾
-    'log file'    => __DIR__.'/log/',  //WorkerMan日志存储目录，以‘/’结尾
-    'judge temp'  => __DIR__.'/tmp/',  //评测时的临时文件目录，以‘/’结尾
-    'test case'   => __DIR__.'/test_case/',  //测试用例存储目录，以‘/’结尾
-    'answer'      => __DIR__.'/answer/',  //对应测试用例答案的存储目录，以‘/’结尾
-    'mongoDB'     => 'mongodb://localhost:27017',  //MongoDB数据库链接
-]);
+
+namespace Database;
+require_once __DIR__.'/../config.php';
+
+
+use MongoDB\Driver\Manager;
+
+
+abstract class Database {
+    protected static $database = 'Judge';  //数据库名
+
+    /**
+     * @var Manager
+     */
+    protected static $connection = null;
+
+    public function __construct() {
+        if(Database::$connection == null) {
+            Database::$connection = new Manager(CONFIG['mongoDB']);
+        }
+    }
+}
