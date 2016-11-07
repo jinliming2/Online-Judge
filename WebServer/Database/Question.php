@@ -40,7 +40,6 @@ final class Question extends Database {
     private static $obj = null;
     private static $table = 'question';
 
-
     /**
      * Question constructor.
      */

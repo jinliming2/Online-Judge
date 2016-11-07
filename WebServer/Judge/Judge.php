@@ -63,7 +63,7 @@ class Judge {
      * @throws Exception\UnknownLanguageException
      */
     public function start($id = '', $ip = '') {
-        include_once '../config.php';
+        include_once __DIR__.'../config.php';
         $this->temp_path = uniqid(CONFIG['judge temp'].$id.'-'.$ip.'-', true);
         while(is_dir($this->temp_path)) {
             $this->temp_path .= 'n';

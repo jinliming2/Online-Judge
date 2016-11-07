@@ -24,7 +24,6 @@ use Workerman\Worker;
 use Workerman\Lib\Timer;
 use Judge\Judge;
 
-use Constant\LANGUAGE_TYPE;
 use Constant\MESSAGE_CODE;
 use Constant\MESSAGE_TYPE;
 
