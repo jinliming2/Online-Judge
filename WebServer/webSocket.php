@@ -45,14 +45,16 @@ Worker::$logFile = CONFIG['log file'].'workerman.log';
 $worker = new Worker('websocket://[::]:8080');
 
 //同时服务进程数
-$worker->count = 3;
+$worker->count = CONFIG['process count'];
 
 /**
  * 启动监听
  *
- * @param $worker
+ * @param Worker $worker
  */
 $worker->onWorkerStart = function($worker) {
+    //线程们
+    $worker->thread_pool = [];
     //心跳检测
     Timer::add(60, function() use ($worker) {
         $time_now = time();
@@ -65,6 +67,28 @@ $worker->onWorkerStart = function($worker) {
                 $connection->close();
             }
         }
+    });
+    //任务处理
+    Timer::add(5, function() use ($worker) {
+        $index = 0;
+        foreach($worker->thread_pool as $i => $thread) {
+            if($thread->isRunning()) {
+                ++$index;
+            } else if($thread->result === null) {
+                if($index < CONFIG['thread count']) {
+                    ++$index;
+                    $thread->start();
+                }
+            } else {
+                //TODO: Update result to database
+                unset($worker->thread_pool[$i]);
+            }
+        }
+        $arr = [];
+        foreach($worker->thread_pool as $thread) {
+            $arr[] = $thread;
+        }
+        $worker->thread_pool = $arr;
     });
     logs('WebSocket server now listening on port 8080.');
 };
@@ -117,11 +141,11 @@ $worker->onMessage = function($connection, $data) {
         case MESSAGE_TYPE::JUDGE:
             $judge = new Judge($data['qid'], $data['language'], $data['code']);
             try {
-                $judge->start($connection->worker->id, $connection->getRemoteIp());
                 $judge->save();
+                $thread = $judge->start($connection->worker->id, $connection->getRemoteIp());
+                $connection->worker->thread_pool[] = $thread;
                 $connection->send(json_encode([
-                    'code' => MESSAGE_CODE::SUCCESS,
-                    'data' => $judge->result
+                    'code' => MESSAGE_CODE::SUCCESS
                 ]));
             } catch (Exception\UnknownLanguageException $e) {
                 $connection->send(json_encode([
@@ -129,7 +153,6 @@ $worker->onMessage = function($connection, $data) {
                     'message' => $e->getMessage()
                 ]));
             }
-            $judge->clean();
             break;
     }
 };

@@ -22,10 +22,12 @@
  */
 
 define('CONFIG', [
-    'stdout file' => __DIR__.'/log/',  //运行日志存储目录，以‘/’结尾
-    'log file'    => __DIR__.'/log/',  //WorkerMan日志存储目录，以‘/’结尾
-    'judge temp'  => __DIR__.'/tmp/',  //评测时的临时文件目录，以‘/’结尾
-    'test case'   => __DIR__.'/test_case/',  //测试用例存储目录，以‘/’结尾
-    'answer'      => __DIR__.'/answer/',  //对应测试用例答案的存储目录，以‘/’结尾
-    'mongoDB'     => 'mongodb://localhost:27017',  //MongoDB数据库链接
+    'process count' => 3,  //进程数，>=1
+    'thread count'  => 10,  //各进程允许的线程数，>=1
+    'stdout file'   => __DIR__.'/log/',  //运行日志存储目录，以‘/’结尾
+    'log file'      => __DIR__.'/log/',  //WorkerMan日志存储目录，以‘/’结尾
+    'judge temp'    => __DIR__.'/tmp/',  //评测时的临时文件目录，以‘/’结尾
+    'test case'     => __DIR__.'/test_case/',  //测试用例存储目录，以‘/’结尾
+    'answer'        => __DIR__.'/answer/',  //对应测试用例答案的存储目录，以‘/’结尾
+    'mongoDB'       => 'mongodb://localhost:27017',  //MongoDB数据库链接
 ]);

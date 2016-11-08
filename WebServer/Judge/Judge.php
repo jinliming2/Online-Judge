@@ -38,8 +38,6 @@ class Judge {
     private $language;
     private $code;
     private $question;
-    private $temp_path = '';
-    public $result = [];
 
     /**
      * Judge constructor.
@@ -60,27 +58,30 @@ class Judge {
      * @param string $id Process ID
      * @param string $ip Remote Ip
      *
+     * @return JudgeThread
      * @throws Exception\UnknownLanguageException
      */
     public function start($id = '', $ip = '') {
-        include_once __DIR__.'../config.php';
-        $this->temp_path = uniqid(CONFIG['judge temp'].$id.'-'.$ip.'-', true);
-        while(is_dir($this->temp_path)) {
-            $this->temp_path .= 'n';
+        switch($this->language) {
+            case LANGUAGE_TYPE::C:
+            case LANGUAGE_TYPE::CPP:
+            case LANGUAGE_TYPE::JAVA:
+                break;
+            default:
+                throw new Exception\UnknownLanguageException;
         }
-        $this->temp_path .= '/';
-        mkdir($this->temp_path, 0666, true);
-        try {
-            $judge = $this->getJudger($this->code, $this->question);
-            $this->result = $judge->start();
-        } catch (Exception\UnknownLanguageException $e) {
-            $this->clean();
-            throw $e;
+        include_once __DIR__.'/../config.php';
+        $temp_path = uniqid(CONFIG['judge temp'].$id.'-'.$ip.'-', true);
+        while(is_dir($temp_path)) {
+            $temp_path .= 'n';
         }
+        $temp_path .= '/';
+        mkdir($temp_path, 0666, true);
+        return new JudgeThread($this->language, $temp_path, $this->code, $this->question);
     }
 
     /**
-     * 保存测试结果
+     * 保存代码到数据库
      */
     public function save() {
         //TODO: Save code and result to database
@@ -101,35 +102,5 @@ class Judge {
             'time_limit'   => $q['time'],
             'memory_limit' => $q['memory']
         ];
-    }
-
-    /**
-     * @param $code
-     * @param $question
-     *
-     * @return Judger
-     * @throws Exception\UnknownLanguageException
-     */
-    private function getJudger($code, $question) {
-        switch($this->language) {
-            case LANGUAGE_TYPE::C:
-                return null;  //TODO: C Judger
-            case LANGUAGE_TYPE::CPP:
-                return new CppJudge($this->temp_path, $code, $question);
-            case LANGUAGE_TYPE::JAVA:
-                return null;  //TODO: JAVA Judger
-            default:
-                throw new Exception\UnknownLanguageException;
-        }
-    }
-
-    /**
-     * 清理环境
-     */
-    public function clean() {
-        if($this->temp_path != '') {
-            system('rm -rf '.$this->temp_path);
-            $this->temp_path = '';
-        }
     }
 }
