@@ -37,8 +37,12 @@ define('HEARTBEAT_TIME', 300);
 //守护进程模式
 Worker::$daemonize = true;
 //日志
-mkdir(CONFIG['stdout file'], 0660, true);
-mkdir(CONFIG['log file'], 0660, true);
+if(!is_dir(CONFIG['stdout file'])) {
+    mkdir(CONFIG['stdout file'], 0660, true);
+}
+if(!is_dir(CONFIG['log file'])) {
+    mkdir(CONFIG['log file'], 0660, true);
+}
 Worker::$stdoutFile = CONFIG['stdout file'].'ws_'.date('Y-m-d').'.log';
 Worker::$logFile = CONFIG['log file'].'workerman.log';
 
