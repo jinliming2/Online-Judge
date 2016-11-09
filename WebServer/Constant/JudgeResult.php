@@ -25,7 +25,12 @@
 namespace Constant;
 
 
+/**
+ * Class JUDGE_RESULT
+ * @package Constant
+ */
 abstract class JUDGE_RESULT {
+    const WAITING_FOR_JUDGE = -1;
     const ACCEPTED = 0;
     const COMPILE_ERROR = 1;
     const TIME_OUT = 2;

@@ -38,7 +38,7 @@ use Exception;
  */
 final class Question extends Database {
     private static $obj = null;
-    private static $table = 'question';
+    private static $table = 'questions';
 
     /**
      * Question constructor.
@@ -67,7 +67,7 @@ final class Question extends Database {
      * @param float  $time_limit   (Seconds)
      * @param array  $data
      *
-     * @return int
+     * @return ObjectID|False
      * @throws Exception\TestCaseCountException
      * @throws RuntimeException
      */
@@ -110,7 +110,7 @@ final class Question extends Database {
         ]]);
         $result = Database::$connection->executeBulkWrite(Question::$table, $bulk);
         if($result->getInsertedCount() > 0) {
-            return (string)$insert;
+            return $insert;
         }
         return false;
     }
