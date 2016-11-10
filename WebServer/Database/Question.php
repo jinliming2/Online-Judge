@@ -120,6 +120,7 @@ final class Question extends Database {
      *
      * @return \stdClass|null
      * @throws \InvalidArgumentException
+     * @throws RuntimeException
      */
     public function getOne($id) {
         if(is_string($id)) {

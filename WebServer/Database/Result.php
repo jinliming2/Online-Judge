@@ -87,6 +87,7 @@ final class Result extends Database {
      * @param JUDGE_RESULT    $result
      *
      * @throws \InvalidArgumentException
+     * @throws RuntimeException
      */
     public function update($rid, $result) {
         if(is_string($rid)) {
@@ -107,6 +108,7 @@ final class Result extends Database {
      *
      * @return \stdClass|null
      * @throws \InvalidArgumentException
+     * @throws RuntimeException
      */
     public function getOne($rid) {
         if(is_string($rid)) {
