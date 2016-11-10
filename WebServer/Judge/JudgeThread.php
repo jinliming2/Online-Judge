@@ -32,6 +32,7 @@ use Constant\LANGUAGE_TYPE;
  */
 class JudgeThread extends \Thread {
     public $result = null;
+    public $rid;
     private $judger_info;
 
     /**

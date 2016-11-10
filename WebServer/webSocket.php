@@ -23,10 +23,13 @@
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 use Judge\Judge;
-use Database;
+use Database\User;
+use Database\Result;
 
 use Constant\MESSAGE_CODE;
 use Constant\MESSAGE_TYPE;
+
+use Exception\UnknownLanguageException;
 
 require_once 'Workerman/Autoloader.php';
 require_once 'config.php';
@@ -85,7 +88,7 @@ $worker->onWorkerStart = function($worker) {
                     $thread->start();
                 }
             } else {
-                //TODO: Update result to database
+                Result::getInstance()->update($thread->rid, $thread->result);
                 unset($worker->thread_pool[$i]);
             }
         }
@@ -146,7 +149,7 @@ $worker->onMessage = function($connection, $data) {
         switch($data['code']) {
             case MESSAGE_TYPE::LOGIN:
                 if(isset($data['token'])) {
-                    $user = Database\User::getInstance()->getOneByToken($data['token']);
+                    $user = User::getInstance()->getOneByToken($data['token']);
                     if($user === null) {
                         $connection->send(json_encode([
                             'code' => MESSAGE_CODE::NEED_RE_LOGIN
@@ -158,7 +161,7 @@ $worker->onMessage = function($connection, $data) {
                         ]));
                     }
                 } elseif(isset($data['username']) && isset($data['password'])) {
-                    $user = Database\User::getInstance()->getOne($data['username'], $data['password']);
+                    $user = User::getInstance()->getOne($data['username'], $data['password']);
                     if($user === null) {
                         $connection->send(json_encode([
                             'code' => MESSAGE_CODE::USERNAME_PASSWORD_ERROR
@@ -177,7 +180,7 @@ $worker->onMessage = function($connection, $data) {
                 break;
             case MESSAGE_TYPE::LOG_OUT:
                 if(isset($connection->user_info)) {
-                    Database\User::getInstance()->logOut($connection->user_info->token);
+                    User::getInstance()->logOut($connection->user_info->token);
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS
                     ]));
@@ -194,15 +197,22 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
+                $result = Result::getInstance()->add($connection->user_info->_id, $data['qid'], $data['code']);
+                if($result === false) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::UNKNOWN_ERROR
+                    ]));
+                    break;
+                }
                 $judge = new Judge($data['qid'], $data['language'], $data['code']);
                 try {
-                    $judge->save();
                     $thread = $judge->start($connection->worker->id, $connection->getRemoteIp());
+                    $thread->rid = $result;
                     $connection->worker->thread_pool[] = $thread;
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS
                     ]));
-                } catch (Exception\UnknownLanguageException $e) {
+                } catch (UnknownLanguageException $e) {
                     $connection->send(json_encode([
                         'code'    => $e->getCode(),
                         'message' => $e->getMessage()

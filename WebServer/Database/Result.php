@@ -61,18 +61,18 @@ final class Result extends Database {
      * @param ObjectID|string $uid
      * @param ObjectID|string $qid
      * @param string          $code
-     * @param int             $time (Milliseconds)
      *
      * @return ObjectID|False rid on success, or false on error
      * @throws RuntimeException
      */
-    public function add($uid, $qid, $code, $time) {
+    public function add($uid, $qid, $code) {
+        list($t1, $t2) = explode(' ', microtime());
         $bulk = new BulkWrite();
         $insert = $bulk->insert([
             'uid'    => $uid,
             'qid'    => $qid,
             'code'   => $code,
-            'time'   => $time,
+            'time'   => $t2.round($t1 * 1000),
             'result' => JUDGE_RESULT::WAITING_FOR_JUDGE
         ]);
         $result = Database::$connection->executeBulkWrite(Result::$table, $bulk);

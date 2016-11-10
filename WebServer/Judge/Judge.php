@@ -28,7 +28,8 @@ namespace Judge;
 use Constant\LANGUAGE_TYPE;
 
 use Database\Question;
-use Exception;
+
+use Exception\UnknownLanguageException;
 
 /**
  * Class Judge
@@ -59,7 +60,7 @@ class Judge {
      * @param string $ip Remote Ip
      *
      * @return JudgeThread
-     * @throws Exception\UnknownLanguageException
+     * @throws UnknownLanguageException
      */
     public function start($id = '', $ip = '') {
         switch($this->language) {
@@ -68,7 +69,7 @@ class Judge {
             case LANGUAGE_TYPE::JAVA:
                 break;
             default:
-                throw new Exception\UnknownLanguageException;
+                throw new UnknownLanguageException;
         }
         include_once __DIR__.'/../config.php';
         $temp_path = uniqid(CONFIG['judge temp'].$id.'-'.$ip.'-', true);
@@ -81,13 +82,6 @@ class Judge {
     }
 
     /**
-     * 保存代码到数据库
-     */
-    public function save() {
-        //TODO: Save code and result to database
-    }
-
-    /**
      * 获取问题信息
      *
      * @param $question_id
@@ -97,10 +91,10 @@ class Judge {
     private function getQuestion($question_id) {
         $q = Question::getInstance()->getOne($question_id);
         return [
-            'test_case'    => $q['test'],
-            'answer'       => file_get_contents($q['answer']),
-            'time_limit'   => $q['time'],
-            'memory_limit' => $q['memory']
+            'test_case'    => $q->test,
+            'answer'       => file_get_contents($q->answer),
+            'time_limit'   => $q->time,
+            'memory_limit' => $q->memory
         ];
     }
 }
