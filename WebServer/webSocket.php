@@ -197,7 +197,8 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
-                $result = Result::getInstance()->add($connection->user_info->_id, $data['qid'], $data['code']);
+                $result = Result::getInstance()
+                    ->add($connection->user_info->_id, $data['qid'], $data['code'], $data['language']);
                 if($result === false) {
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::UNKNOWN_ERROR

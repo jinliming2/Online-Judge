@@ -25,6 +25,7 @@
 namespace Database;
 
 use Constant\JUDGE_RESULT;
+use Constant\LANGUAGE_TYPE;
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
@@ -61,19 +62,21 @@ final class Result extends Database {
      * @param ObjectID|string $uid
      * @param ObjectID|string $qid
      * @param string          $code
+     * @param LANGUAGE_TYPE   $language
      *
      * @return ObjectID|False rid on success, or false on error
      * @throws RuntimeException
      */
-    public function add($uid, $qid, $code) {
+    public function add($uid, $qid, $code, $language) {
         list($t1, $t2) = explode(' ', microtime());
         $bulk = new BulkWrite();
         $insert = $bulk->insert([
-            'uid'    => $uid,
-            'qid'    => $qid,
-            'code'   => $code,
-            'time'   => $t2.round($t1 * 1000),
-            'result' => JUDGE_RESULT::WAITING_FOR_JUDGE
+            'uid'      => $uid,
+            'qid'      => $qid,
+            'language' => $language,
+            'code'     => $code,
+            'time'     => $t2.round($t1 * 1000),
+            'result'   => JUDGE_RESULT::WAITING_FOR_JUDGE
         ]);
         $result = Database::$connection->executeBulkWrite(Result::$table, $bulk);
         if($result->getInsertedCount() > 0) {
