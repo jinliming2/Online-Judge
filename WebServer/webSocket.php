@@ -230,6 +230,10 @@ $worker->onMessage = function($connection, $data) {
             $e->getTraceAsString()
             , 2
         );
+        $connection->send([
+            'code'    => $e->getCode(),
+            'message' => $e->getMessage()
+        ]);
     }
 };
 
