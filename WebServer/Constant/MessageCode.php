@@ -25,8 +25,16 @@
 namespace Constant;
 
 
+/**
+ * Class MESSAGE_CODE
+ * @package Constant
+ */
 abstract class MESSAGE_CODE {
+    const UNKNOWN_ERROR = -1;
     const SUCCESS = 0;
     const UNKNOWN_LANGUAGE = 1;
     const TEST_CASE_COUNT_ERROR = 2;
+    const NEED_RE_LOGIN = 3;
+    const USERNAME_PASSWORD_ERROR = 4;
+    const NEED_LOGIN = 5;
 }

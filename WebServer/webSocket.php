@@ -23,6 +23,7 @@
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 use Judge\Judge;
+use Database;
 
 use Constant\MESSAGE_CODE;
 use Constant\MESSAGE_TYPE;
@@ -141,23 +142,83 @@ $worker->onConnect = function($connection) {
  */
 $worker->onMessage = function($connection, $data) {
     $data = json_decode($data);
-    switch($data['code']) {
-        case MESSAGE_TYPE::JUDGE:
-            $judge = new Judge($data['qid'], $data['language'], $data['code']);
-            try {
-                $judge->save();
-                $thread = $judge->start($connection->worker->id, $connection->getRemoteIp());
-                $connection->worker->thread_pool[] = $thread;
-                $connection->send(json_encode([
-                    'code' => MESSAGE_CODE::SUCCESS
-                ]));
-            } catch (Exception\UnknownLanguageException $e) {
-                $connection->send(json_encode([
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage()
-                ]));
-            }
-            break;
+    try {
+        switch($data['code']) {
+            case MESSAGE_TYPE::LOGIN:
+                if(isset($data['token'])) {
+                    $user = Database\User::getInstance()->getOneByToken($data['token']);
+                    if($user === null) {
+                        $connection->send(json_encode([
+                            'code' => MESSAGE_CODE::NEED_RE_LOGIN
+                        ]));
+                    } else {
+                        $connection->user_info = $user;
+                        $connection->send(json_encode([
+                            'code' => MESSAGE_CODE::SUCCESS
+                        ]));
+                    }
+                } elseif(isset($data['username']) && isset($data['password'])) {
+                    $user = Database\User::getInstance()->getOne($data['username'], $data['password']);
+                    if($user === null) {
+                        $connection->send(json_encode([
+                            'code' => MESSAGE_CODE::USERNAME_PASSWORD_ERROR
+                        ]));
+                    } else {
+                        $connection->user_info = $user;
+                        $connection->send(json_encode([
+                            'code' => MESSAGE_CODE::SUCCESS
+                        ]));
+                    }
+                } else {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::UNKNOWN_ERROR
+                    ]));
+                }
+                break;
+            case MESSAGE_TYPE::LOG_OUT:
+                if(isset($connection->user_info)) {
+                    Database\User::getInstance()->logOut($connection->user_info->token);
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::SUCCESS
+                    ]));
+                } else {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::UNKNOWN_ERROR
+                    ]));
+                }
+                break;
+            case MESSAGE_TYPE::JUDGE:
+                if(!isset($connection->user_info)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::NEED_LOGIN
+                    ]));
+                    break;
+                }
+                $judge = new Judge($data['qid'], $data['language'], $data['code']);
+                try {
+                    $judge->save();
+                    $thread = $judge->start($connection->worker->id, $connection->getRemoteIp());
+                    $connection->worker->thread_pool[] = $thread;
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::SUCCESS
+                    ]));
+                } catch (Exception\UnknownLanguageException $e) {
+                    $connection->send(json_encode([
+                        'code'    => $e->getCode(),
+                        'message' => $e->getMessage()
+                    ]));
+                }
+                break;
+        }
+    } catch (Exception $e) {
+        logs(
+            $e->getCode().' '.
+            $e->getMessage().'\n'.
+            $e->getLine().' of '.
+            $e->getFile().'\n'.
+            $e->getTraceAsString()
+            , 2
+        );
     }
 };
 
