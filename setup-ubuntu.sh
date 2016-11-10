@@ -111,6 +111,13 @@ sudo apt-get update -y
 sudo apt-get install -y mongodb-org
 sudo service mongod start
 
+#安装PHP MongoDB扩展
+sudo apt-get install -y pkg-config
+sudo pecl install mongodb
+echo "extension=mongodb.so" | sudo tee /etc/php/7.0/mods-available/mongodb.ini
+sudo ln -s /etc/php/7.0/mods-available/mongodb.ini /etc/php/7.0/cli/conf.d/mongodb.ini
+
+
 #安装PHP Event扩展
 echo "========================================================"
 echo "============   WARNING: When ask you to:    ============"
