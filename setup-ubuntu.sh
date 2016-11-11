@@ -14,30 +14,34 @@
 # limitations under the License.
 
 #内核版本检查
-version=`uname -r`
-vm=`echo ${version} | cut -d \. -f 1`
-vs=`echo ${version} | cut -d \. -f 2`
+version=$(uname -r)
+vm=$(echo ${version} | cut -d \. -f 1)
+vs=$(echo ${version} | cut -d \. -f 2)
 if [ ${vm} -lt 3 ] || [ ${vm} -eq 3 -a ${vs} -lt 10 ]; then
     echo "ERROR: Linux kernel must be 3.10 at minimum!" >&2
-    exit
+    exit 1
 fi
 
 #Ubuntu版本
-version=`lsb_release -a`
-echo "${version}" | while read line; do
+version=$(lsb_release -a)
+version=$(echo "${version}" | while read line; do
     item=${line%	*}
     item=${item% *}
     if [ ${item}x = "Distributor"x ]; then
         item=${line##*	}
         if [ ${item}x != "Ubuntu"x ]; then
-            echo "ERROR: This Script is for Ubuntu Only!" >&2
-            exit
+            echo "ERROR: This Script is for Ubuntu Only!"
+            exit 200
         fi
     elif [ ${item}x = "Release:"x ]; then
-        version=${line##*	}
+        echo ${line##*	}
     fi
-done
-if [ ${version}x != "12.04"x -o ${version}x != "14.04"x -o ${version}x != "16.04"x ]; then
+done)
+if [ $? = 200 ]; then
+    echo ${version} >&2
+    exit 2
+fi
+if [ ${version}x != "12.04"x -a ${version}x != "14.04"x -a ${version}x != "16.04"x ]; then
     echo -e "Please Select Your System Version:"
     echo -e "\t\t1. Ubuntu 16.04 Xenial [LTS]"
     echo -e "\t\t2. Ubuntu 14.04 Trusty [LTS]"
@@ -51,9 +55,9 @@ if [ ${version}x != "12.04"x -o ${version}x != "14.04"x -o ${version}x != "16.04
             version="14.04";;
         3)
             version="12.04";;
-        ?)
+        *)
             echo "ERROR: Wrong Answer!" >&2
-            exit;;
+            exit 3;;
     esac
 fi
 
