@@ -20,17 +20,17 @@ else
     t=1.000
     m=65536
     while getopts "t:m:" arg; do
-        case $arg in
+        case ${arg} in
             t)
                 t=$OPTARG;;
             m)
                 m=$OPTARG;;
-            ?);;
+            *);;
         esac
     done
     error=0
     read line
-    ulimit -m $m -s $m -u 1 -t $t
+    ulimit -m ${m} -s ${m} -u 1 -t ${t}
     while [ "$line"x != ""x ]; do
         in="$line"
         read line
@@ -48,7 +48,7 @@ else
         echo ""
         read line
     done
-    if [ $error -eq 0 ]; then
+    if [ ${error} -eq 0 ]; then
         echo "Done"
     fi
 fi
