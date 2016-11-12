@@ -33,4 +33,5 @@ abstract class MESSAGE_TYPE {
     const JUDGE = 1;
     const LOGIN = 2;
     const LOG_OUT = 3;
+    const REGISTER = 4;
 }

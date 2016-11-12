@@ -38,4 +38,5 @@ abstract class MESSAGE_CODE {
     const USERNAME_PASSWORD_ERROR = 4;
     const NEED_LOGIN = 5;
     const CANNOT_CREATE_PROCESS = 6;
+    const NEED_MORE_INFORMATION = 7;
 }

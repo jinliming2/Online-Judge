@@ -189,6 +189,31 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                 }
                 break;
+            case MESSAGE_TYPE::REGISTER:
+                if(isset($connection->user_info)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::NEED_MORE_INFORMATION
+                    ]));
+                    break;
+                }
+                if(!isset($data['username']) || !isset($data['password']) || !isset($data['name'])) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::NEED_MORE_INFORMATION
+                    ]));
+                    break;
+                }
+                $id = User::getInstance()->register($data['username'], $data['password'], $data['name']);
+                if($id === false) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::UNKNOWN_ERROR
+                    ]));
+                    break;
+                }
+                //TODO: Auto Log in
+                $connection->send(json_encode([
+                    'code' => MESSAGE_CODE::SUCCESS
+                ]));
+                break;
             case MESSAGE_TYPE::JUDGE:
                 if(!isset($connection->user_info)) {
                     $connection->send(json_encode([
