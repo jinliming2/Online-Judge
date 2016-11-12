@@ -25,18 +25,20 @@
 namespace Judge;
 
 use Constant\LANGUAGE_TYPE;
+use Database\Result;
+use Exception\CannotCreateProcessException;
 
 /**
- * Class JudgeThread
+ * Class JudgeProcess
  * @package Judge
  */
-class JudgeThread extends \Thread {
-    public $result = null;
+class JudgeProcess {
+    public $pid = -1;
     public $rid;
     private $judger_info;
 
     /**
-     * JudgeThread constructor.
+     * JudgeProcess constructor.
      *
      * @param LANGUAGE_TYPE $language
      * @param string        $temp_path
@@ -52,10 +54,30 @@ class JudgeThread extends \Thread {
         ];
     }
 
+    /**
+     * @throws CannotCreateProcessException
+     */
     public function run() {
-        $judge = $this->getJudger();
-        $this->result = $judge->start();
-        $this->clean();
+        $pid = pcntl_fork();
+        if($pid < 0) {
+            throw new CannotCreateProcessException;
+        } elseif($pid == 0) {  //In child process
+            $judge = $this->getJudger();
+            $result = $judge->start();
+            Result::getInstance()->update($this->rid, $result);
+            $this->clean();
+            die;
+        } else {
+            $this->pid = $pid;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAlive() {
+        //TODO: 检测当前进程是否还在运行
+        return false;
     }
 
     /**

@@ -87,7 +87,7 @@ final class Result extends Database {
 
     /**
      * @param ObjectID|string $rid
-     * @param JUDGE_RESULT    $result
+     * @param JUDGE_RESULT|int    $result
      *
      * @throws \InvalidArgumentException
      * @throws RuntimeException

@@ -59,7 +59,7 @@ class Judge {
      * @param string $id Process ID
      * @param string $ip Remote Ip
      *
-     * @return JudgeThread
+     * @return JudgeProcess
      * @throws UnknownLanguageException
      */
     public function start($id = '', $ip = '') {
@@ -78,7 +78,7 @@ class Judge {
         }
         $temp_path .= '/';
         mkdir($temp_path, 0666, true);
-        return new JudgeThread($this->language, $temp_path, $this->code, $this->question);
+        return new JudgeProcess($this->language, $temp_path, $this->code, $this->question);
     }
 
     /**

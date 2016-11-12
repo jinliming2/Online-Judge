@@ -17,25 +17,20 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/4
- * Time: 13:51
+ * Date: 2016/11/12
+ * Time: 18:06
  */
 
 
-namespace Constant;
+namespace Exception;
+use Constant\MESSAGE_CODE;
 
 
 /**
- * Class MESSAGE_CODE
- * @package Constant
+ * Class CannotCreateProcessException
+ * @package Exception
  */
-abstract class MESSAGE_CODE {
-    const UNKNOWN_ERROR = -1;
-    const SUCCESS = 0;
-    const UNKNOWN_LANGUAGE = 1;
-    const TEST_CASE_COUNT_ERROR = 2;
-    const NEED_RE_LOGIN = 3;
-    const USERNAME_PASSWORD_ERROR = 4;
-    const NEED_LOGIN = 5;
-    const CANNOT_CREATE_PROCESS = 6;
+class CannotCreateProcessException extends \Exception {
+    public $code = MESSAGE_CODE::CANNOT_CREATE_PROCESS;
+    public $message = '创建进程失败';
 }

@@ -61,8 +61,8 @@ $worker->count = CONFIG['process count'];
  * @param Worker $worker
  */
 $worker->onWorkerStart = function($worker) {
-    //线程们
-    $worker->thread_pool = [];
+    //进程们
+    $worker->process_pool = [];
     //心跳检测
     Timer::add(60, function() use ($worker) {
         $time_now = time();
@@ -79,24 +79,23 @@ $worker->onWorkerStart = function($worker) {
     //任务处理
     Timer::add(5, function() use ($worker) {
         $index = 0;
-        foreach($worker->thread_pool as $i => $thread) {
-            if($thread->isRunning()) {
-                ++$index;
-            } else if($thread->result === null) {
-                if($index < CONFIG['thread count']) {
+        foreach($worker->process_pool as $i => $process) {
+            if($process->pid < 0) {
+                if($index < CONFIG['sub process count']) {
                     ++$index;
-                    $thread->start();
+                    $process->start();
                 }
+            } elseif($process->isAlive()) {
+                ++$index;
             } else {
-                Result::getInstance()->update($thread->rid, $thread->result);
-                unset($worker->thread_pool[$i]);
+                unset($worker->process_pool[$i]);
             }
         }
         $arr = [];
-        foreach($worker->thread_pool as $thread) {
-            $arr[] = $thread;
+        foreach($worker->process_pool as $process) {
+            $arr[] = $process;
         }
-        $worker->thread_pool = $arr;
+        $worker->process_pool = $arr;
     });
     logs('WebSocket server now listening on port 8080.');
 };
@@ -207,9 +206,9 @@ $worker->onMessage = function($connection, $data) {
                 }
                 $judge = new Judge($data['qid'], $data['language'], $data['code']);
                 try {
-                    $thread = $judge->start($connection->worker->id, $connection->getRemoteIp());
-                    $thread->rid = $result;
-                    $connection->worker->thread_pool[] = $thread;
+                    $process = $judge->start($connection->worker->id, $connection->getRemoteIp());
+                    $process->rid = $result;
+                    $connection->worker->process_pool[] = $process;
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS
                     ]));
