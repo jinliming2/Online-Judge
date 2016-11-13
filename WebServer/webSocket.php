@@ -63,6 +63,24 @@ $worker->count = CONFIG['process count'];
 $worker->onWorkerStart = function($worker) {
     //进程们
     $worker->process_pool = [];
+    //注册子进程退出消息
+    pcntl_signal(SIGCHLD, function($sig) use ($worker) {
+        switch($sig) {
+            case SIGCHLD:
+                $pid = pcntl_wait($status, WNOHANG);
+                if($pid > 0) {
+                    unset($process);
+                    foreach($worker->process_pool as &$process) {
+                        if($process->pid == $pid) {
+                            $process->finished = true;
+                            break;
+                        }
+                    }
+                    unset($process);
+                }
+                break;
+        }
+    });
     //心跳检测
     Timer::add(60, function() use ($worker) {
         $time_now = time();
@@ -78,14 +96,15 @@ $worker->onWorkerStart = function($worker) {
     });
     //任务处理
     Timer::add(5, function() use ($worker) {
+        pcntl_signal_dispatch();
         $index = 0;
         foreach($worker->process_pool as $i => $process) {
             if($process->pid < 0) {
                 if($index < CONFIG['sub process count']) {
                     ++$index;
-                    $process->start();
+                    $process->run();
                 }
-            } elseif($process->isAlive()) {
+            } elseif(!$process->finished) {
                 ++$index;
             } else {
                 unset($worker->process_pool[$i]);

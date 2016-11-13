@@ -35,6 +35,7 @@ use Exception\CannotCreateProcessException;
 class JudgeProcess {
     public $pid = -1;
     public $rid;
+    public $finished = false;
     private $judger_info;
 
     /**
@@ -66,18 +67,10 @@ class JudgeProcess {
             $result = $judge->start();
             Result::getInstance()->update($this->rid, $result);
             $this->clean();
-            die;
+            exit(0);
         } else {
             $this->pid = $pid;
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAlive() {
-        //TODO: 检测当前进程是否还在运行
-        return false;
     }
 
     /**
