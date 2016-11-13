@@ -28,5 +28,5 @@
  * @param int [$type] 0 = Normal, 1 = Warning, 2 = Error
  */
 function logs($msg, $type = 0) {
-    echo date('Y-m-d H:i:s').'  '.($type == 1 ? 'W' : $type == 2 ? 'E' : ' ').'  '.$msg;
+    echo date('Y-m-d H:i:s').'  '.($type == 1 ? 'W' : $type == 2 ? 'E' : ' ').'  '.$msg."\n";
 }
