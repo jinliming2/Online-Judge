@@ -164,10 +164,10 @@ $worker->onConnect = function($connection) {
 $worker->onMessage = function($connection, $data) {
     $data = json_decode($data);
     try {
-        switch($data['code']) {
+        switch($data->code) {
             case MESSAGE_TYPE::LOGIN:
-                if(isset($data['token'])) {
-                    $user = User::getInstance()->getOneByToken($data['token']);
+                if(isset($data->token)) {
+                    $user = User::getInstance()->getOneByToken($data->token);
                     if($user === null) {
                         $connection->send(json_encode([
                             'code' => MESSAGE_CODE::NEED_RE_LOGIN
@@ -178,8 +178,8 @@ $worker->onMessage = function($connection, $data) {
                             'code' => MESSAGE_CODE::SUCCESS
                         ]));
                     }
-                } elseif(isset($data['username']) && isset($data['password'])) {
-                    $user = User::getInstance()->getOne($data['username'], $data['password']);
+                } elseif(isset($data->username) && isset($data->password)) {
+                    $user = User::getInstance()->getOne($data->username, $data->password);
                     if($user === null) {
                         $connection->send(json_encode([
                             'code' => MESSAGE_CODE::USERNAME_PASSWORD_ERROR
@@ -215,13 +215,13 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
-                if(!isset($data['username']) || !isset($data['password']) || !isset($data['name'])) {
+                if(!isset($data->username) || !isset($data->password) || !isset($data->name)) {
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::NEED_MORE_INFORMATION
                     ]));
                     break;
                 }
-                $id = User::getInstance()->register($data['username'], $data['password'], $data['name']);
+                $id = User::getInstance()->register($data->username, $data->password, $data->name);
                 if($id === false) {
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::UNKNOWN_ERROR
@@ -241,14 +241,14 @@ $worker->onMessage = function($connection, $data) {
                     break;
                 }
                 $result = Result::getInstance()
-                    ->add($connection->user_info->_id, $data['qid'], $data['code'], $data['language']);
+                    ->add($connection->user_info->_id, $data->qid, $data->code, $data->language);
                 if($result === false) {
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::UNKNOWN_ERROR
                     ]));
                     break;
                 }
-                $judge = new Judge($data['qid'], $data['language'], $data['code']);
+                $judge = new Judge($data->qid, $data->language, $data->code);
                 try {
                     $process = $judge->start($connection->worker->id, $connection->getRemoteIp());
                     $process->rid = $result;
