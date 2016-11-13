@@ -25,6 +25,10 @@
 namespace Constant;
 
 
+/**
+ * Class LANGUAGE_TYPE
+ * @package Constant
+ */
 abstract class LANGUAGE_TYPE {
     const C = 0;
     const CPP = 1;
