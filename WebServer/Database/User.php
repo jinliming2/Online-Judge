@@ -127,7 +127,7 @@ final class User extends Database {
      */
     public function logOut($token) {
         $bulk = new BulkWrite();
-        $bulk->update(['token' => $token], ['$set' => [
+        $bulk->update(['token' => $token], ['$unset' => [
             'token' => null
         ]]);
         Database::$connection->executeBulkWrite(User::$table, $bulk);

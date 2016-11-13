@@ -274,7 +274,8 @@ $worker->onMessage = function($connection, $data) {
             , 2
         );
         $connection->send(json_encode([
-            'code'    => $e->getCode()
+            'code'    => $e->getCode(),
+            'message' => 'error'
         ]));
     }
 };
