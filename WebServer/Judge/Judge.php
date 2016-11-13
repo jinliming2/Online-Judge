@@ -77,7 +77,7 @@ class Judge {
             $temp_path .= 'n';
         }
         $temp_path .= '/';
-        mkdir($temp_path, 0666, true);
+        mkdir($temp_path, 0775, true);
         return new JudgeProcess($this->language, $temp_path, $this->code, $this->question);
     }
 
