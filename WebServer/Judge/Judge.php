@@ -93,7 +93,7 @@ class Judge {
         $q = Question::getInstance()->getOne($question_id);
         return [
             'test_case'    => $q->test,
-            'answer'       => file_get_contents($q->answer),
+            'answer'       => trim(file_get_contents($q->answer)),
             'time_limit'   => $q->time,
             'memory_limit' => $q->memory
         ];
