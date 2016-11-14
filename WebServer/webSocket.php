@@ -309,7 +309,7 @@ $worker->onMessage = function($connection, $data) {
                     }
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS,
-                        'data' => $result
+                        'data' => (string)$result
                     ]));
                 } catch (TestCaseCountException $e) {
                     $connection->send(json_encode([

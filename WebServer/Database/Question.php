@@ -77,10 +77,10 @@ final class Question extends Database {
             throw new TestCaseCountException;
         }
         if(!is_dir(CONFIG['test case'])) {
-            mkdir(CONFIG['test case'], 0660, true);
+            mkdir(CONFIG['test case'], 0775, true);
         }
         if(!is_dir(CONFIG['answer'])) {
-            mkdir(CONFIG['answer'], 0660, true);
+            mkdir(CONFIG['answer'], 0775, true);
         }
         $bulk = new BulkWrite(['ordered' => true]);
         $insert = $bulk->insert([
