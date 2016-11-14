@@ -2,3 +2,5 @@
 WebServer/answer/
 WebServer/test_case/
 WebServer/log/
+WebServer/tmp/
+WebServer/*.php.pid

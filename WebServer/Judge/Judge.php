@@ -73,6 +73,7 @@ class Judge {
         }
         include_once __DIR__.'/../config.php';
         $temp_path = uniqid(CONFIG['judge temp'].$id.'-'.$ip.'-', true);
+        $temp_path = str_replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|'], '', $temp_path);
         while(is_dir($temp_path)) {
             $temp_path .= 'n';
         }
