@@ -29,7 +29,7 @@ use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\Query;
-use Exception;
+use Exception\TestCaseCountException;
 
 
 /**
@@ -68,13 +68,13 @@ final class Question extends Database {
      * @param array  $data
      *
      * @return ObjectID|False
-     * @throws Exception\TestCaseCountException
+     * @throws TestCaseCountException
      * @throws RuntimeException
      */
     public function add($title, $description, $test_case, $answer, $memory_limit = 64.0, $time_limit = 1.0, $data = []) {
         $n = count($test_case);
         if($n != count($answer)) {
-            throw new Exception\TestCaseCountException;
+            throw new TestCaseCountException;
         }
         if(!is_dir(CONFIG['test case'])) {
             mkdir(CONFIG['test case'], 0660, true);

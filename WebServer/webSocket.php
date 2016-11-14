@@ -30,6 +30,7 @@ use Database\Result;
 use Constant\MESSAGE_CODE;
 use Constant\MESSAGE_TYPE;
 
+use Exception\TestCaseCountException;
 use Exception\UnknownLanguageException;
 
 require_once 'Workerman/Autoloader.php';
@@ -298,17 +299,24 @@ $worker->onMessage = function($connection, $data) {
                 $memory = isset($data->memory_limit) ? $data->memory_limit : 64.0;
                 $time = isset($data->time_limit) ? $data->time_limit : 1.0;
                 $dataObj = isset($data->data) ? $data->data : [];
-                $result = Question::getInstance()->add($data->title, $data->description, $data->test_case, $data->answer, $memory, $time, $dataObj);
-                if($result === false) {
+                try {
+                    $result = Question::getInstance()->add($data->title, $data->description, $data->test_case, $data->answer, $memory, $time, $dataObj);
+                    if($result === false) {
+                        $connection->send(json_encode([
+                            'code' => MESSAGE_CODE::UNKNOWN_ERROR
+                        ]));
+                        break;
+                    }
                     $connection->send(json_encode([
-                        'code' => MESSAGE_CODE::UNKNOWN_ERROR
+                        'code' => MESSAGE_CODE::SUCCESS,
+                        'data' => $result
                     ]));
-                    break;
+                } catch (TestCaseCountException $e) {
+                    $connection->send(json_encode([
+                        'code'    => $e->getCode(),
+                        'message' => $e->getMessage()
+                    ]));
                 }
-                $connection->send(json_encode([
-                    'code' => MESSAGE_CODE::SUCCESS,
-                    'data' => $result
-                ]));
                 break;
         }
     } catch (Exception $e) {
