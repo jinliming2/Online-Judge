@@ -69,7 +69,8 @@ final class User extends Database {
         $insert = $bulk->insert([
             'username' => $username,
             'password' => password_hash($password, PASSWORD_DEFAULT),
-            'name'     => $name
+            'name'     => $name,
+            'su'       => false
         ]);
         $result = Database::$connection->executeBulkWrite(User::$table, $bulk);
         if($result->getInsertedCount() > 0) {

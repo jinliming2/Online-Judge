@@ -39,4 +39,6 @@ abstract class MESSAGE_CODE {
     const NEED_LOGIN = 5;
     const CANNOT_CREATE_PROCESS = 6;
     const NEED_MORE_INFORMATION = 7;
+    const ACCESS_DENY = 8;
+    const PARAMETER_ERROR = 9;
 }

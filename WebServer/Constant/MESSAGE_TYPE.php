@@ -34,4 +34,5 @@ abstract class MESSAGE_TYPE {
     const LOGIN = 2;
     const LOG_OUT = 3;
     const REGISTER = 4;
+    const ADD_QUESTION = 5;
 }

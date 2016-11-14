@@ -24,6 +24,7 @@ use Workerman\Worker;
 use Workerman\Lib\Timer;
 use Judge\Judge;
 use Database\User;
+use Database\Question;
 use Database\Result;
 
 use Constant\MESSAGE_CODE;
@@ -262,6 +263,46 @@ $worker->onMessage = function($connection, $data) {
                         'message' => $e->getMessage()
                     ]));
                 }
+                break;
+            case MESSAGE_TYPE::ADD_QUESTION:
+                if(!isset($connection->user_info)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::NEED_LOGIN
+                    ]));
+                    break;
+                }
+                if(!$connection->user_info->su) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::ACCESS_DENY
+                    ]));
+                    break;
+                }
+                if(!isset($data->title) || !isset($data->description) || !isset($data->test_case) || !isset($data->answer)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::NEED_MORE_INFORMATION
+                    ]));
+                    break;
+                }
+                if(!is_array($data->test_case) || !is_array($data->answer)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::PARAMETER_ERROR
+                    ]));
+                    break;
+                }
+                $memory = isset($data->memory_limit) ? $data->memory_limit : 64.0;
+                $time = isset($data->time_limit) ? $data->time_limit : 1.0;
+                $dataObj = isset($data->data) ? $data->data : [];
+                $result = Question::getInstance()->add($data->title, $data->description, $data->test_case, $data->answer, $memory, $time, $dataObj);
+                if($result === false) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::UNKNOWN_ERROR
+                    ]));
+                    break;
+                }
+                $connection->send(json_encode([
+                    'code' => MESSAGE_CODE::SUCCESS,
+                    'data' => $result
+                ]));
                 break;
         }
     } catch (Exception $e) {
