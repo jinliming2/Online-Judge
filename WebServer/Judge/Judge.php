@@ -72,8 +72,8 @@ class Judge {
                 throw new UnknownLanguageException;
         }
         include_once __DIR__.'/../config.php';
-        $temp_path = uniqid(CONFIG['judge temp'].$id.'-'.$ip.'-', true);
-        $temp_path = str_replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|'], '', $temp_path);
+        $ex = str_replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|'], '', $id.'-'.$ip.'-');
+        $temp_path = uniqid(CONFIG['judge temp'].$ex, true);
         while(is_dir($temp_path)) {
             $temp_path .= 'n';
         }
