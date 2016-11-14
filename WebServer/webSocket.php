@@ -256,7 +256,7 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
-                $judge = new Judge($data->qid, $data->language, $data->code);
+                $judge = new Judge($data->qid, $data->language, $data->source_code);
                 try {
                     $process = $judge->start($connection->worker->id, $connection->getRemoteIp());
                     $process->rid = $result;
