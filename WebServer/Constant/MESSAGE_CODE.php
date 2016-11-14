@@ -41,4 +41,5 @@ abstract class MESSAGE_CODE {
     const NEED_MORE_INFORMATION = 7;
     const ACCESS_DENY = 8;
     const PARAMETER_ERROR = 9;
+    const USERNAME_ALREADY_EXIST = 10;
 }

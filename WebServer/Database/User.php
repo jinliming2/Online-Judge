@@ -65,6 +65,9 @@ final class User extends Database {
      * @throws RuntimeException
      */
     public function register($username, $password, $name) {
+        if($this->usernameExists($username)) {
+            return false;
+        }
         $bulk = new BulkWrite();
         $insert = $bulk->insert([
             'username' => $username,
@@ -132,6 +135,18 @@ final class User extends Database {
             'token' => null
         ]]);
         Database::$connection->executeBulkWrite(User::$table, $bulk);
+    }
+
+    /**
+     * @param $username
+     *
+     * @return bool
+     * @throws RuntimeException
+     */
+    public function usernameExists($username) {
+        $query = new Query(['username' => $username]);
+        $rows = Database::$connection->executeQuery(User::$table, $query)->toArray();
+        return count($rows) > 0;
     }
 
     /**

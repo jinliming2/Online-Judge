@@ -222,6 +222,12 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
+                if(User::getInstance()->usernameExists($data->username)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::USERNAME_ALREADY_EXIST
+                    ]));
+                    break;
+                }
                 $id = User::getInstance()->register($data->username, $data->password, $data->name);
                 if($id === false) {
                     $connection->send(json_encode([
