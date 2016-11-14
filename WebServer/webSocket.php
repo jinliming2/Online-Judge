@@ -249,7 +249,7 @@ $worker->onMessage = function($connection, $data) {
                     break;
                 }
                 $result = Result::getInstance()
-                    ->add($connection->user_info->_id, $data->qid, $data->code, $data->language);
+                    ->add($connection->user_info->_id, $data->qid, $data->source_code, $data->language);
                 if($result === false) {
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::UNKNOWN_ERROR
@@ -309,7 +309,7 @@ $worker->onMessage = function($connection, $data) {
                     }
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS,
-                        'data' => (string)$result
+                        'id' => (string)$result
                     ]));
                 } catch (TestCaseCountException $e) {
                     $connection->send(json_encode([

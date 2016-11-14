@@ -93,14 +93,14 @@ final class Question extends Database {
         $tmp = '';
         for($i = 0; $i < $n; $i++) {
             if($test_case[$i] != '') {
-                $tmp .= trim($test_case)."\n\n";
+                $tmp .= trim($test_case[$i])."\n\n";
             }
         }
         file_put_contents(CONFIG['test case'].(string)$insert, $tmp);
         $tmp = '';
         for($i = 0; $i < $n; $i++) {
             if($answer[$i] != '') {
-                $tmp .= trim($answer)."\n\n";
+                $tmp .= trim($answer[$i])."\n\n";
             }
         }
         file_put_contents(CONFIG['answer'].(string)$insert, $tmp);
