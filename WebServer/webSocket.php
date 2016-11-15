@@ -164,6 +164,7 @@ $worker->onConnect = function($connection) {
  * @param $data       string 数据
  */
 $worker->onMessage = function($connection, $data) {
+    $connection->lastMessageTime = time();
     $data = json_decode($data);
     try {
         switch($data->code) {
@@ -189,7 +190,8 @@ $worker->onMessage = function($connection, $data) {
                     } else {
                         $connection->user_info = $user;
                         $connection->send(json_encode([
-                            'code' => MESSAGE_CODE::SUCCESS
+                            'code' => MESSAGE_CODE::SUCCESS,
+                            'token' => $user->token
                         ]));
                     }
                 } else {
