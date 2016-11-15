@@ -29,6 +29,7 @@ use Constant\LANGUAGE_TYPE;
 
 use Database\Question;
 
+use Exception\QuestionDoesNotExistException;
 use Exception\UnknownLanguageException;
 
 /**
@@ -36,9 +37,9 @@ use Exception\UnknownLanguageException;
  * @package Judge
  */
 class Judge {
+    public $question;
     private $language;
     private $code;
-    private $question;
 
     /**
      * Judge constructor.
@@ -46,6 +47,8 @@ class Judge {
      * @param $question_id
      * @param $language
      * @param $code
+     *
+     * @throws QuestionDoesNotExistException
      */
     public function __construct($question_id, $language, $code) {
         $this->question = $this->getQuestion($question_id);
@@ -88,10 +91,15 @@ class Judge {
      * @param $question_id
      *
      * @return array
+     * @throws QuestionDoesNotExistException
      */
     private function getQuestion($question_id) {
         $q = Question::getInstance()->getOne($question_id);
+        if($q === null) {
+            throw new QuestionDoesNotExistException;
+        }
         return [
+            'id'           => $q->_id,
             'test_case'    => $q->test,
             'answer'       => trim(file_get_contents($q->answer)),
             'time_limit'   => $q->time,

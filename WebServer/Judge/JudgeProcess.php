@@ -27,6 +27,7 @@ namespace Judge;
 use Constant\LANGUAGE_TYPE;
 use Database\Result;
 use Exception\CannotCreateProcessException;
+use Workerman\Worker;
 
 /**
  * Class JudgeProcess
@@ -67,7 +68,7 @@ class JudgeProcess {
             $result = $judge->start();
             Result::getInstance()->update($this->rid, $result);
             $this->clean();
-            exit(0);
+            Worker::stopAll();
         } else {
             $this->pid = $pid;
         }

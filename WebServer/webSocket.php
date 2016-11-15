@@ -30,6 +30,7 @@ use Database\Result;
 use Constant\MESSAGE_CODE;
 use Constant\MESSAGE_TYPE;
 
+use Exception\QuestionDoesNotExistException;
 use Exception\TestCaseCountException;
 use Exception\UnknownLanguageException;
 
@@ -250,15 +251,29 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
+                if(!isset($data->qid) || !isset($data->language) || !isset($data->source_code)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::NEED_MORE_INFORMATION
+                    ]));
+                    break;
+                }
+                try {
+                    $judge = new Judge($data->qid, $data->language, $data->source_code);
+                } catch (QuestionDoesNotExistException $e) {
+                    $connection->send(json_encode([
+                        'code'    => $e->getCode(),
+                        'message' => $e->getMessage()
+                    ]));
+                    break;
+                }
                 $result = Result::getInstance()
-                    ->add($connection->user_info->_id, $data->qid, $data->source_code, $data->language);
+                    ->add($connection->user_info->_id, $judge->question['id'], $data->source_code, $data->language);
                 if($result === false) {
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::UNKNOWN_ERROR
                     ]));
                     break;
                 }
-                $judge = new Judge($data->qid, $data->language, $data->source_code);
                 try {
                     $process = $judge->start($connection->worker->id, $connection->getRemoteIp());
                     $process->rid = $result;
