@@ -102,8 +102,8 @@ class Judge {
             'id'           => $q->_id,
             'test_case'    => $q->test,
             'answer'       => trim(file_get_contents($q->answer)),
-            'time_limit'   => $q->time,
-            'memory_limit' => $q->memory
+            'time_limit'   => isset($q->time) ? $q->time : 1.0,
+            'memory_limit' => isset($q->memory) ? $q->memory : 64.0
         ];
     }
 }

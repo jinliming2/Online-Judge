@@ -191,7 +191,7 @@ $worker->onMessage = function($connection, $data) {
                     } else {
                         $connection->user_info = $user;
                         $connection->send(json_encode([
-                            'code' => MESSAGE_CODE::SUCCESS,
+                            'code'  => MESSAGE_CODE::SUCCESS,
                             'token' => $user->token
                         ]));
                     }
@@ -313,11 +313,21 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
-                $memory = isset($data->memory_limit) ? $data->memory_limit : 64.0;
-                $time = isset($data->time_limit) ? $data->time_limit : 1.0;
-                $dataObj = isset($data->data) ? $data->data : [];
+                $d = [
+                    'title'       => $data->title,
+                    'description' => $data->description
+                ];
+                if(isset($data->memory_limit)) {
+                    $d['memory'] = $data->memory_limit;
+                }
+                if(isset($data->time_limit)) {
+                    $d['time'] = $data->time_limit;
+                }
+                if(isset($data->data)) {
+                    $d['data'] = $data->data;
+                }
                 try {
-                    $result = Question::getInstance()->add($data->title, $data->description, $data->test_case, $data->answer, $memory, $time, $dataObj);
+                    $result = Question::getInstance()->add($d, $data->test_case, $data->answer);
                     if($result === false) {
                         $connection->send(json_encode([
                             'code' => MESSAGE_CODE::UNKNOWN_ERROR
@@ -326,7 +336,7 @@ $worker->onMessage = function($connection, $data) {
                     }
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS,
-                        'id' => (string)$result
+                        'id'   => (string)$result
                     ]));
                 } catch (TestCaseCountException $e) {
                     $connection->send(json_encode([
