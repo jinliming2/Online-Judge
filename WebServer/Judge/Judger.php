@@ -83,6 +83,9 @@ abstract class Judger {
         if($last == 'Time Out') {
             return JUDGE_RESULT::TIME_OUT;
         }
+        if($last == 'Runtime Error') {
+            return JUDGE_RESULT::RUNTIME_ERROR;
+        }
         if(count($result) - 1 != count($this->answer)) {
             return JUDGE_RESULT::WRONG_ANSWER;
         }
