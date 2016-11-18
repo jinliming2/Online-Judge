@@ -41,11 +41,11 @@ else
         echo "$in" > ~/input.txt
         chroot ~/jail timeout ${t}s /main.out < ~/input.txt
         rc=$?
-        if [ rc -eq 124 -o rc -eq 137 ]; then
+        if [ ${rc} -eq 124 -o ${rc} -eq 137 ]; then
             echo "Time Out"
             error=1
             break
-        elif [ $? -ne 0 ]; then
+        elif [ ${rc} -ne 0 ]; then
             echo "Runtime Error"
             error=1
             break
