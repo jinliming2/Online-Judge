@@ -17,5 +17,15 @@ MAINTAINER Liming Jin
 RUN apt-get update -y
 RUN apt-get install -y g++
 COPY run.sh ~/run.sh
+RUN mkdir    ~/jail
+RUN mkdir -p ~/jail/usr/bin
+RUN mkdir -p ~/jail/lib/x86_64-linux-gnu
+RUN mkdir -p ~/jail/lib64
+# timeout
+RUN cp /usr/bin/timeout                       ~/jail/usr/bin/
+RUN cp /lib/x86_64-linux-gnu/librt.so.1       ~/jail/lib/x86_64-linux-gnu/
+RUN cp /lib/x86_64-linux-gnu/libpthread.so.0  ~/jail/lib/x86_64-linux-gnu/
+RUN cp /lib/x86_64-linux-gnu/libc.so.6        ~/jail/lib/x86_64-linux-gnu/
+RUN cp /lib64/ld-linux-x86-64.so.2            ~/jail/lib64/
 
 ENTRYPOINT ["~/run.sh"]

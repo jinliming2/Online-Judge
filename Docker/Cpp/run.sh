@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-g++ /mnt/main.cpp -o ~/main.out
+g++ /mnt/main.cpp -static -o ~/jail/main.out
 if [ $? -ne 0 ]; then
     echo "Compile Error"
 else
@@ -30,7 +30,7 @@ else
     done
     error=0
     read line
-    ulimit -m ${m} -s ${m} -u 1 -t ${t}
+    ulimit -m ${m} -s ${m} -u 1 -t ${t} -n 5
     while [ "$line"x != ""x ]; do
         in="$line"
         read line
@@ -39,7 +39,7 @@ else
             read line
         done
         echo "$in" > ~/input.txt
-        timeout ${t}s ~/main.out < ~/input.txt
+        chroot ~/jail timeout ${t}s /main.out < ~/input.txt
         if [ $? -ne 0 ]; then
             echo "Time Out"
             error=1
