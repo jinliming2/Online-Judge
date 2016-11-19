@@ -34,7 +34,7 @@ class CppJudge extends Judger {
      */
     protected function command() {
         return sprintf(
-            'docker run -v %s:/mnt/main.cpp:ro -i --rm --net none liming/cpp -t %d -m %d < %s',
+            'docker run -v %s:/mnt/main.cpp:ro -i --rm --net none liming/cpp -t %d -m %d < %s 2>/dev/null',
             $this->filename,
             $this->time_limit,
             $this->memory_limit,

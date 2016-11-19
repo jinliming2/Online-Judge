@@ -80,6 +80,9 @@ abstract class Judger {
         if($last == 'Compile Error') {
             return JUDGE_RESULT::COMPILE_ERROR;
         }
+        if($last == 'Compile Time Out') {
+            return JUDGE_RESULT::COMPILE_TIME_OUT;
+        }
         if($last == 'Time Out') {
             return JUDGE_RESULT::TIME_OUT;
         }

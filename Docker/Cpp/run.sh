@@ -13,8 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-g++ /mnt/main.cpp -static -o ~/jail/main.out
-if [ $? -ne 0 ]; then
+timeout 30s g++ /mnt/main.cpp -static -o ~/jail/main.out
+rc=$?
+if [ ${rc} -eq 124 ]; then
+    echo "Compile Time Out"
+elif [ ${rc} -ne 0 ]; then
     echo "Compile Error"
 else
     t=1.000
