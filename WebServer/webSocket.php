@@ -167,6 +167,15 @@ $worker->onConnect = function($connection) {
 $worker->onMessage = function($connection, $data) {
     $connection->lastMessageTime = time();
     $data = json_decode($data);
+    if(is_null($data)) {
+        $connection->send(json_encode([
+            'code'     => -1024,
+            'message0' => '(╯▔＾▔)╯︵ ┻━┻',
+            'message1' => '┬─┬ ノ(▔ - ▔ノ)',
+            'message2' => '(╯°Д°)╯︵ ┻━┻'
+        ]));
+        return;
+    }
     try {
         switch($data->code) {
             case MESSAGE_TYPE::LOGIN:
