@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-timeout 30s g++ /mnt/main.cpp -static -o ~/jail/main.out
+timeout 30s g++ /mnt/main.cpp -o ~/jail/main.out -ldl /jail.so
 rc=$?
 if [ ${rc} -eq 124 ]; then
     echo "Compile Time Out"
