@@ -24,8 +24,8 @@ RUN mkdir -p ~/jail/lib/x86_64-linux-gnu
 RUN mkdir -p ~/jail/lib64
 RUN cp /lib64/ld-linux-x86-64.so.2              ~/jail/lib64/
 # Easy Sandbox
-COPY ../EasySandbox.so                          /jail.so
-COPY ../EasySandbox.so                          ~/jail/jail.so
+COPY EasySandbox.so                             /jail.so
+RUN cp /jail.so                                 ~/jail/jail.so
 # Preload Dynamic Library
 RUN cp /lib/x86_64-linux-gnu/libdl.so.2         ~/jail/lib/x86_64-linux-gnu/
 # C Languang

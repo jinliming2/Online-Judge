@@ -14,6 +14,7 @@
 
 EasySandbox.so: EasySandbox.o malloc.o
 	gcc -shared EasySandbox.o malloc.o -o EasySandbox.so -ldl
+	cp EasySandbox.so Cpp/EasySandbox.so
 
 EasySandbox.o: EasySandbox/EasySandbox.c
 	gcc -c -fPIC -std=c99 -g -Wall -D_BSD_SOURCE EasySandbox/EasySandbox.c -o EasySandbox.o

@@ -68,8 +68,8 @@ class JudgeProcess {
             $result = $judge->start();
             Result::getInstance()->update($this->rid, $result);
             $this->clean();
-            //Worker::stopAll();
-            exit(0);
+            Worker::stopAll();
+            //exit(0);
         } else {
             $this->pid = $pid;
         }

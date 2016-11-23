@@ -76,6 +76,13 @@ abstract class Judger {
      * @return int
      */
     protected function validate($result) {
+        foreach($result as $key => $value) {
+            if($result[$key] == '<<entering SECCOMP mode>>') {
+                unset($result[$key]);
+            } else {
+                break;
+            }
+        }
         $last = $result[count($result) - 1];
         if($last == 'Compile Error') {
             return JUDGE_RESULT::COMPILE_ERROR;
