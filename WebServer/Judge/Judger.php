@@ -76,13 +76,6 @@ abstract class Judger {
      * @return int
      */
     protected function validate($result) {
-        foreach($result as $key => $value) {
-            if($result[$key] == '<<entering SECCOMP mode>>') {
-                unset($result[$key]);
-            } else {
-                break;
-            }
-        }
         $last = $result[count($result) - 1];
         if($last == 'Compile Error') {
             return JUDGE_RESULT::COMPILE_ERROR;
@@ -96,19 +89,16 @@ abstract class Judger {
         if($last == 'Runtime Error') {
             return JUDGE_RESULT::RUNTIME_ERROR;
         }
-        if(count($result) - 1 != count($this->answer)) {
-            return JUDGE_RESULT::WRONG_ANSWER;
-        }
         $wa = false;
-        for($i = count($result) - 2; $i >= 0; --$i) {
-            if($result[$i] != $this->answer[$i]) {
+        for($i = count($result) - 2, $j = count($this->answer) - 1; $i >= 0 && $j >= 0; --$i, --$j) {
+            while($result[$i] == '<<entering SECCOMP mode>>') {
+                --$i;
+            }
+            if($result[$i] != $this->answer[$j]) {
                 $wa = true;
                 break;
             }
         }
-        if($wa) {
-            return JUDGE_RESULT::WRONG_ANSWER;
-        }
-        return JUDGE_RESULT::ACCEPTED;
+        return $wa || $j >= 0 ? JUDGE_RESULT::WRONG_ANSWER : JUDGE_RESULT::ACCEPTED;
     }
 }
