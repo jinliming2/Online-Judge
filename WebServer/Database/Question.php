@@ -59,19 +59,23 @@ final class Question extends Database {
     }
 
     /**
-     * @param string $title
-     * @param string $description
-     * @param array  $test_case
-     * @param array  $answer
-     * @param float  $memory_limit (MB)
-     * @param float  $time_limit   (Seconds)
-     * @param array  $data
+     *
+     * @param array $data
+     * [
+     * 'title'       => $title,
+     * 'description' => $description,
+     * 'memory'      => $memory_limit, (MB, Optional)
+     * 'time'        => $time_limit,   (Seconds, Optional)
+     * 'data'        => $data          (Optional)
+     * ]
+     * @param array $test_case
+     * @param array $answer
      *
      * @return ObjectID|False
      * @throws TestCaseCountException
      * @throws RuntimeException
      */
-    public function add($title, $description, $test_case, $answer, $memory_limit = 64.0, $time_limit = 1.0, $data = []) {
+    public function add($data, $test_case, $answer) {
         $n = count($test_case);
         if($n != count($answer)) {
             throw new TestCaseCountException;
@@ -83,13 +87,7 @@ final class Question extends Database {
             mkdir(CONFIG['answer'], 0775, true);
         }
         $bulk = new BulkWrite(['ordered' => true]);
-        $insert = $bulk->insert([
-            'title'       => $title,
-            'description' => $description,
-            'memory'      => $memory_limit,
-            'time'        => $time_limit,
-            'data'        => $data
-        ]);
+        $insert = $bulk->insert($data);
         $tmp = '';
         for($i = 0; $i < $n; $i++) {
             if($test_case[$i] != '') {

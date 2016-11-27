@@ -1,3 +1,6 @@
 [submodule "WebServer/Workerman"]
 	path = WebServer/Workerman
 	url = https://github.com/walkor/Workerman.git
+[submodule "Docker/EasySandbox"]
+	path = Docker/EasySandbox
+	url = https://github.com/daveho/EasySandbox.git

@@ -17,30 +17,20 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/4
- * Time: 13:51
+ * Date: 2016/11/15
+ * Time: 17:08
  */
 
 
-namespace Constant;
+namespace Exception;
+use Constant\MESSAGE_CODE;
 
 
 /**
- * Class MESSAGE_CODE
- * @package Constant
+ * Class QuestionDoesNotExistException
+ * @package Exception
  */
-abstract class MESSAGE_CODE {
-    const UNKNOWN_ERROR = -1;
-    const SUCCESS = 0;
-    const UNKNOWN_LANGUAGE = 1;
-    const TEST_CASE_COUNT_ERROR = 2;
-    const NEED_RE_LOGIN = 3;
-    const USERNAME_PASSWORD_ERROR = 4;
-    const NEED_LOGIN = 5;
-    const CANNOT_CREATE_PROCESS = 6;
-    const NEED_MORE_INFORMATION = 7;
-    const ACCESS_DENY = 8;
-    const PARAMETER_ERROR = 9;
-    const USERNAME_ALREADY_EXIST = 10;
-    const QUESTION_DOES_NOT_EXIST = 11;
+class QuestionDoesNotExistException extends \Exception {
+    public $code = MESSAGE_CODE::QUESTION_DOES_NOT_EXIST;
+    public $message = '问题不存在';
 }

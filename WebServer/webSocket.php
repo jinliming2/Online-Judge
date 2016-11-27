@@ -30,6 +30,7 @@ use Database\Result;
 use Constant\MESSAGE_CODE;
 use Constant\MESSAGE_TYPE;
 
+use Exception\QuestionDoesNotExistException;
 use Exception\TestCaseCountException;
 use Exception\UnknownLanguageException;
 
@@ -164,7 +165,17 @@ $worker->onConnect = function($connection) {
  * @param $data       string 数据
  */
 $worker->onMessage = function($connection, $data) {
+    $connection->lastMessageTime = time();
     $data = json_decode($data);
+    if(is_null($data)) {
+        $connection->send(json_encode([
+            'code'     => -1024,
+            'message0' => '(╯▔＾▔)╯︵ ┻━┻',
+            'message1' => '┬─┬ ノ(▔ - ▔ノ)',
+            'message2' => '(╯°Д°)╯︵ ┻━┻'
+        ]));
+        return;
+    }
     try {
         switch($data->code) {
             case MESSAGE_TYPE::LOGIN:
@@ -189,7 +200,8 @@ $worker->onMessage = function($connection, $data) {
                     } else {
                         $connection->user_info = $user;
                         $connection->send(json_encode([
-                            'code' => MESSAGE_CODE::SUCCESS
+                            'code'  => MESSAGE_CODE::SUCCESS,
+                            'token' => $user->token
                         ]));
                     }
                 } else {
@@ -248,15 +260,29 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
+                if(!isset($data->qid) || !isset($data->language) || !isset($data->source_code)) {
+                    $connection->send(json_encode([
+                        'code' => MESSAGE_CODE::NEED_MORE_INFORMATION
+                    ]));
+                    break;
+                }
+                try {
+                    $judge = new Judge($data->qid, $data->language, $data->source_code);
+                } catch (QuestionDoesNotExistException $e) {
+                    $connection->send(json_encode([
+                        'code'    => $e->getCode(),
+                        'message' => $e->getMessage()
+                    ]));
+                    break;
+                }
                 $result = Result::getInstance()
-                    ->add($connection->user_info->_id, $data->qid, $data->source_code, $data->language);
+                    ->add($connection->user_info->_id, $judge->question['id'], $data->source_code, $data->language);
                 if($result === false) {
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::UNKNOWN_ERROR
                     ]));
                     break;
                 }
-                $judge = new Judge($data->qid, $data->language, $data->source_code);
                 try {
                     $process = $judge->start($connection->worker->id, $connection->getRemoteIp());
                     $process->rid = $result;
@@ -296,11 +322,21 @@ $worker->onMessage = function($connection, $data) {
                     ]));
                     break;
                 }
-                $memory = isset($data->memory_limit) ? $data->memory_limit : 64.0;
-                $time = isset($data->time_limit) ? $data->time_limit : 1.0;
-                $dataObj = isset($data->data) ? $data->data : [];
+                $d = [
+                    'title'       => $data->title,
+                    'description' => $data->description
+                ];
+                if(isset($data->memory_limit)) {
+                    $d['memory'] = $data->memory_limit;
+                }
+                if(isset($data->time_limit)) {
+                    $d['time'] = $data->time_limit;
+                }
+                if(isset($data->data)) {
+                    $d['data'] = $data->data;
+                }
                 try {
-                    $result = Question::getInstance()->add($data->title, $data->description, $data->test_case, $data->answer, $memory, $time, $dataObj);
+                    $result = Question::getInstance()->add($d, $data->test_case, $data->answer);
                     if($result === false) {
                         $connection->send(json_encode([
                             'code' => MESSAGE_CODE::UNKNOWN_ERROR
@@ -309,7 +345,7 @@ $worker->onMessage = function($connection, $data) {
                     }
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS,
-                        'id' => (string)$result
+                        'id'   => (string)$result
                     ]));
                 } catch (TestCaseCountException $e) {
                     $connection->send(json_encode([

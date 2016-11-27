@@ -80,22 +80,25 @@ abstract class Judger {
         if($last == 'Compile Error') {
             return JUDGE_RESULT::COMPILE_ERROR;
         }
+        if($last == 'Compile Time Out') {
+            return JUDGE_RESULT::COMPILE_TIME_OUT;
+        }
         if($last == 'Time Out') {
             return JUDGE_RESULT::TIME_OUT;
         }
-        if(count($result) - 1 != count($this->answer)) {
-            return JUDGE_RESULT::WRONG_ANSWER;
+        if($last == 'Runtime Error') {
+            return JUDGE_RESULT::RUNTIME_ERROR;
         }
         $wa = false;
-        for($i = count($result) - 2; $i >= 0; --$i) {
-            if($result[$i] != $this->answer[$i]) {
+        for($i = count($result) - 2, $j = count($this->answer) - 1; $i >= 0 && $j >= 0; --$i, --$j) {
+            while($result[$i] == '<<entering SECCOMP mode>>') {
+                --$i;
+            }
+            if($result[$i] != $this->answer[$j]) {
                 $wa = true;
                 break;
             }
         }
-        if($wa) {
-            return JUDGE_RESULT::WRONG_ANSWER;
-        }
-        return JUDGE_RESULT::ACCEPTED;
+        return $wa || $j >= 0 ? JUDGE_RESULT::WRONG_ANSWER : JUDGE_RESULT::ACCEPTED;
     }
 }

@@ -35,4 +35,6 @@ abstract class JUDGE_RESULT {
     const COMPILE_ERROR = 1;
     const TIME_OUT = 2;
     const WRONG_ANSWER = 3;
+    const RUNTIME_ERROR = 4;
+    const COMPILE_TIME_OUT = 5;
 }

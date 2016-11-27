@@ -16,6 +16,28 @@ FROM ubuntu
 MAINTAINER Liming Jin
 RUN apt-get update -y
 RUN apt-get install -y g++
-COPY run.sh ~/run.sh
+COPY run.sh  ~/run.sh
+RUN mkdir    ~/jail
+RUN mkdir -p ~/jail/usr/bin
+RUN mkdir -p ~/jail/usr/lib/x86_64-linux-gnu
+RUN mkdir -p ~/jail/lib/x86_64-linux-gnu
+RUN mkdir -p ~/jail/lib64
+RUN cp /lib64/ld-linux-x86-64.so.2              ~/jail/lib64/
+# Easy Sandbox
+COPY EasySandbox.so                             /jail.so
+RUN cp /jail.so                                 ~/jail/jail.so
+# Preload Dynamic Library
+RUN cp /lib/x86_64-linux-gnu/libdl.so.2         ~/jail/lib/x86_64-linux-gnu/
+# C Languang
+RUN cp /lib/x86_64-linux-gnu/libc.so.6          ~/jail/lib/x86_64-linux-gnu/
+# C++ Language
+RUN cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 ~/jail/usr/lib/x86_64-linux-gnu
+RUN cp /lib/x86_64-linux-gnu/libm.so.6          ~/jail/lib/x86_64-linux-gnu/
+RUN cp /lib/x86_64-linux-gnu/libgcc_s.so.1      ~/jail/lib/x86_64-linux-gnu/
+# timeout
+RUN cp /usr/bin/timeout                         ~/jail/usr/bin/
+RUN cp /lib/x86_64-linux-gnu/librt.so.1         ~/jail/lib/x86_64-linux-gnu/
+RUN cp /lib/x86_64-linux-gnu/libpthread.so.0    ~/jail/lib/x86_64-linux-gnu/
+
 
 ENTRYPOINT ["~/run.sh"]
