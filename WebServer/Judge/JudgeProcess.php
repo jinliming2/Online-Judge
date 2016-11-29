@@ -66,7 +66,7 @@ class JudgeProcess {
          * @param AsyncTcpConnection $task_connection
          * @param string $task_result
          */
-        $task_connection->onMessage = function($task_connection, $task_result) use ($this) {
+        $task_connection->onMessage = function($task_connection, $task_result) {
             $data = json_decode($task_result);
             $this->clean();
             if($data->code == MESSAGE_CODE::SUCCESS) {

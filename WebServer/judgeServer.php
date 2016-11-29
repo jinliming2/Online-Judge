@@ -39,7 +39,7 @@ $worker->count = CONFIG['process count'] * CONFIG['sub process count'];
  * @param Worker $worker
  */
 $worker->onWorkerStart = function($worker) {
-    logs('Judge server now listening on local port 8080.');
+    logs('Judge server now listening on local port 8888.');
 };
 
 /**

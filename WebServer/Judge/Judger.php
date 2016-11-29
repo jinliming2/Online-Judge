@@ -42,15 +42,15 @@ abstract class Judger {
      *
      * @param string $temp_path File path
      * @param string $code
-     * @param array  $question
+     * @param \stdClass  $question
      */
     public function __construct($temp_path, $code, $question) {
         $this->filename = $temp_path.$this->filename;
         file_put_contents($this->filename, $code);
-        $this->test_case = $question['test_case'];
-        $this->answer = preg_split('/[\r\n]+/', $question['answer']);
-        $this->time_limit = $question['time_limit'];
-        $this->memory_limit = $question['memory_limit'];
+        $this->test_case = $question->test_case;
+        $this->answer = preg_split('/[\r\n]+/', $question->answer);
+        $this->time_limit = $question->time_limit;
+        $this->memory_limit = $question->memory_limit;
     }
 
     /**
