@@ -25,18 +25,19 @@
 namespace Judge;
 
 use Constant\LANGUAGE_TYPE;
+use Constant\MESSAGE_CODE;
 use Database\Result;
 use Exception\CannotCreateProcessException;
-use Workerman\Worker;
+use Workerman\Connection\AsyncTcpConnection;
 
 /**
  * Class JudgeProcess
  * @package Judge
  */
 class JudgeProcess {
-    public $pid = -1;
     public $rid;
-    public $finished = false;
+    public $started = false;
+    public $finished = false;  //False: Processing, True: Finished success, Null: Finished failed
     private $judger_info;
 
     /**
@@ -60,33 +61,41 @@ class JudgeProcess {
      * @throws CannotCreateProcessException
      */
     public function run() {
-        $pid = pcntl_fork();
-        if($pid < 0) {
-            throw new CannotCreateProcessException;
-        } elseif($pid == 0) {  //In child process
-            $judge = $this->getJudger();
-            $result = $judge->start();
-            Result::getInstance()->update($this->rid, $result);
+        $task_connection = new AsyncTcpConnection('text://[::1]:8888');
+        /**
+         * @param AsyncTcpConnection $task_connection
+         * @param string $task_result
+         */
+        $task_connection->onMessage = function($task_connection, $task_result) use ($this) {
+            $data = json_decode($task_result);
             $this->clean();
-            Worker::stopAll();
-            //exit(0);
-        } else {
-            $this->pid = $pid;
-        }
+            if($data->code == MESSAGE_CODE::SUCCESS) {
+                Result::getInstance()->update($this->rid, $data->result);
+                $this->finished = true;
+            } else {
+                $this->finished = null;
+            }
+            $task_connection->close();
+        };
+        $task_connection->send(json_encode($this->judger_info));
+        $task_connection->connect();
+        $this->started = true;
     }
 
     /**
+     * @param \stdClass $judger_info
+     *
      * @return Judger
      */
-    private function getJudger() {
-        switch($this->judger_info['language']) {
+    public static function getJudger($judger_info) {
+        switch($judger_info->language) {
             case LANGUAGE_TYPE::C:
                 return null;  //TODO: C Judger
             case LANGUAGE_TYPE::CPP:
                 return new CppJudge(
-                    $this->judger_info['temp_path'],
-                    $this->judger_info['code'],
-                    $this->judger_info['question']
+                    $judger_info->temp_path,
+                    $judger_info->code,
+                    $judger_info->question
                 );
             case LANGUAGE_TYPE::JAVA:
                 return null;  //TODO: JAVA Judger

@@ -41,18 +41,6 @@ require_once 'common.php';
 //心跳包间隔（秒）
 define('HEARTBEAT_TIME', 300);
 
-//守护进程模式
-Worker::$daemonize = true;
-//日志
-if(!is_dir(CONFIG['stdout file'])) {
-    mkdir(CONFIG['stdout file'], 0775, true);
-}
-if(!is_dir(CONFIG['log file'])) {
-    mkdir(CONFIG['log file'], 0775, true);
-}
-Worker::$stdoutFile = CONFIG['stdout file'].'ws_'.date('Y-m-d').'.log';
-Worker::$logFile = CONFIG['log file'].'workerman.log';
-
 $worker = new Worker('websocket://[::]:8080');
 
 //同时服务进程数
@@ -66,24 +54,6 @@ $worker->count = CONFIG['process count'];
 $worker->onWorkerStart = function($worker) {
     //进程们
     $worker->process_pool = [];
-    //注册子进程退出消息
-    pcntl_signal(SIGCHLD, function($sig) use ($worker) {
-        switch($sig) {
-            case SIGCHLD:
-                $pid = pcntl_wait($status, WNOHANG);
-                if($pid > 0) {
-                    unset($process);
-                    foreach($worker->process_pool as &$process) {
-                        if($process->pid == $pid) {
-                            $process->finished = true;
-                            break;
-                        }
-                    }
-                    unset($process);
-                }
-                break;
-        }
-    });
     //心跳检测
     Timer::add(60, function() use ($worker) {
         $time_now = time();
@@ -99,25 +69,29 @@ $worker->onWorkerStart = function($worker) {
     });
     //任务处理
     Timer::add(5, function() use ($worker) {
-        pcntl_signal_dispatch();
         $index = 0;
+        $flag = false;
         foreach($worker->process_pool as $i => $process) {
-            if($process->pid < 0) {
+            if(!$process->started) {
                 if($index < CONFIG['sub process count']) {
                     ++$index;
                     $process->run();
                 }
-            } elseif(!$process->finished) {
+            } elseif($process->finished === false) {
                 ++$index;
             } else {
+                //TODO: 主动推送结果
                 unset($worker->process_pool[$i]);
+                $flag = true;
             }
         }
-        $arr = [];
-        foreach($worker->process_pool as $process) {
-            $arr[] = $process;
+        if($flag) {
+            $arr = [];
+            foreach($worker->process_pool as $process) {
+                $arr[] = $process;
+            }
+            $worker->process_pool = $arr;
         }
-        $worker->process_pool = $arr;
     });
     logs('WebSocket server now listening on port 8080.');
 };
@@ -167,7 +141,7 @@ $worker->onConnect = function($connection) {
 $worker->onMessage = function($connection, $data) {
     $connection->lastMessageTime = time();
     $data = json_decode($data);
-    if(is_null($data)) {
+    if(is_null($data) || !isset($data->code)) {
         $connection->send(json_encode([
             'code'     => -1024,
             'message0' => '(╯▔＾▔)╯︵ ┻━┻',
@@ -389,5 +363,3 @@ $worker->onClose = function($connection) {
 $worker->onError = function($connection, $code, $msg) {
     logs($code.' '.$msg, 2);
 };
-
-Worker::runAll();
