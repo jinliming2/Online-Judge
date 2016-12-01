@@ -77,15 +77,9 @@ $worker->onWorkerStart = function($worker) {
                     ++$index;
                     $process->run();
                 }
-            } elseif($process->finished === false) {
+            } elseif($process->finished == false) {
                 ++$index;
             } else {
-                if(!is_null($process->client) && !$process->client->closed) {
-                    $process->client->send(json_encode([
-                        'code'   => MESSAGE_CODE::RESULT_CALLBACK,
-                        'result' => $process->finished
-                    ]));
-                }
                 unset($worker->process_pool[$i]);
                 $flag = true;
             }

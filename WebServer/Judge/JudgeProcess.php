@@ -25,8 +25,10 @@
 namespace Judge;
 
 use Constant\LANGUAGE_TYPE;
+use Constant\MESSAGE_CODE;
 use Database\Result;
 use Workerman\Connection\AsyncTcpConnection;
+use Workerman\Connection\TcpConnection;
 
 /**
  * Class JudgeProcess
@@ -35,7 +37,10 @@ use Workerman\Connection\AsyncTcpConnection;
 class JudgeProcess {
     public $rid;
     public $started = false;
-    public $finished = false;  //False: Processing, NOT False: Judge result
+    public $finished = false;
+    /**
+     * @var TcpConnection|null
+     */
     public $client = null;
     private $judger_info;
 
@@ -66,8 +71,14 @@ class JudgeProcess {
             $data = json_decode($task_result);
             $this->clean();
             Result::getInstance()->update($this->rid, $data->result);
-            $this->finished = $data->result;
+            $this->finished = true;
             $task_connection->close();
+            if(!is_null($this->client) && !$this->client->closed) {
+                $this->client->send(json_encode([
+                    'code'   => MESSAGE_CODE::RESULT_CALLBACK,
+                    'result' => $data->result
+                ]));
+            }
         };
         $task_connection->send(json_encode($this->judger_info));
         $task_connection->connect();
