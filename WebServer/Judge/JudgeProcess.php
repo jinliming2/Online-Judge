@@ -25,7 +25,6 @@
 namespace Judge;
 
 use Constant\LANGUAGE_TYPE;
-use Constant\MESSAGE_CODE;
 use Database\Result;
 use Workerman\Connection\AsyncTcpConnection;
 
@@ -36,7 +35,8 @@ use Workerman\Connection\AsyncTcpConnection;
 class JudgeProcess {
     public $rid;
     public $started = false;
-    public $finished = false;  //False: Processing, True: Finished success, Null: Finished failed
+    public $finished = false;  //False: Processing, NOT False: Judge result
+    public $client = null;
     private $judger_info;
 
     /**
@@ -65,12 +65,8 @@ class JudgeProcess {
         $task_connection->onMessage = function($task_connection, $task_result) {
             $data = json_decode($task_result);
             $this->clean();
-            if($data->code == MESSAGE_CODE::SUCCESS) {
-                Result::getInstance()->update($this->rid, $data->result);
-                $this->finished = true;
-            } else {
-                $this->finished = null;
-            }
+            Result::getInstance()->update($this->rid, $data->result);
+            $this->finished = $data->result;
             $task_connection->close();
         };
         $task_connection->send(json_encode($this->judger_info));

@@ -80,7 +80,12 @@ $worker->onWorkerStart = function($worker) {
             } elseif($process->finished === false) {
                 ++$index;
             } else {
-                //TODO: 主动推送结果
+                if(!is_null($process->client) && !$process->client->closed) {
+                    $process->client->send(json_encode([
+                        'code'   => MESSAGE_CODE::RESULT_CALLBACK,
+                        'result' => $process->finished
+                    ]));
+                }
                 unset($worker->process_pool[$i]);
                 $flag = true;
             }
@@ -129,6 +134,10 @@ $worker->onConnect = function($connection) {
         if(false) {
             $connection->close();
         }
+    };
+    $connection->closed = false;
+    $connection->onClose = function($connection) {
+        $connection->closed = true;
     };
 };
 
@@ -260,6 +269,7 @@ $worker->onMessage = function($connection, $data) {
                 try {
                     $process = $judge->start($connection->worker->id, $connection->getRemoteIp());
                     $process->rid = $result;
+                    $process->client = $connection;
                     $connection->worker->process_pool[] = $process;
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS

@@ -21,6 +21,7 @@
  * Time: 13:57
  */
 use Workerman\Worker;
+use Constant\JUDGE_RESULT;
 use Constant\MESSAGE_CODE;
 use Judge\JudgeProcess;
 
@@ -84,7 +85,8 @@ $worker->onMessage = function($connection, $data) {
             , 2
         );
         $connection->send(json_encode([
-            'code' => MESSAGE_CODE::UNKNOWN_ERROR
+            'code' => MESSAGE_CODE::UNKNOWN_ERROR,
+            'result' => JUDGE_RESULT::UNKNOWN_ERROR
         ]));
     }
 };
