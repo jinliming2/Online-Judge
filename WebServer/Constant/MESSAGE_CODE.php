@@ -44,4 +44,5 @@ abstract class MESSAGE_CODE {
     const USERNAME_ALREADY_EXIST = 10;
     const QUESTION_DOES_NOT_EXIST = 11;
     const RESULT_CALLBACK = 12;
+    const START_JUDGE = 13;
 }

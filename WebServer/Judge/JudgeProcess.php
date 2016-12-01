@@ -62,10 +62,16 @@ class JudgeProcess {
     }
 
     public function run() {
+        if(!is_null($this->client) && !$this->client->closed) {
+            $this->client->send(json_encode([
+                'code' => MESSAGE_CODE::START_JUDGE,
+                'id'   => $this->rid
+            ]));
+        }
         $task_connection = new AsyncTcpConnection('text://[::1]:8888');
         /**
          * @param AsyncTcpConnection $task_connection
-         * @param string $task_result
+         * @param string             $task_result
          */
         $task_connection->onMessage = function($task_connection, $task_result) {
             $data = json_decode($task_result);
@@ -76,6 +82,7 @@ class JudgeProcess {
             if(!is_null($this->client) && !$this->client->closed) {
                 $this->client->send(json_encode([
                     'code'   => MESSAGE_CODE::RESULT_CALLBACK,
+                    'id'     => $this->rid,
                     'result' => $data->result
                 ]));
             }
