@@ -267,7 +267,7 @@ $worker->onMessage = function($connection, $data) {
                     $connection->worker->process_pool[] = $process;
                     $connection->send(json_encode([
                         'code' => MESSAGE_CODE::SUCCESS,
-                        'id'   => $result
+                        'id'   => (string)$result
                     ]));
                 } catch (UnknownLanguageException $e) {
                     $connection->send(json_encode([

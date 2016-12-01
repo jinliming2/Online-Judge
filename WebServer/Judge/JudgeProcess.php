@@ -65,7 +65,7 @@ class JudgeProcess {
         if(!is_null($this->client) && !$this->client->closed) {
             $this->client->send(json_encode([
                 'code' => MESSAGE_CODE::START_JUDGE,
-                'id'   => $this->rid
+                'id'   => (string)$this->rid
             ]));
         }
         $task_connection = new AsyncTcpConnection('text://[::1]:8888');
@@ -82,7 +82,7 @@ class JudgeProcess {
             if(!is_null($this->client) && !$this->client->closed) {
                 $this->client->send(json_encode([
                     'code'   => MESSAGE_CODE::RESULT_CALLBACK,
-                    'id'     => $this->rid,
+                    'id'     => (string)$this->rid,
                     'result' => $data->result
                 ]));
             }
