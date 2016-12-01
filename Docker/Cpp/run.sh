@@ -33,7 +33,7 @@ else
     done
     error=0
     read line
-    ulimit -m ${m} -s ${m} -u 1 -t ${t} -n 5
+    ulimit -m ${m} -s ${m} -u 1 -t $[t+1] -n 5
     while [ "$line"x != ""x ]; do
         in="$line"
         read line
@@ -44,7 +44,7 @@ else
         echo "$in" > ~/input.txt
         chroot ~/jail timeout ${t}s /main.out < ~/input.txt
         rc=$?
-        if [ ${rc} -eq 124 -o ${rc} -eq 137 ]; then
+        if [ ${rc} -eq 124 ]; then
             echo "Time Out"
             error=1
             break
