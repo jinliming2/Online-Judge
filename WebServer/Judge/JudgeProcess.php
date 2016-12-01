@@ -27,7 +27,6 @@ namespace Judge;
 use Constant\LANGUAGE_TYPE;
 use Constant\MESSAGE_CODE;
 use Database\Result;
-use Exception\CannotCreateProcessException;
 use Workerman\Connection\AsyncTcpConnection;
 
 /**
@@ -57,9 +56,6 @@ class JudgeProcess {
         ];
     }
 
-    /**
-     * @throws CannotCreateProcessException
-     */
     public function run() {
         $task_connection = new AsyncTcpConnection('text://[::1]:8888');
         /**

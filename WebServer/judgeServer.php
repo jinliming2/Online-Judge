@@ -22,7 +22,6 @@
  */
 use Workerman\Worker;
 use Constant\MESSAGE_CODE;
-use Database\Result;
 use Judge\JudgeProcess;
 
 require_once 'Workerman/Autoloader.php';
