@@ -68,8 +68,11 @@ $worker->onWorkerStop = function($worker) {
  */
 $worker->onMessage = function($connection, $data) {
     try {
-        $judge = JudgeProcess::getJudger(json_decode($data));
+        $d = json_decode($data);
+        $d->temp_path = JudgeProcess::createDirectory($d->temp_path);
+        $judge = JudgeProcess::getJudger($d);
         $result = $judge->start();
+        JudgeProcess::clean($d->temp_path);
         $connection->send(json_encode([
             'code'   => MESSAGE_CODE::SUCCESS,
             'result' => $result

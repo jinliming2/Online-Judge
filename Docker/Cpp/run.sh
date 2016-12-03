@@ -33,7 +33,7 @@ else
     done
     error=0
     read line
-    ulimit -m ${m} -s ${m} -u 1 -t $[t+1] -n 5
+    ulimit -m ${m} -s ${m} -u 1 -t `echo ${t}|awk '{print int($t) + 1;}'` -n 5
     while [ "$line"x != ""x ]; do
         in="$line"
         read line

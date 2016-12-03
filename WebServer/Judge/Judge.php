@@ -76,12 +76,7 @@ class Judge {
         }
         include_once __DIR__.'/../config.php';
         $ex = str_replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|'], '', $id.'-'.$ip.'-');
-        $temp_path = uniqid(CONFIG['judge temp'].$ex, true);
-        while(is_dir($temp_path)) {
-            $temp_path .= 'n';
-        }
-        $temp_path .= '/';
-        mkdir($temp_path, 0775, true);
+        $temp_path = uniqid($ex, true);
         return new JudgeProcess($this->language, $temp_path, $this->code, $this->question);
     }
 

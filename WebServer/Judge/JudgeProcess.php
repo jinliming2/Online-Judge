@@ -115,12 +115,31 @@ class JudgeProcess {
     }
 
     /**
-     * 清理环境
+     * 创建临时环境文件夹
+     * @param string $temp_path 文件夹名称
+     *
+     * @return string 实际创建的文件夹路径
      */
-    public function clean() {
+    public static function createDirectory($temp_path) {
         require_once __DIR__.'/../config.php';
-        if(strpos($this->judger_info['temp_path'], CONFIG['judge temp']) === 0) {  //如果没有找到是返回False
-            system('rm -rf '.$this->judger_info['temp_path']);
+        $temp_path = CONFIG['judge temp'].$temp_path;
+        while(is_dir($temp_path)) {
+            $temp_path .= 'n';
+        }
+        $temp_path .= '/';
+        mkdir($temp_path, 0775, true);
+        return $temp_path;
+    }
+
+    /**
+     * 清理环境
+     *
+     * @param string $temp_path
+     */
+    public static function clean($temp_path) {
+        require_once __DIR__.'/../config.php';
+        if(strpos($temp_path, CONFIG['judge temp']) === 0) {  //如果没有找到是返回False
+            system('rm -rf '.$temp_path);
         }
     }
 }
