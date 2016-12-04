@@ -30,6 +30,7 @@ namespace Constant;
  * @package Constant
  */
 abstract class JUDGE_RESULT {
+    const UNKNOWN_ERROR = -2;
     const WAITING_FOR_JUDGE = -1;
     const ACCEPTED = 0;
     const COMPILE_ERROR = 1;

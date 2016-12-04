@@ -17,20 +17,27 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/12
- * Time: 18:06
+ * Date: 2016/11/27
+ * Time: 13:46
  */
+use Workerman\Worker;
 
+require_once 'Workerman/Autoloader.php';
+require_once 'config.php';
 
-namespace Exception;
-use Constant\MESSAGE_CODE;
-
-
-/**
- * Class CannotCreateProcessException
- * @package Exception
- */
-class CannotCreateProcessException extends \Exception {
-    public $code = MESSAGE_CODE::CANNOT_CREATE_PROCESS;
-    public $message = '创建进程失败';
+//守护进程模式
+Worker::$daemonize = true;
+//日志
+if(!is_dir(CONFIG['stdout file'])) {
+    mkdir(CONFIG['stdout file'], 0775, true);
 }
+if(!is_dir(CONFIG['log file'])) {
+    mkdir(CONFIG['log file'], 0775, true);
+}
+Worker::$stdoutFile = CONFIG['stdout file'].'ws_'.date('Y-m-d').'.log';
+Worker::$logFile = CONFIG['log file'].'workerman.log';
+
+require_once 'judgeServer.php';
+require_once 'webSocket.php';
+
+Worker::runAll();

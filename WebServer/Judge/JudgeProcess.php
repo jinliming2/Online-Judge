@@ -25,18 +25,23 @@
 namespace Judge;
 
 use Constant\LANGUAGE_TYPE;
+use Constant\MESSAGE_CODE;
 use Database\Result;
-use Exception\CannotCreateProcessException;
-use Workerman\Worker;
+use Workerman\Connection\AsyncTcpConnection;
+use Workerman\Connection\TcpConnection;
 
 /**
  * Class JudgeProcess
  * @package Judge
  */
 class JudgeProcess {
-    public $pid = -1;
     public $rid;
+    public $started = false;
     public $finished = false;
+    /**
+     * @var TcpConnection|null
+     */
+    public $client = null;
     private $judger_info;
 
     /**
@@ -56,37 +61,50 @@ class JudgeProcess {
         ];
     }
 
-    /**
-     * @throws CannotCreateProcessException
-     */
     public function run() {
-        $pid = pcntl_fork();
-        if($pid < 0) {
-            throw new CannotCreateProcessException;
-        } elseif($pid == 0) {  //In child process
-            $judge = $this->getJudger();
-            $result = $judge->start();
-            Result::getInstance()->update($this->rid, $result);
-            $this->clean();
-            Worker::stopAll();
-            //exit(0);
-        } else {
-            $this->pid = $pid;
+        if(!is_null($this->client) && !$this->client->closed) {
+            $this->client->send(json_encode([
+                'code' => MESSAGE_CODE::START_JUDGE,
+                'id'   => (string)$this->rid
+            ]));
         }
+        $task_connection = new AsyncTcpConnection('text://[::1]:8888');
+        /**
+         * @param AsyncTcpConnection $task_connection
+         * @param string             $task_result
+         */
+        $task_connection->onMessage = function($task_connection, $task_result) {
+            $data = json_decode($task_result);
+            Result::getInstance()->update($this->rid, $data->result);
+            $this->finished = true;
+            $task_connection->close();
+            if(!is_null($this->client) && !$this->client->closed) {
+                $this->client->send(json_encode([
+                    'code'   => MESSAGE_CODE::RESULT_CALLBACK,
+                    'id'     => (string)$this->rid,
+                    'result' => $data->result
+                ]));
+            }
+        };
+        $task_connection->send(json_encode($this->judger_info));
+        $task_connection->connect();
+        $this->started = true;
     }
 
     /**
+     * @param \stdClass $judger_info
+     *
      * @return Judger
      */
-    private function getJudger() {
-        switch($this->judger_info['language']) {
+    public static function getJudger($judger_info) {
+        switch($judger_info->language) {
             case LANGUAGE_TYPE::C:
                 return null;  //TODO: C Judger
             case LANGUAGE_TYPE::CPP:
                 return new CppJudge(
-                    $this->judger_info['temp_path'],
-                    $this->judger_info['code'],
-                    $this->judger_info['question']
+                    $judger_info->temp_path,
+                    $judger_info->code,
+                    $judger_info->question
                 );
             case LANGUAGE_TYPE::JAVA:
                 return null;  //TODO: JAVA Judger
@@ -96,12 +114,31 @@ class JudgeProcess {
     }
 
     /**
-     * 清理环境
+     * 创建临时环境文件夹
+     * @param string $temp_path 文件夹名称
+     *
+     * @return string 实际创建的文件夹路径
      */
-    public function clean() {
+    public static function createDirectory($temp_path) {
         require_once __DIR__.'/../config.php';
-        if(strpos($this->judger_info['temp_path'], CONFIG['judge temp']) === 0) {  //如果没有找到是返回False
-            system('rm -rf '.$this->judger_info['temp_path']);
+        $temp_path = CONFIG['judge temp'].$temp_path;
+        while(is_dir($temp_path)) {
+            $temp_path .= 'n';
+        }
+        $temp_path .= '/';
+        mkdir($temp_path, 0775, true);
+        return $temp_path;
+    }
+
+    /**
+     * 清理环境
+     *
+     * @param string $temp_path
+     */
+    public static function clean($temp_path) {
+        require_once __DIR__.'/../config.php';
+        if(strpos($temp_path, CONFIG['judge temp']) === 0) {  //如果没有找到是返回False
+            system('rm -rf '.$temp_path);
         }
     }
 }
