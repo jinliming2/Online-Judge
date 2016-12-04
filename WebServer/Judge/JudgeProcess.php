@@ -75,7 +75,6 @@ class JudgeProcess {
          */
         $task_connection->onMessage = function($task_connection, $task_result) {
             $data = json_decode($task_result);
-            $this->clean();
             Result::getInstance()->update($this->rid, $data->result);
             $this->finished = true;
             $task_connection->close();
