@@ -17,20 +17,6 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/15
- * Time: 17:08
+ * Date: 2016/12/5
+ * Time: 14:52
  */
-
-
-namespace Exception;
-use Constant\MESSAGE_CODE;
-
-
-/**
- * Class QuestionDoesNotExistException
- * @package Exception
- */
-class QuestionDoesNotExistException extends \Exception {
-    public $code = MESSAGE_CODE::QUESTION_DOES_NOT_EXIST;
-    public $message = '问题不存在';
-}

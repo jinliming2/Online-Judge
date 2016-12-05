@@ -17,16 +17,6 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/5
- * Time: 16:28
+ * Date: 2016/12/5
+ * Time: 14:52
  */
-
-
-namespace Exception;
-use Constant\MESSAGE_CODE;
-
-
-class TestCaseCountException extends \Exception {
-    public $code = MESSAGE_CODE::TEST_CASE_COUNT_ERROR;
-    public $message = '测试用例与答案的数量不匹配';
-}

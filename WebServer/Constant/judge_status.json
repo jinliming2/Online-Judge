@@ -1,0 +1,10 @@
+[
+  ["Accepted"],
+  ["WaitingForJudge"],
+  ["CompileError"],
+  ["CompileTimeout"],
+  ["WrongAnswer"],
+  ["RuntimeError"],
+  ["Timeout"],
+  ["UnknownError"]
+]

@@ -20,24 +20,34 @@
  * Date: 2016/11/27
  * Time: 13:46
  */
-use Workerman\Worker;
+require __DIR__.'/Workerman/Autoloader.php';
+require __DIR__.'/config.php';
+require __DIR__.'/common.php';
 
-require_once 'Workerman/Autoloader.php';
-require_once 'config.php';
+use Workerman\Worker;
 
 //守护进程模式
 Worker::$daemonize = true;
 //日志
-if(!is_dir(CONFIG['stdout file'])) {
-    mkdir(CONFIG['stdout file'], 0775, true);
+if(!is_dir(CONFIG['stdout'])) {
+    mkdir(CONFIG['stdout'], 0775, true);
 }
-if(!is_dir(CONFIG['log file'])) {
-    mkdir(CONFIG['log file'], 0775, true);
+if(!is_dir(CONFIG['log'])) {
+    mkdir(CONFIG['log'], 0775, true);
 }
-Worker::$stdoutFile = CONFIG['stdout file'].'ws_'.date('Y-m-d').'.log';
-Worker::$logFile = CONFIG['log file'].'workerman.log';
+Worker::$stdoutFile = CONFIG['stdout'].'std_'.date('Y-m-d').'.log';
+Worker::$logFile = CONFIG['log'].'workerman.log';
 
-require_once 'judgeServer.php';
-require_once 'webSocket.php';
+//加载常量
+$JUDGE_STATUS = parseJsonConstant(__DIR__.'/Constant/judge_status.json');
 
+//加载服务
+if(CONFIG['server']['websocket']) {
+    require __DIR__.'/Websocket/main.php';
+}
+if(CONFIG['server']['judgeServer']) {
+    require __DIR__.'/JudgeServer/main.php';
+}
+
+//启动所有服务
 Worker::runAll();
