@@ -40,6 +40,7 @@ Worker::$logFile = CONFIG['log'].'workerman.log';
 
 //加载常量
 $JUDGE_STATUS = parseJsonConstant(__DIR__.'/Constant/judge_status.json');
+$MESSAGE_CODE = parseJsonConstant(__DIR__.'/Constant/message_code.json');
 
 //加载服务
 if(CONFIG['server']['websocket']) {
