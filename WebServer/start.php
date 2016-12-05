@@ -43,10 +43,13 @@ $JUDGE_STATUS = parseJsonConstant(__DIR__.'/Constant/judge_status.json');
 
 //加载服务
 if(CONFIG['server']['websocket']) {
-    require __DIR__.'/Websocket/main.php';
+    require __DIR__.'/Websocket/websocket.php';
+}
+if(CONFIG['server']['delivery']) {
+    require __DIR__.'/Delivery/delivery.php';
 }
 if(CONFIG['server']['judgeServer']) {
-    require __DIR__.'/JudgeServer/main.php';
+    require __DIR__.'/JudgeServer/judgeServer.php';
 }
 
 //启动所有服务

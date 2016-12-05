@@ -24,18 +24,31 @@
 define('CONFIG', [
     'server'      => [  //服务类型，用于分布式，不同用途服务器启动不同服务
         'websocket'   => true,
+        'delivery'    => true,
         'judgeServer' => true
     ],
     'stdout'      => __DIR__.'/log/',  //运行时日志存储目录，以‘/’结尾
     'log'         => __DIR__.'/log',  //Workerman日志存储目录，以‘/’结尾
     'websocket'   => [  //用户服务
-        'process' => 3,  //进程数
-        'mongoDB' => 'mongodb://localhost:27017'  //MongoDB数据库连接
+        'process'  => 3,  //进程数
+        'listen'   => '[::]:8080',  //监听端口
+        'delivery' => '[::1]:9999',  //判题分配服务地址
+        'mongoDB'  => 'mongodb://localhost:27017'  //MongoDB数据库连接
+    ],
+    'delivery'    => [  //判题分配服务
+        'listen'     => '[::1]:9999',  //监听端口
+        'serverList' => [  //判题服务器列表
+            [
+                'address' => '[::1]:6666',  //判题服务器地址
+                'process' => 10  //判题服务器进程数
+            ]
+        ]
     ],
     'judgeServer' => [  //判题服务
         'process' => 10,  //进程数
         'in'      => __DIR__.'/in/',  //测试用例存储目录，以‘/’结尾
         'out'     => __DIR__.'/out/',  //测试用例对应答案存储目录，以‘/’结尾
-        'tmp'     => __DIR__.'/tmp/'  //判题临时文件存储目录，以‘/’结尾
+        'tmp'     => __DIR__.'/tmp/',  //判题临时文件存储目录，以‘/’结尾
+        'listen'  => '[::1]:6666',  //监听端口
     ]
 ]);
