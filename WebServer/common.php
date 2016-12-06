@@ -20,7 +20,11 @@
  * Date: 2016/11/3
  * Time: 20:25
  */
+use Workerman\Connection\TcpConnection;
+
 /**
+ * 格式化Json常量
+ *
  * @param string $filename
  *
  * @return stdClass
@@ -33,4 +37,41 @@ function parseJsonConstant(string $filename) {
         $ret->$v = $k;
     }
     return $ret;
+}
+
+/**
+ * 输出日志
+ *
+ * @param mixed  $message
+ * @param string $type
+ */
+function logs(mixed $message, string $type = ' ') {
+    if(!is_string($message)) {
+        $message = (string)$message;
+    }
+    $message = str_replace("\n", "\n                        ", $message);
+    if($type == '') {
+        $type = ' ';
+    } elseif(strlen($type) > 1) {
+        $type = substr($type, 0, 1);
+    }
+    echo date('Y-m-d H:i:s').'  '.$type.'  '.$message."\n";
+}
+
+/**
+ * 连接心跳
+ *
+ * @param TcpConnection $connection
+ */
+function heartBeat(TcpConnection $connection) {
+    $connection->lastMessageTime = time();
+}
+
+/**
+ * 取当前时间戳（13位）
+ * @return string
+ */
+function timestamp() {
+    list($t1, $t2) = explode(' ', microtime());
+    return $t2.ceil(($t1 * 1000));
 }

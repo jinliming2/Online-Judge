@@ -22,8 +22,11 @@
  */
 use Constant\DELIVERY_MESSAGE;
 use Workerman\Connection\AsyncTcpConnection;
+use Workerman\Connection\TcpConnection;
 use Workerman\Lib\Timer;
 use Workerman\Worker;
+
+require __DIR__.'/message.php';
 
 //心跳包间隔（秒）
 define('HEARTBEAT_TIME', 300);
@@ -31,11 +34,12 @@ $worker = new Worker('websocket://'.CONFIG['websocket']['listen']);
 //同时服务进程数
 $worker->count = CONFIG['websocket']['process'];
 
-/** 启动服务
+/**
+ * 启动服务
  *
  * @param Worker $worker
  */
-$worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_CODE) {
+$worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
     //任务队列
     $worker->process_pool = [];
     //心跳检测
@@ -52,19 +56,19 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_CODE) {
         }
     });
     //任务处理
-    Timer::add(5, function() use ($worker, $MESSAGE_CODE) {
+    Timer::add(5, function() use ($worker, $MESSAGE_TYPE) {
         $count = count($worker->process_pool);
         if($count > 0) {
             //查询可用服务数
             $task = new AsyncTcpConnection('text://'.CONFIG['websocket']['delivery']);
-            $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $count, $MESSAGE_CODE) {
+            $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $count, $MESSAGE_TYPE) {
                 $task->close();
                 //创建服务请求
                 $count = min($count, intval($message));
                 for($i = 0; $i < $count; ++$i) {
                     $task = new AsyncTcpConnection('text://'.CONFIG['websocket']['delivery']);
                     $task->task = array_shift($worker->process_pool);
-                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($MESSAGE_CODE) {
+                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($MESSAGE_TYPE) {
                         $message = json_decode($message);
                         if($message->code == DELIVERY_MESSAGE::REQUEST_SUCCEED) {
                             //请求服务成功，发送任务
@@ -78,8 +82,9 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_CODE) {
                             //TODO: 更新结果到数据库
                             if($task->task->client->alive) {
                                 //回应客户端
+                                heartBeat($task->task->client);
                                 $task->task->client->send(json_encode([
-                                    'code'   => $MESSAGE_CODE->JudgeResult,
+                                    'code'   => $MESSAGE_TYPE->JudgeResult,
                                     'id'     => (string)$task->task->rid,
                                     'result' => $message->result
                                 ]));
@@ -94,4 +99,125 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_CODE) {
             $task->connect();
         }
     });
+    logs('Websocket server ['.$worker->id.'] now listening on '.CONFIG['websocket']['listen']);
+};
+
+/**
+ * 服务平滑重启
+ *
+ * @param Worker $worker
+ */
+$worker->onWorkerReload = function(Worker $worker) {
+    logs('WebSocket server ['.$worker->id.'] now reloading.', 'C');
+};
+
+/**
+ * 停止服务
+ *
+ * @param Worker $worker
+ */
+$worker->onWorkerStop = function(Worker $worker) {
+    logs('WebSocket server ['.$worker->id.'] now stopped.', 'W');
+};
+
+/**
+ * 客户端建立连接
+ *
+ * @param TcpConnection $connection
+ */
+$worker->onConnect = function(TcpConnection $connection) {
+    $connection->onWebSocketConnect = function(TcpConnection $connection, string $http_header) {
+        //连接验证
+        if(false) {
+            $connection->close();
+        }
+    };
+    heartBeat($connection);
+    //客户端连接存活状态
+    $connection->alive = true;
+    $connection->onClose = function(TcpConnection $connection) {
+        $connection->alive = false;
+    };
+};
+
+/**
+ * 消息处理
+ *
+ * @param TcpConnection $connection
+ * @param string        $data
+ */
+$worker->onMessage = function(TcpConnection $connection, string $data) use ($MESSAGE_TYPE) {
+    heartBeat($connection);
+    $data = json_decode($data);
+    if(is_null($data) || !isset($data->code)) {
+        $connection->send(json_encode([
+            'code'     => -1024,
+            'message0' => '(╯▔＾▔)╯︵ ┻━┻',
+            'message1' => '┬─┬ ノ(▔ - ▔ノ)',
+            'message2' => '(╯°Д°)╯︵ ┻━┻'
+        ]));
+        return;
+    }
+    if(!isset($data->_t)) {
+        $data->_t = timestamp();
+    }
+    try {
+        switch($data->code) {
+            case $MESSAGE_TYPE->Login:  //用户登录
+                mLogin($connection, $data);
+                break;
+            case $MESSAGE_TYPE->Logout:  //用户注销
+                mLogout($connection, $data);
+                break;
+            case $MESSAGE_TYPE->Register:  //用户注册
+                mRegister($connection, $data);
+                break;
+            case $MESSAGE_TYPE->Judge:  //代码评判
+                mJudge($connection, $data);
+                break;
+            case $MESSAGE_TYPE->AddQuestion:  //添加问题
+                mAddQuestion($connection, $data);
+                break;
+            default:
+                $connection->send(json_encode([
+                    'code'    => $MESSAGE_TYPE->Error,
+                    'message' => 'Access Deny',
+                    '_t'      => $data->_t
+                ]));
+                break;
+        }
+    } catch (Exception $e) {
+        logs(
+            $e->getCode().' '.
+            $e->getMessage()."\n".
+            $e->getLine().' of '.
+            $e->getFile()."\n".
+            $e->getTraceAsString()
+            , 'E'
+        );
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_TYPE->Error,
+            'message' => 'Service Unavailable',
+            '_t'      => $data->_t
+        ]));
+    }
+};
+
+/**
+ * 连接断开
+ *
+ * @param TcpConnection $connection
+ */
+$worker->onClose = function(TcpConnection $connection) {
+};
+
+/**
+ * 出错
+ *
+ * @param TcpConnection $connection
+ * @param int           $code
+ * @param string        $msg
+ */
+$worker->onError = function(TcpConnection $connection, int $code, string $msg) {
+    logs($connection->getRemoteIp().':'.$connection->getRemotePort().' Error: '.$code.' '.$msg, 'E');
 };

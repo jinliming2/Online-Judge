@@ -1,0 +1,9 @@
+[
+  ["Error"],
+  ["Login"],
+  ["Logout"],
+  ["Register"],
+  ["Judge"],
+  ["JudgeResult"],
+  ["AddQuestion"]
+]
