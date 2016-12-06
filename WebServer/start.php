@@ -21,8 +21,8 @@
  * Time: 13:46
  */
 require __DIR__.'/Workerman/Autoloader.php';
-require __DIR__.'/config.php';
 require __DIR__.'/common.php';
+require_once __DIR__.'/config.php';
 
 use Workerman\Worker;
 
