@@ -20,6 +20,7 @@
  * Date: 2016/12/6
  * Time: 14:56
  */
+use Database\User;
 use Workerman\Connection\TcpConnection;
 
 /**
@@ -28,7 +29,32 @@ use Workerman\Connection\TcpConnection;
  * @param TcpConnection $connection
  * @param stdClass      $data
  */
-function mLogin(TcpConnection $connection, stdClass $data) {
+function mLogin(TcpConnection $connection, stdClass $data) use($MESSAGE_TYPE, $MESSAGE_CODE) {
+    if(isset($data->token)) {
+        //使用Token登录
+        $user = User::getInstance()->login($data->token);
+        if($user === null) {
+            $connection->send(json_encode([
+                'code' => $MESSAGE_CODE->LogonTimeout,
+                'type' => $MESSAGE_TYPE->Login,
+                'message' => 'Logon Timeout',
+                '_t'      => $data->_t
+            ]));
+            return;
+        }
+    } elseif(isset($data->username) && isset($data->password)) {
+        //使用账号密码登录
+        $user = User::getInstance()->login($data->username, $data->password);
+        if($user === null) {
+            $connection->send(json_encode([
+                'code' => $MESSAGE_CODE->UsernamePasswordError,
+                'type' => $MESSAGE_TYPE->Login,
+                'message' => 'Username or Password Error',
+                '_t'      => $data->_t
+            ]));
+            return;
+        }
+    }
 }
 
 /**

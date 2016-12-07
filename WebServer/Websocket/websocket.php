@@ -84,9 +84,9 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
                                 //回应客户端
                                 heartBeat($task->task->client);
                                 $task->task->client->send(json_encode([
-                                    'code'   => $MESSAGE_TYPE->JudgeResult,
-                                    'id'     => (string)$task->task->rid,
-                                    'result' => $message->result
+                                    'code' => $message->result,
+                                    'type' => $MESSAGE_TYPE->JudgeResult,
+                                    'id'   => (string)$task->task->rid
                                 ]));
                             }
                         }
@@ -146,10 +146,10 @@ $worker->onConnect = function(TcpConnection $connection) {
  * @param TcpConnection $connection
  * @param string        $data
  */
-$worker->onMessage = function(TcpConnection $connection, string $data) use ($MESSAGE_TYPE) {
+$worker->onMessage = function(TcpConnection $connection, string $data) use ($MESSAGE_TYPE, $MESSAGE_CODE) {
     heartBeat($connection);
     $data = json_decode($data);
-    if(is_null($data) || !isset($data->code)) {
+    if(is_null($data) || !isset($data->type)) {
         $connection->send(json_encode([
             'code'     => -1024,
             'message0' => '(╯▔＾▔)╯︵ ┻━┻',
@@ -162,7 +162,7 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
         $data->_t = timestamp();
     }
     try {
-        switch($data->code) {
+        switch($data->type) {
             case $MESSAGE_TYPE->Login:  //用户登录
                 mLogin($connection, $data);
                 break;
@@ -180,7 +180,8 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
                 break;
             default:
                 $connection->send(json_encode([
-                    'code'    => $MESSAGE_TYPE->Error,
+                    'code'    => $MESSAGE_CODE->AccessDeny,
+                    'type'    => $MESSAGE_TYPE->Error,
                     'message' => 'Access Deny',
                     '_t'      => $data->_t
                 ]));
@@ -196,7 +197,8 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
             , 'E'
         );
         $connection->send(json_encode([
-            'code'    => $MESSAGE_TYPE->Error,
+            'code'    => $MESSAGE_CODE->ServiceUnavailable,
+            'type'    => $MESSAGE_TYPE->Error,
             'message' => 'Service Unavailable',
             '_t'      => $data->_t
         ]));

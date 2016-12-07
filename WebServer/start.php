@@ -41,6 +41,7 @@ Worker::$logFile = CONFIG['log'].'workerman.log';
 //加载常量
 $JUDGE_STATUS = parseJsonConstant('judge_status');
 $MESSAGE_TYPE = parseJsonConstant('message_type');
+$MESSAGE_CODE = parseJsonConstant('message_code');
 
 //加载服务
 if(CONFIG['server']['websocket']) {

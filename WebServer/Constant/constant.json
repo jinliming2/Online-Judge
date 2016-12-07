@@ -17,5 +17,12 @@
     ["RuntimeError"],
     ["Timeout"],
     ["UnknownError"]
+  ],
+  "message_code": [
+    ["Success"],
+    ["ServiceUnavailable"],
+    ["AccessDeny"],
+    ["LogonTimeout"],
+    ["UsernamePasswordError"]
   ]
 }
