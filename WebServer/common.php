@@ -25,14 +25,17 @@ use Workerman\Connection\TcpConnection;
 /**
  * 格式化Json常量
  *
- * @param string $filename
+ * @param string $node
  *
  * @return stdClass
  */
-function parseJsonConstant(string $filename) {
-    $obj = json_decode(file_get_contents($filename));
+function parseJsonConstant(string $node) {
+    static $json = null;
+    if($json === null) {
+        $json = json_decode(file_get_contents(__DIR__.'/Constant/constant.json'));
+    }
     $ret = new stdClass();
-    foreach($obj as $k => $v) {
+    foreach($json->$node as $k => $v) {
         $v = $v[0];
         $ret->$v = $k;
     }

@@ -39,8 +39,8 @@ Worker::$stdoutFile = CONFIG['stdout'].'std_'.date('Y-m-d').'.log';
 Worker::$logFile = CONFIG['log'].'workerman.log';
 
 //加载常量
-$JUDGE_STATUS = parseJsonConstant(__DIR__.'/Constant/judge_status.json');
-$MESSAGE_TYPE = parseJsonConstant(__DIR__.'/Constant/message_type.json');
+$JUDGE_STATUS = parseJsonConstant('judge_status');
+$MESSAGE_TYPE = parseJsonConstant('message_type');
 
 //加载服务
 if(CONFIG['server']['websocket']) {

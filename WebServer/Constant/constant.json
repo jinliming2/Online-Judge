@@ -1,0 +1,21 @@
+{
+  "message_type": [
+    ["Error"],
+    ["Login"],
+    ["Logout"],
+    ["Register"],
+    ["Judge"],
+    ["JudgeResult"],
+    ["AddQuestion"]
+  ],
+  "judge_status": [
+    ["Accepted"],
+    ["WaitingForJudge"],
+    ["CompileError"],
+    ["CompileTimeout"],
+    ["WrongAnswer"],
+    ["RuntimeError"],
+    ["Timeout"],
+    ["UnknownError"]
+  ]
+}
