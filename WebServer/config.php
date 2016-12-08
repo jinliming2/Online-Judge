@@ -28,7 +28,7 @@ define('CONFIG', [
         'judgeServer' => true
     ],
     'stdout'      => __DIR__.'/log/',  //运行时日志存储目录，以‘/’结尾
-    'log'         => __DIR__.'/log',  //Workerman日志存储目录，以‘/’结尾
+    'log'         => __DIR__.'/log/',  //Workerman日志存储目录，以‘/’结尾
     'websocket'   => [  //用户服务
         'process'  => 3,  //进程数
         'listen'   => '[::]:8080',  //监听端口

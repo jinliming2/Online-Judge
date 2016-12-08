@@ -29,7 +29,8 @@ use Workerman\Connection\TcpConnection;
  * @param TcpConnection $connection
  * @param stdClass      $data
  */
-function mLogin(TcpConnection $connection, stdClass $data) use($MESSAGE_TYPE, $MESSAGE_CODE) {
+function mLogin(TcpConnection $connection, stdClass $data) {
+    global $MESSAGE_TYPE, $MESSAGE_CODE;
     if(isset($data->token)) {
         //使用Token登录
         $user = User::getInstance()->login($data->token);

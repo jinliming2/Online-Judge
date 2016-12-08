@@ -48,7 +48,7 @@ function parseJsonConstant(string $node) {
  * @param mixed  $message
  * @param string $type
  */
-function logs(mixed $message, string $type = ' ') {
+function logs($message, string $type = ' ') {
     if(!is_string($message)) {
         $message = (string)$message;
     }
