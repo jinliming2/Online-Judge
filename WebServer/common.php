@@ -30,10 +30,7 @@ use Workerman\Connection\TcpConnection;
  * @return stdClass
  */
 function parseJsonConstant(string $node) {
-    static $json = null;
-    if($json === null) {
-        $json = json_decode(file_get_contents(__DIR__.'/Constant/constant.json'));
-    }
+    $json = json_decode(file_get_contents(__DIR__.'/Constant/constant.json'));
     $ret = new stdClass();
     foreach($json->$node as $k => $v) {
         $v = $v[0];
