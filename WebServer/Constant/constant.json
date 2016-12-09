@@ -20,7 +20,8 @@
     ["ServiceUnavailable"],
     ["AccessDeny"],
     ["LogonTimeout"],
-    ["TooFrequent"]
+    ["TooFrequent"],
+    ["StartJudging"]
   ],
   "language_type": [
     ["C"],

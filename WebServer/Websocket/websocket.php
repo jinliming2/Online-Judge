@@ -45,7 +45,7 @@ $worker->count = CONFIG['websocket']['process'];
  *
  * @param Worker $worker
  */
-$worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
+$worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_CODE) {
     //任务队列
     $worker->process_pool = [];
     //心跳检测
@@ -62,19 +62,19 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
         }
     });
     //任务处理
-    Timer::add(5, function() use ($worker, $MESSAGE_TYPE) {
+    Timer::add(5, function() use ($worker, $MESSAGE_TYPE, $MESSAGE_CODE) {
         $count = count($worker->process_pool);
         if($count > 0) {
             //查询可用服务数
             $task = new AsyncTcpConnection('text://'.CONFIG['websocket']['delivery']);
-            $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $count, $MESSAGE_TYPE) {
+            $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $count, $MESSAGE_TYPE, $MESSAGE_CODE) {
                 $task->close();
                 //创建服务请求
                 $count = min($count, intval($message));
                 for($i = 0; $i < $count; ++$i) {
                     $task = new AsyncTcpConnection('text://'.CONFIG['websocket']['delivery']);
                     $task->task = array_shift($worker->process_pool);
-                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($MESSAGE_TYPE) {
+                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($MESSAGE_TYPE, $MESSAGE_CODE) {
                         $message = json_decode($message);
                         if($message->code == DELIVERY_MESSAGE::REQUEST_SUCCEED) {
                             //请求服务成功，发送任务
@@ -82,6 +82,17 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
                                 'code' => DELIVERY_MESSAGE::JUDGE,
                                 'data' => $task->task->judge_info
                             ]));
+                            //向用户发送开始消息
+                            Channel\Client::publish('message', [
+                                'user'    => (string)$task->task->uid,
+                                'message' => [
+                                    'code'    => $MESSAGE_CODE->StartJudging,
+                                    'type'    => $MESSAGE_TYPE->JudgeResult,
+                                    'message' => 'Start Judging',
+                                    'id'      => (string)$task->task->rid,
+                                    '_t'      => timestamp()
+                                ]
+                            ]);
                         } elseif($message->code == DELIVERY_MESSAGE::JUDGE_SUCCEED) {
                             $task->close();
                             //任务完成
@@ -89,11 +100,13 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
                             //向用户发送结果
                             Channel\Client::publish('message', [
                                 'user'    => (string)$task->task->uid,
-                                'message' => json_encode([
-                                    'code' => $message->result,
-                                    'type' => $MESSAGE_TYPE->JudgeResult,
-                                    'id'   => (string)$task->task->rid
-                                ])
+                                'message' => [
+                                    'code'    => $message->result,
+                                    'type'    => $MESSAGE_TYPE->JudgeResult,
+                                    'message' => 'Judge Result',
+                                    'id'      => (string)$task->task->rid,
+                                    '_t'      => timestamp()
+                                ]
                             ]);
                         }
                     };
@@ -108,11 +121,11 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
     //Workerman 通讯客户
     Channel\Client::connect(CONFIG['websocket']['channel']['listen'], CONFIG['websocket']['channel']['port']);
     //广播消息
-    Channel\Client::on('broadcast', function(string $event_data) use ($worker) {
+    Channel\Client::on('broadcast', function($event_data) use ($worker) {
         foreach($worker->connections as $connection) {
             if($connection->alive) {
                 heartBeat($connection);
-                $connection->send($event_data);
+                $connection->send(json_encode($event_data));
             }
         }
     });
@@ -124,7 +137,7 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
             }
             if(isset($connection->user_info) && $event_data['user'] == $connection->user_info->_id) {
                 heartBeat($connection);
-                $connection->send($event_data['message']);
+                $connection->send(json_encode($event_data['message']));
             }
         }
     });
