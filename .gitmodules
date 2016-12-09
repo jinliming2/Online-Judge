@@ -4,3 +4,6 @@
 [submodule "Docker/EasySandbox"]
 	path = Docker/EasySandbox
 	url = https://github.com/daveho/EasySandbox.git
+[submodule "WebServer/Channel"]
+	path = WebServer/Channel
+	url = https://github.com/walkor/Channel.git
