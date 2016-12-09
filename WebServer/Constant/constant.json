@@ -2,11 +2,8 @@
   "message_type": [
     ["Error"],
     ["Login"],
-    ["Logout"],
-    ["Register"],
     ["Judge"],
-    ["JudgeResult"],
-    ["AddQuestion"]
+    ["JudgeResult"]
   ],
   "judge_status": [
     ["Accepted"],
@@ -22,7 +19,6 @@
     ["Success"],
     ["ServiceUnavailable"],
     ["AccessDeny"],
-    ["LogonTimeout"],
-    ["UsernamePasswordError"]
+    ["LogonTimeout"]
   ]
 }

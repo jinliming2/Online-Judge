@@ -166,17 +166,8 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
             case $MESSAGE_TYPE->Login:  //用户登录
                 mLogin($connection, $data);
                 break;
-            case $MESSAGE_TYPE->Logout:  //用户注销
-                mLogout($connection, $data);
-                break;
-            case $MESSAGE_TYPE->Register:  //用户注册
-                mRegister($connection, $data);
-                break;
             case $MESSAGE_TYPE->Judge:  //代码评判
                 mJudge($connection, $data);
-                break;
-            case $MESSAGE_TYPE->AddQuestion:  //添加问题
-                mAddQuestion($connection, $data);
                 break;
             default:
                 $connection->send(json_encode([

@@ -33,7 +33,6 @@ function mLogin(TcpConnection $connection, stdClass $data) {
     global $MESSAGE_TYPE, $MESSAGE_CODE;
     $user = null;
     if(isset($data->token)) {
-        //使用Token登录
         $user = User::getInstance()->login($data->token);
         if($user === null) {
             $connection->send(json_encode([
@@ -42,60 +41,17 @@ function mLogin(TcpConnection $connection, stdClass $data) {
                 'message' => 'Logon Timeout',
                 '_t'      => $data->_t
             ]));
-            return;
-        }
-    } elseif(isset($data->username) && isset($data->password)) {
-        //使用账号密码登录
-        $user = User::getInstance()->login($data->username, $data->password);
-        if($user === null) {
+        } else {
+            $connection->user_info = $user;
             $connection->send(json_encode([
-                'code'    => $MESSAGE_CODE->UsernamePasswordError,
+                'code'    => $MESSAGE_CODE->Success,
                 'type'    => $MESSAGE_TYPE->Login,
-                'message' => 'Username or Password Error',
+                'message' => 'Success',
+                'token'   => $user->token,
                 '_t'      => $data->_t
             ]));
-            return;
         }
     }
-    if($user !== null) {
-        $connection->user_info = $user;
-        $connection->send(json_encode([
-            'code'    => $MESSAGE_CODE->Success,
-            'type'    => $MESSAGE_TYPE->Login,
-            'message' => 'Success',
-            'token'   => $user->token,
-            '_t'      => $data->_t
-        ]));
-    }
-}
-
-/**
- * 用户注销
- *
- * @param TcpConnection $connection
- * @param stdClass      $data
- */
-function mLogout(TcpConnection $connection, stdClass $data) {
-    global $MESSAGE_TYPE, $MESSAGE_CODE;
-    if(isset($connection->user_info)) {
-        User::getInstance()->logOut($connection->user_info->token);
-        unset($connection->user_info);
-        $connection->send(json_encode([
-            'code'    => $MESSAGE_CODE->Success,
-            'type'    => $MESSAGE_TYPE->Logout,
-            'message' => 'Success',
-            '_t'      => $data->_t
-        ]));
-    }
-}
-
-/**
- * 用户注册
- *
- * @param TcpConnection $connection
- * @param stdClass      $data
- */
-function mRegister(TcpConnection $connection, stdClass $data) {
 }
 
 /**
@@ -105,13 +61,4 @@ function mRegister(TcpConnection $connection, stdClass $data) {
  * @param stdClass      $data
  */
 function mJudge(TcpConnection $connection, stdClass $data) {
-}
-
-/**
- * 添加问题
- *
- * @param TcpConnection $connection
- * @param stdClass      $data
- */
-function mAddQuestion(TcpConnection $connection, stdClass $data) {
 }
