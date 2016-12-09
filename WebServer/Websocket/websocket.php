@@ -21,12 +21,18 @@
  * Time: 14:52
  */
 use Constant\DELIVERY_MESSAGE;
+use Database\Result;
 use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Connection\TcpConnection;
 use Workerman\Lib\Timer;
 use Workerman\Worker;
 
+require __DIR__.'/../Channel/src/Client.php';
+require __DIR__.'/../Channel/src/Server.php';
 require __DIR__.'/message.php';
+
+//Workerman 通讯服务
+$channel_server = new Channel\Server(CONFIG['websocket']['channel']['listen'], CONFIG['websocket']['channel']['port']);
 
 //心跳包间隔（秒）
 define('HEARTBEAT_TIME', 300);
@@ -79,16 +85,16 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
                         } elseif($message->code == DELIVERY_MESSAGE::JUDGE_SUCCEED) {
                             $task->close();
                             //任务完成
-                            //TODO: 更新结果到数据库
-                            if($task->task->client->alive) {
-                                //回应客户端
-                                heartBeat($task->task->client);
-                                $task->task->client->send(json_encode([
+                            Result::getInstance()->updateResult($task->task->rid, $message->result);
+                            //向用户发送结果
+                            Channel\Client::publish('message', [
+                                'user'    => (string)$task->task->uid,
+                                'message' => json_encode([
                                     'code' => $message->result,
                                     'type' => $MESSAGE_TYPE->JudgeResult,
                                     'id'   => (string)$task->task->rid
-                                ]));
-                            }
+                                ])
+                            ]);
                         }
                     };
                     $task->send(json_encode(['code' => DELIVERY_MESSAGE::REQUEST]));
@@ -97,6 +103,29 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE) {
             };
             $task->send(json_encode(['code' => DELIVERY_MESSAGE::AVAILABLE]));
             $task->connect();
+        }
+    });
+    //Workerman 通讯客户
+    Channel\Client::connect(CONFIG['websocket']['channel']['listen'], CONFIG['websocket']['channel']['port']);
+    //广播消息
+    Channel\Client::on('broadcast', function(string $event_data) use ($worker) {
+        foreach($worker->connections as $connection) {
+            if($connection->alive) {
+                heartBeat($connection);
+                $connection->send($event_data);
+            }
+        }
+    });
+    //指定用户消息
+    Channel\Client::on('message', function(array $event_data) use ($worker) {
+        foreach($worker->connections as $connection) {
+            if(!$connection->alive) {
+                continue;
+            }
+            if(isset($connection->user_info) && $event_data['user'] == $connection->user_info->_id) {
+                heartBeat($connection);
+                $connection->send($event_data['message']);
+            }
         }
     });
     logs('Websocket server ['.$worker->id.'] now listening on '.CONFIG['websocket']['listen']);

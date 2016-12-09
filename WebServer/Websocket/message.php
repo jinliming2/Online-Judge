@@ -116,6 +116,7 @@ function mJudge(TcpConnection $connection, stdClass $data) {
     //评测信息
     $connection->worker->process_pool[] = [
         'rid'        => $result,
+        'uid'        => $connection->user_info->_id,
         'judge_info' => [
             'qid'       => $question->_id,
             'time'      => $question->time,
