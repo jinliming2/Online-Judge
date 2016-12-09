@@ -161,7 +161,9 @@ class User extends Database {
     public function modify_unset(ObjectID $user_id, array $columns) {
         $arr = [];
         foreach($columns as $column) {
-            $arr[$column] = null;
+            if($column != 'username' && $column != 'password' && $column != 'name' && $column != 'su') {
+                $arr[$column] = null;
+            }
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $user_id], ['$unset' => $arr]);

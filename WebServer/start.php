@@ -42,6 +42,7 @@ Worker::$logFile = CONFIG['log'].'workerman.log';
 $JUDGE_STATUS = parseJsonConstant('judge_status');
 $MESSAGE_TYPE = parseJsonConstant('message_type');
 $MESSAGE_CODE = parseJsonConstant('message_code');
+$LANGUAGE_TYPE = parseJsonConstant('language_type', true);
 
 //加载服务
 if(CONFIG['server']['websocket']) {

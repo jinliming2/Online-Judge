@@ -19,6 +19,12 @@
     ["Success"],
     ["ServiceUnavailable"],
     ["AccessDeny"],
-    ["LogonTimeout"]
+    ["LogonTimeout"],
+    ["TooFrequent"]
+  ],
+  "language_type": [
+    ["C"],
+    ["CPP"],
+    ["JAVA"]
   ]
 }

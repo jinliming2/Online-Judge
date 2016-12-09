@@ -26,15 +26,23 @@ use Workerman\Connection\TcpConnection;
  * 格式化Json常量
  *
  * @param string $node
+ * @param bool   $parseArray
  *
- * @return stdClass
+ * @return array|stdClass
  */
-function parseJsonConstant(string $node) {
+function parseJsonConstant(string $node, bool $parseArray = false) {
     $json = json_decode(file_get_contents(__DIR__.'/Constant/constant.json'));
-    $ret = new stdClass();
-    foreach($json->$node as $k => $v) {
-        $v = $v[0];
-        $ret->$v = $k;
+    if($parseArray) {
+        $ret = [];
+        foreach($json->$node as $v) {
+            $ret[] = $v[0];
+        }
+    } else {
+        $ret = new stdClass();
+        foreach($json->$node as $k => $v) {
+            $v = $v[0];
+            $ret->$v = $k;
+        }
     }
     return $ret;
 }

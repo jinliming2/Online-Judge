@@ -33,6 +33,7 @@ define('CONFIG', [
         'process'  => 3,  //进程数
         'listen'   => '[::]:8080',  //监听端口
         'delivery' => '[::1]:9999',  //判题分配服务地址
+        'interval' => 10,  //用户提交评判请求最短时间间隔（秒）
         'mongoDB'  => 'mongodb://localhost:27017'  //MongoDB数据库连接
     ],
     'delivery'    => [  //判题分配服务
