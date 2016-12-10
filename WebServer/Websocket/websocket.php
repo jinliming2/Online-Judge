@@ -74,12 +74,12 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                 for($i = 0; $i < $count; ++$i) {
                     $task = new AsyncTcpConnection('text://'.CONFIG['websocket']['delivery']);
                     $task->task = array_shift($worker->process_pool);
-                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($MESSAGE_TYPE, $MESSAGE_CODE) {
+                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $MESSAGE_TYPE, $MESSAGE_CODE) {
                         $message = json_decode($message);
                         if($message->code == DELIVERY_MESSAGE::REQUEST_SUCCEED) {
                             //请求服务成功，发送任务
                             $task->send(json_encode([
-                                'code' => DELIVERY_MESSAGE::JUDGE,
+                                'type' => DELIVERY_MESSAGE::JUDGE,
                                 'data' => $task->task->judge_info
                             ]));
                             //向用户发送开始消息
@@ -98,23 +98,31 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                             //任务完成
                             Result::getInstance()->updateResult($task->task->rid, $message->result);
                             //向用户发送结果
+                            $ret = [
+                                'code'    => $message->result,
+                                'type'    => $MESSAGE_TYPE->JudgeResult,
+                                'message' => 'Judge Result',
+                                'id'      => (string)$task->task->rid,
+                                '_t'      => timestamp()
+                            ];
+                            if(isset($message->info)) {
+                                $ret['info'] = $message->info;
+                            }
                             Channel\Client::publish('message', [
                                 'user'    => (string)$task->task->uid,
-                                'message' => [
-                                    'code'    => $message->result,
-                                    'type'    => $MESSAGE_TYPE->JudgeResult,
-                                    'message' => 'Judge Result',
-                                    'id'      => (string)$task->task->rid,
-                                    '_t'      => timestamp()
-                                ]
+                                'message' => $ret
                             ]);
+                        } elseif($message->code == DELIVERY_MESSAGE::REQUEST_FAILED) {
+                            $task->close();
+                            //请求任务失败，回到队伍前排继续
+                            array_unshift($worker->process_pool, $task->task);
                         }
                     };
-                    $task->send(json_encode(['code' => DELIVERY_MESSAGE::REQUEST]));
+                    $task->send(json_encode(['type' => DELIVERY_MESSAGE::REQUEST]));
                     $task->connect();
                 }
             };
-            $task->send(json_encode(['code' => DELIVERY_MESSAGE::AVAILABLE]));
+            $task->send(json_encode(['type' => DELIVERY_MESSAGE::AVAILABLE]));
             $task->connect();
         }
     });
@@ -222,6 +230,7 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
         }
     } catch (Exception $e) {
         logs(
+            'WebSocket server ['.$connection->worker->id.'] '.
             $e->getCode().' '.
             $e->getMessage()."\n".
             $e->getLine().' of '.
@@ -254,5 +263,5 @@ $worker->onClose = function(TcpConnection $connection) {
  * @param string        $msg
  */
 $worker->onError = function(TcpConnection $connection, int $code, string $msg) {
-    logs($connection->getRemoteIp().':'.$connection->getRemotePort().' Error: '.$code.' '.$msg, 'E');
+    logs('WebSocket server ['.$connection->worker->id.'] '.$connection->getRemoteIp().':'.$connection->getRemotePort().' Error: '.$code.' '.$msg, 'E');
 };

@@ -35,4 +35,5 @@ abstract class DELIVERY_MESSAGE {
 
     const REQUEST_SUCCEED = 4;
     const JUDGE_SUCCEED = 5;
+    const REQUEST_FAILED = 6;
 }
