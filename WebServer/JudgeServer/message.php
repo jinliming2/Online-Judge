@@ -33,6 +33,7 @@ use Workerman\Connection\TcpConnection;
 function mProcess(TcpConnection $connection, stdClass $data) {
     $data->temp_path = createDirectory($data->temp_path);
     $connection->send(json_encode(getJudger($data)->start()));
+    clean($data->temp_path);
 }
 
 /**
@@ -50,6 +51,17 @@ function createDirectory(string $temp_path) {
     $temp_path .= '/';
     mkdir($temp_path, 0775, true);
     return $temp_path;
+}
+
+/**
+ * 清理环境
+ *
+ * @param string $temp_path
+ */
+function clean(string $temp_path) {
+    if(strpos($temp_path, CONFIG['judge temp']) === 0) {  //如果没有找到是返回False
+        system('rm -rf '.$temp_path);
+    }
 }
 
 /**
