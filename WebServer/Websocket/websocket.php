@@ -198,8 +198,8 @@ $worker->onConnect = function(TcpConnection $connection) {
  */
 $worker->onMessage = function(TcpConnection $connection, string $data) use ($MESSAGE_TYPE, $MESSAGE_CODE) {
     heartBeat($connection);
-    $data = json_decode($data);
-    if(is_null($data) || !isset($data->type)) {
+    $d = json_decode($data);
+    if(is_null($d) || !isset($d->type)) {
         $connection->send(json_encode([
             'code'     => -1024,
             'message0' => '(╯▔＾▔)╯︵ ┻━┻',
@@ -208,29 +208,30 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
         ]));
         return;
     }
-    if(!isset($data->_t)) {
-        $data->_t = timestamp();
+    if(!isset($d->_t)) {
+        $d->_t = timestamp();
     }
     try {
-        switch($data->type) {
+        switch($d->type) {
             case $MESSAGE_TYPE->Login:  //用户登录
-                mLogin($connection, $data);
+                mLogin($connection, $d);
                 break;
             case $MESSAGE_TYPE->Judge:  //代码评判
-                mJudge($connection, $data);
+                mJudge($connection, $d);
                 break;
             default:
                 $connection->send(json_encode([
                     'code'    => $MESSAGE_CODE->AccessDeny,
                     'type'    => $MESSAGE_TYPE->Error,
                     'message' => 'Access Deny',
-                    '_t'      => $data->_t
+                    '_t'      => $d->_t
                 ]));
                 break;
         }
     } catch (Exception $e) {
         logs(
             'WebSocket server ['.$connection->worker->id.'] '.
+            $data."\n".
             $e->getCode().' '.
             $e->getMessage()."\n".
             $e->getLine().' of '.
@@ -242,7 +243,7 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
             'code'    => $MESSAGE_CODE->ServiceUnavailable,
             'type'    => $MESSAGE_TYPE->Error,
             'message' => 'Service Unavailable',
-            '_t'      => $data->_t
+            '_t'      => $d->_t
         ]));
     }
 };

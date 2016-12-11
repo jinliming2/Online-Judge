@@ -88,9 +88,9 @@ $worker->onConnect = function(TcpConnection $connection) {
  * @param string        $data
  */
 $worker->onMessage = function(TcpConnection $connection, string $data) {
-    $data = json_decode($data);
+    $d = json_decode($data);
     try {
-        switch($data->type) {
+        switch($d->type) {
             case DELIVERY_MESSAGE::AVAILABLE:  //可用服务数
                 mAvailable($connection);
                 break;
@@ -98,12 +98,13 @@ $worker->onMessage = function(TcpConnection $connection, string $data) {
                 mRequest($connection);
                 break;
             case DELIVERY_MESSAGE::JUDGE:  //开始
-                mJudge($connection, $data);
+                mJudge($connection, $d);
                 break;
         }
     } catch (Exception $e) {
         logs(
             'Delivery server '.
+            $data."\n".
             $e->getCode().' '.
             $e->getMessage()."\n".
             $e->getLine().' of '.

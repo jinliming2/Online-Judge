@@ -71,12 +71,13 @@ $worker->onConnect = function(TcpConnection $connection) {
  * @param string        $data
  */
 $worker->onMessage = function(TcpConnection $connection, string $data) use ($JUDGE_STATUS) {
-    $data = json_decode($data);
+    $d = json_decode($data);
     try {
-        mProcess($connection, $data);
+        mProcess($connection, $d);
     } catch (Exception $e) {
         logs(
             'Judge server ['.$connection->worker->id.'] '.
+            $data."\n".
             $e->getCode().' '.
             $e->getMessage()."\n".
             $e->getLine().' of '.
