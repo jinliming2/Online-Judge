@@ -28,7 +28,6 @@ use Workerman\Connection\TcpConnection;
  * 获取可用服务数
  *
  * @param TcpConnection $connection
- * @param stdClass      $data
  */
 function mAvailable(TcpConnection $connection) {
     $connection->send($connection->worker->available);
@@ -38,7 +37,6 @@ function mAvailable(TcpConnection $connection) {
  * 申请服务
  *
  * @param TcpConnection $connection
- * @param stdClass      $data
  */
 function mRequest(TcpConnection $connection) {
     //寻找可用服务器
