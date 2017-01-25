@@ -17,27 +17,32 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/5
- * Time: 15:42
+ * Date: 2016/12/9
+ * Time: 14:12
  */
 
 
 namespace Database;
-require_once __DIR__.'/../config.php';
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
-use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\Query;
-use Exception\TestCaseCountException;
-
+use stdClass;
 
 /**
  * Class Question
  * @package Database
  */
-final class Question extends Database {
+class Question extends Database {
+    /**
+     * 单例对象
+     * @var Question
+     */
     private static $obj = null;
+    /**
+     * 表名
+     * @var string
+     */
     private static $table = 'questions';
 
     /**
@@ -45,93 +50,132 @@ final class Question extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        Question::$table = Database::$database.'.'.Question::$table;
+        self::$table = parent::$database.'.'.self::$table;
     }
 
     /**
      * @return Question
      */
     public static function getInstance() {
-        if(Question::$obj == null) {
-            Question::$obj = new Question();
+        if(self::$obj == null) {
+            self::$obj = new self();
         }
-        return Question::$obj;
+        return self::$obj;
     }
 
+    /** 增 */
     /**
+     * 添加问题
      *
-     * @param array $data
-     * [
-     * 'title'       => $title,
-     * 'description' => $description,
-     * 'memory'      => $memory_limit, (MB, Optional)
-     * 'time'        => $time_limit,   (Seconds, Optional)
-     * 'data'        => $data          (Optional)
-     * ]
-     * @param array $test_case
-     * @param array $answer
+     * @param string $title
+     * @param string $description
+     * @param string $username
+     * @param array  $data
      *
-     * @return ObjectID|False
-     * @throws TestCaseCountException
-     * @throws RuntimeException
+     * @return ObjectID|false
      */
-    public function add($data, $test_case, $answer) {
-        $n = count($test_case);
-        if($n != count($answer)) {
-            throw new TestCaseCountException;
-        }
-        if(!is_dir(CONFIG['test case'])) {
-            mkdir(CONFIG['test case'], 0775, true);
-        }
-        if(!is_dir(CONFIG['answer'])) {
-            mkdir(CONFIG['answer'], 0775, true);
-        }
-        $bulk = new BulkWrite(['ordered' => true]);
-        $insert = $bulk->insert($data);
-        $tmp = '';
-        for($i = 0; $i < $n; $i++) {
-            if($test_case[$i] != '') {
-                $tmp .= trim($test_case[$i])."\n\n";
-            }
-        }
-        file_put_contents(CONFIG['test case'].(string)$insert, $tmp);
-        $tmp = '';
-        for($i = 0; $i < $n; $i++) {
-            if($answer[$i] != '') {
-                $tmp .= trim($answer[$i])."\n\n";
-            }
-        }
-        file_put_contents(CONFIG['answer'].(string)$insert, $tmp);
-        $bulk->update(['_id' => $insert], ['$set' => [
-            'test'   => CONFIG['test case'].(string)$insert,
-            'answer' => CONFIG['answer'].(string)$insert
-        ]]);
-        $result = Database::$connection->executeBulkWrite(Question::$table, $bulk);
+    public function add(string $title, string $description, string $username, array $data = []) {
+        $bulk = new BulkWrite();
+        $insert = $bulk->insert(array_merge([
+            'title'       => $title,
+            'description' => $description,
+            'adder'       => $username,
+            'add_time'    => timestamp()
+        ], $data));
+        $result = parent::$connection->executeBulkWrite(self::$table, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
         return false;
     }
 
+    /** 删 */
+
+    /** 改 */
     /**
-     * @param ObjectID|string $id
+     * 修改
      *
-     * @return \stdClass|null
-     * @throws \InvalidArgumentException
-     * @throws RuntimeException
+     * @param ObjectID $id
+     * @param array    $data
      */
-    public function getOne($id) {
-        if(is_string($id)) {
-            $id = new ObjectID($id);
+    public function modify(ObjectID $id, array $data) {
+        if(isset($data['_id'])) {
+            unset($data['_id']);
         }
-        if(!($id instanceof ObjectID)) {
-            throw new \InvalidArgumentException;
+        $bulk = new BulkWrite();
+        $bulk->update(['_id' => $id], ['$set' => $data]);
+        parent::$connection->executeBulkWrite(self::$table, $bulk);
+    }
+
+    /**
+     * 修改 - 删除字段
+     *
+     * @param ObjectID $id
+     * @param array    $columns
+     */
+    public function modify_unset(ObjectID $id, array $columns) {
+        $arr = [];
+        foreach($columns as $column) {
+            if($column != 'title' && $column != 'description' && $column != 'adder' && $column != 'add_time') {
+                $arr[$column] = null;
+            }
         }
+        $bulk = new BulkWrite();
+        $bulk->update(['_id' => $id], ['$unset' => $arr]);
+        parent::$connection->executeBulkWrite(self::$table, $bulk);
+    }
+
+    /** 查 */
+    /**
+     * 获取问题
+     *
+     * @param ObjectID $id
+     *
+     * @return stdClass|false
+     */
+    public function getOne(ObjectID $id) {
         $query = new Query(['_id' => $id]);
-        $rows = Database::$connection->executeQuery(Question::$table, $query)->toArray();
+        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
         if(count($rows) > 0) {
+            if(!isset($rows[0]->time)) {
+                $rows[0]->time = 1;
+            }
+            if(!isset($rows[0]->memory)) {
+                $rows[0]->memory = 65536;
+            }
             return $rows[0];
         }
-        return null;
+        return false;
+    }
+
+    /**
+     * 获取问题
+     *
+     * @param array $condition
+     * @param int   $start
+     * @param int   $count
+     *
+     * @return false|array
+     */
+    public function getList(array $condition, int $start = 0, int $count = 0) {
+        $query = new Query($condition, [
+            'skip'  => $start,
+            'limit' => $count
+        ]);
+        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        if(count($rows) > 0) {
+            unset($row);
+            foreach($rows as &$row) {
+                if(!isset($row->time)) {
+                    $row->time = 1;
+                }
+                if(!isset($row->memory)) {
+                    $row->memory = 65536;
+                }
+            }
+            unset($row);
+            return $rows;
+        }
+        return false;
     }
 }

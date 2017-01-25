@@ -17,20 +17,16 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/4
- * Time: 13:50
+ * Date: 2016/12/11
+ * Time: 14:47
  */
-
-
-namespace Constant;
-
-
-/**
- * Class LANGUAGE_TYPE
- * @package Constant
- */
-abstract class LANGUAGE_TYPE {
-    const C = 0;
-    const CPP = 1;
-    const JAVA = 2;
+define('WEBP', strpos($_SERVER['HTTP_ACCEPT'], 'image/webp') === false ? '' : '.webp');
+define('IS_GET', $_SERVER['REQUEST_METHOD'] == 'GET');
+define('IS_POST', $_SERVER['REQUEST_METHOD'] == 'POST');
+define('IS_HTTPS', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || $_SERVER['SERVER_PORT'] == 443);
+session_start();
+if(isset($_SESSION['user']->_id)) {
+    if(!isset($_COOKIE['token'])) {
+        setcookie('token', $_SESSION['user']->token, null, null, null, IS_HTTPS, false);
+    }
 }

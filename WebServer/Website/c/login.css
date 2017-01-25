@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * Copyright 2017 Liming Jin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * Created by Liming
- * Date: 2016/11/4
- * Time: 13:46
- */
-
-
-namespace Constant;
-
-
-/**
- * Class MESSAGE_TYPE
- * @package Constant
- */
-abstract class MESSAGE_TYPE {
-    const JUDGE = 1;
-    const LOGIN = 2;
-    const LOG_OUT = 3;
-    const REGISTER = 4;
-    const ADD_QUESTION = 5;
+.line {
+    width: 100%;
+    padding: 8px;
+    text-align: center;
 }
+
+label {
+    display: inline-block;
+    width: 80px;
+    text-align: right;
+}
+
+input {
+    height: 38px;
+    width: calc(100% - 100px);
+    line-height: 38px;
+    border: 1px solid #E6E6E6;
+    border-radius: 3px;
+    outline: none;
+    padding: 0 10px;
+}
+
+div[id=tip] {
+    text-align: center;
+    color: red;
+    font-size: 12px;
+    height: 15px;
+    line-height: 15px;
+}
+

@@ -17,26 +17,27 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/5
- * Time: 15:45
+ * Date: 2016/12/6
+ * Time: 15:10
  */
 
 
 namespace Database;
 require_once __DIR__.'/../config.php';
-
-
 use MongoDB\Driver\Manager;
-
 
 /**
  * Class Database
  * @package Database
  */
 abstract class Database {
-    protected static $database = 'Judge';  //数据库名
-
     /**
+     * 数据库名
+     * @var string
+     */
+    protected static $database = 'Judge';
+    /**
+     * 数据库连接
      * @var Manager
      */
     protected static $connection = null;
@@ -45,10 +46,13 @@ abstract class Database {
      * Database constructor.
      */
     protected function __construct() {
-        if(Database::$connection == null) {
-            Database::$connection = new Manager(CONFIG['mongoDB']);
+        if(self::$connection == null) {
+            self::$connection = new Manager(CONFIG['websocket']['mongoDB']);
         }
     }
 
+    /**
+     * @return Database
+     */
     public static abstract function getInstance();
 }

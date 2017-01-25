@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * Copyright 2017 Liming Jin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+html, body {
+    min-width: 1000px;
+}
 
-/**
- * Created by Liming
- * Date: 2016/11/5
- * Time: 16:19
- */
+.question {
+    color: black;
+    text-decoration: none;
+    display: block;
+    padding: 15px calc((100% - 1170px) / 2);
+}
 
+.question:nth-child(odd) {
+    background-color: #ccddcc;
+}
 
-namespace Exception;
-use Constant\MESSAGE_CODE;
+.question:nth-child(even) {
+    background-color: #889988;
+}
 
+.question .date {
+    float: right;
+}
 
-class UnknownLanguageException extends \Exception {
-    public $code = MESSAGE_CODE::UNKNOWN_LANGUAGE;
-    public $message = '未知的代码语言';
+.question .title {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.question .tag {
+    display: inline-block;
 }

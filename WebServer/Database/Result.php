@@ -17,27 +17,30 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/6
- * Time: 20:12
+ * Date: 2016/12/9
+ * Time: 14:42
  */
 
 
 namespace Database;
 
-use Constant\JUDGE_RESULT;
-use Constant\LANGUAGE_TYPE;
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
-use MongoDB\Driver\Exception\RuntimeException;
-use MongoDB\Driver\Query;
-
 
 /**
  * Class Result
  * @package Database
  */
-final class Result extends Database {
+class Result extends Database {
+    /**
+     * 单例对象
+     * @var Result
+     */
     private static $obj = null;
+    /**
+     * 表名
+     * @var string
+     */
     private static $table = 'results';
 
     /**
@@ -45,111 +48,65 @@ final class Result extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        Result::$table = Database::$database.'.'.Result::$table;
+        self::$table = parent::$database.'.'.self::$table;
     }
 
     /**
      * @return Result
      */
     public static function getInstance() {
-        if(Result::$obj == null) {
-            Result::$obj = new Result();
+        if(self::$obj == null) {
+            self::$obj = new self();
         }
-        return Result::$obj;
+        return self::$obj;
     }
 
+    /** 增 */
     /**
-     * @param ObjectID|string $uid
-     * @param ObjectID|string $qid
-     * @param string          $code
-     * @param LANGUAGE_TYPE   $language
+     * 添加评测记录
      *
-     * @return ObjectID|False rid on success, or false on error
-     * @throws RuntimeException
+     * @param ObjectID $uid
+     * @param ObjectID $qid
+     * @param int      $language
+     * @param string   $code
+     * @param array    $data
+     *
+     * @return ObjectID|false
      */
-    public function add($uid, $qid, $code, $language) {
-        list($t1, $t2) = explode(' ', microtime());
+    public function add(ObjectID $uid, ObjectID $qid, int $language, string $code, array $data = []) {
+        global $JUDGE_STATUS;
         $bulk = new BulkWrite();
-        $insert = $bulk->insert([
+        $insert = $bulk->insert(array_merge([
             'uid'      => $uid,
             'qid'      => $qid,
             'language' => $language,
             'code'     => $code,
-            'time'     => $t2.round($t1 * 1000),
-            'result'   => JUDGE_RESULT::WAITING_FOR_JUDGE
-        ]);
-        $result = Database::$connection->executeBulkWrite(Result::$table, $bulk);
+            'time'     => timestamp(),
+            'result'   => $JUDGE_STATUS->WaitingForJudge
+        ], $data));
+        $result = parent::$connection->executeBulkWrite(self::$table, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
         return false;
     }
 
+    /** 删 */
+
+    /** 改 */
     /**
-     * @param ObjectID|string $rid
-     * @param JUDGE_RESULT|int    $result
+     * 更新测试结果
      *
-     * @throws \InvalidArgumentException
-     * @throws RuntimeException
+     * @param ObjectID $rid
+     * @param int      $result
      */
-    public function update($rid, $result) {
-        if(is_string($rid)) {
-            $rid = new ObjectID($rid);
-        }
-        if(!($rid instanceof ObjectID)) {
-            throw new \InvalidArgumentException;
-        }
+    public function updateResult(ObjectID $rid, int $result) {
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $rid], ['$set' => [
             'result' => $result
         ]]);
-        Database::$connection->executeBulkWrite(Result::$table, $bulk);
+        parent::$connection->executeBulkWrite(self::$table, $bulk);
     }
 
-    /**
-     * @param ObjectID|string $rid
-     *
-     * @return \stdClass|null
-     * @throws \InvalidArgumentException
-     * @throws RuntimeException
-     */
-    public function getOne($rid) {
-        if(is_string($rid)) {
-            $rid = new ObjectID($rid);
-        }
-        if(!($rid instanceof ObjectID)) {
-            throw new \InvalidArgumentException;
-        }
-        $query = new Query(['_id' => $rid]);
-        $rows = Database::$connection->executeQuery(Result::$table, $query)->toArray();
-        if(count($rows) > 0) {
-            return $rows[0];
-        }
-        return null;
-    }
-
-    /**
-     * @param ObjectID|string $uid
-     * @param ObjectID|string $qid
-     *
-     * @return array
-     * @throws \InvalidArgumentException
-     */
-    public function getResults($uid, $qid) {
-        if(is_string($uid)) {
-            $uid = new ObjectID($uid);
-        }
-        if(!($uid instanceof ObjectID)) {
-            throw new \InvalidArgumentException;
-        }
-        if(is_string($qid)) {
-            $qid = new ObjectID($qid);
-        }
-        if(!($qid instanceof ObjectID)) {
-            throw new \InvalidArgumentException;
-        }
-        $query = new Query(['uid' => $uid, 'qid' => $qid]);
-        $rows = Database::$connection->executeQuery(Result::$table, $query)->toArray();
-        return $rows;
-    }
+    /** 查 */
 }
