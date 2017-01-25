@@ -39,7 +39,7 @@ function mLogin(TcpConnection $connection, stdClass $data) {
         return;
     }
     $user = User::getInstance()->login($data->token);
-    if($user === null) {
+    if($user === false) {
         $connection->send(json_encode([
             'code'    => $MESSAGE_CODE->LogonTimeout,
             'type'    => $MESSAGE_TYPE->Login,

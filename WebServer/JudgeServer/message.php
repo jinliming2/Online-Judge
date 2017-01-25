@@ -76,7 +76,7 @@ function getJudger(stdClass $judger_info) {
     switch($LANGUAGE_TYPE[$judger_info->language]) {
         case 'C':
             return null;  //TODO: C Judger
-        case 'CPP':
+        case 'C++':
             return new CppJudger($judger_info);
         case 'JAVA':
             return null;  //TODO: JAVA Judger

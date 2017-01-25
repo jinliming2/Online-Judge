@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * Copyright 2017 Liming Jin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +15,6 @@
  */
 
 /**
- * Created by Liming
- * Date: 2016/12/9
- * Time: 13:32
+ * Created by Liming on 2016/12/11.
  */
-phpinfo();
+"use strict";

@@ -109,6 +109,7 @@ class Question extends Database {
 
     /**
      * 修改 - 删除字段
+     *
      * @param ObjectID $id
      * @param array    $columns
      */
@@ -130,7 +131,7 @@ class Question extends Database {
      *
      * @param ObjectID $id
      *
-     * @return stdClass|null
+     * @return stdClass|false
      */
     public function getOne(ObjectID $id) {
         $query = new Query(['_id' => $id]);
@@ -144,6 +145,37 @@ class Question extends Database {
             }
             return $rows[0];
         }
-        return null;
+        return false;
+    }
+
+    /**
+     * 获取问题
+     *
+     * @param array $condition
+     * @param int   $start
+     * @param int   $count
+     *
+     * @return false|array
+     */
+    public function getList(array $condition, int $start = 0, int $count = 0) {
+        $query = new Query($condition, [
+            'skip'  => $start,
+            'limit' => $count
+        ]);
+        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        if(count($rows) > 0) {
+            unset($row);
+            foreach($rows as &$row) {
+                if(!isset($row->time)) {
+                    $row->time = 1;
+                }
+                if(!isset($row->memory)) {
+                    $row->memory = 65536;
+                }
+            }
+            unset($row);
+            return $rows;
+        }
+        return false;
     }
 }

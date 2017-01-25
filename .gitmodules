@@ -7,3 +7,6 @@
 [submodule "WebServer/Channel"]
 	path = WebServer/Channel
 	url = https://github.com/walkor/Channel.git
+[submodule "WebServer/Website/j/ace"]
+	path = WebServer/Website/j/ace
+	url = https://github.com/ajaxorg/ace-builds.git

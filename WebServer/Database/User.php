@@ -190,7 +190,7 @@ class User extends Database {
      * @param string $account  用户名/Token
      * @param string $password 密码，当$account为Token时此值置null
      *
-     * @return stdClass|null
+     * @return stdClass|false
      */
     public function login(string $account, string $password = null) {
         if(is_null($password)) {
@@ -212,6 +212,6 @@ class User extends Database {
                 return $rows[0];
             }
         }
-        return null;
+        return false;
     }
 }
