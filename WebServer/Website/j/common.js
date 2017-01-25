@@ -50,6 +50,13 @@ let getCookie = (key) => {
         return null;
     }
 };
+let constantIndex = (arr, str) => {
+    for(let i = 0; i < arr.length; ++i) {
+        if(arr[i][0] == str) {
+            return i;
+        }
+    }
+};
 (() => {
     window.popWindow = (width, height, title, content, iFrame = false) => {
         window.closePopWindow && window.closePopWindow();
