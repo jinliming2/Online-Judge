@@ -68,7 +68,7 @@ function mRequest(TcpConnection $connection) {
  * @param TcpConnection $connection
  * @param stdClass      $data
  */
-function mJudge(TcpConnection $connection, stdClass $data) {
+function mStartJudge(TcpConnection $connection, stdClass $data) {
     if(!isset($connection->server)) {
         return;
     }

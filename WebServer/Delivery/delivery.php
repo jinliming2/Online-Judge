@@ -98,7 +98,7 @@ $worker->onMessage = function(TcpConnection $connection, string $data) {
                 mRequest($connection);
                 break;
             case DELIVERY_MESSAGE::JUDGE:  //开始
-                mJudge($connection, $d);
+                mStartJudge($connection, $d);
                 break;
         }
     } catch (Exception $e) {
