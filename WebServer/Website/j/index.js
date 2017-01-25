@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * Copyright 2017 Liming Jin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,21 +15,6 @@
  */
 
 /**
- * Created by Liming
- * Date: 2016/11/15
- * Time: 17:08
+ * Created by Liming on 2016/12/11.
  */
-
-
-namespace Exception;
-use Constant\MESSAGE_CODE;
-
-
-/**
- * Class QuestionDoesNotExistException
- * @package Exception
- */
-class QuestionDoesNotExistException extends \Exception {
-    public $code = MESSAGE_CODE::QUESTION_DOES_NOT_EXIST;
-    public $message = '问题不存在';
-}
+"use strict";

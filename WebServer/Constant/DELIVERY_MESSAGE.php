@@ -17,28 +17,23 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/4
- * Time: 16:10
+ * Date: 2016/12/5
+ * Time: 16:37
  */
 
 
-namespace Judge;
+namespace Constant;
 
+/**
+ * Class DELIVERY_MESSAGE
+ * @package Constant
+ */
+abstract class DELIVERY_MESSAGE {
+    const AVAILABLE = 1;
+    const REQUEST = 2;
+    const JUDGE = 3;
 
-class CppJudge extends Judger {
-    protected $filename = 'main.cpp';
-
-    /**
-     * 测试命令行
-     * @return string
-     */
-    protected function command() {
-        return sprintf(
-            'docker run -v %s:/mnt/main.cpp:ro -i --rm --net none --security-opt seccomp=unconfined liming/cpp -t %f -m %d < %s 2>/dev/null',
-            $this->filename,
-            $this->time_limit,
-            $this->memory_limit,
-            $this->test_case
-        );
-    }
+    const REQUEST_SUCCEED = 4;
+    const JUDGE_SUCCEED = 5;
+    const REQUEST_FAILED = 6;
 }

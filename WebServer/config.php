@@ -22,12 +22,38 @@
  */
 
 define('CONFIG', [
-    'process count'     => 3,  //进程数，>=1
-    'sub process count' => 10,  //各进程允许的子进程数，>=1
-    'stdout file'       => __DIR__.'/log/',  //运行日志存储目录，以‘/’结尾
-    'log file'          => __DIR__.'/log/',  //WorkerMan日志存储目录，以‘/’结尾
-    'judge temp'        => __DIR__.'/tmp/',  //评测时的临时文件目录，以‘/’结尾
-    'test case'         => __DIR__.'/test_case/',  //测试用例存储目录，以‘/’结尾
-    'answer'            => __DIR__.'/answer/',  //对应测试用例答案的存储目录，以‘/’结尾
-    'mongoDB'           => 'mongodb://localhost:27017',  //MongoDB数据库链接
+    'server'      => [  //服务类型，用于分布式，不同用途服务器启动不同服务
+        'websocket'   => true,
+        'delivery'    => true,
+        'judgeServer' => true
+    ],
+    'stdout'      => __DIR__.'/log/',  //运行时日志存储目录，以‘/’结尾
+    'log'         => __DIR__.'/log/',  //Workerman日志存储目录，以‘/’结尾
+    'websocket'   => [  //用户服务
+        'process'  => 3,  //进程数
+        'listen'   => '[::]:8080',  //监听端口
+        'delivery' => '[::1]:9999',  //判题分配服务地址
+        'interval' => 10,  //用户提交评判请求最短时间间隔（秒）
+        'mongoDB'  => 'mongodb://localhost:27017',  //MongoDB数据库连接
+        'channel'  => [  //进程通信服务
+            'listen' => '[::1]',  //监听地址
+            'port'   => 2206  //监听端口
+        ]
+    ],
+    'delivery'    => [  //判题分配服务
+        'listen'     => '[::1]:9999',  //监听端口
+        'serverList' => [  //判题服务器列表
+            [
+                'address' => '[::1]:6666',  //判题服务器地址
+                'process' => 10  //判题服务器进程数
+            ]
+        ]
+    ],
+    'judgeServer' => [  //判题服务
+        'process' => 10,  //进程数
+        'in'      => __DIR__.'/in/',  //测试用例存储目录，以‘/’结尾
+        'out'     => __DIR__.'/out/',  //测试用例对应答案存储目录，以‘/’结尾
+        'tmp'     => __DIR__.'/tmp/',  //判题临时文件存储目录，以‘/’结尾
+        'listen'  => '[::1]:6666'  //监听端口
+    ]
 ]);

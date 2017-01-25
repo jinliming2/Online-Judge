@@ -20,13 +20,66 @@
  * Date: 2016/11/3
  * Time: 20:25
  */
+use Workerman\Connection\TcpConnection;
 
 /**
- * 日志格式
+ * 格式化Json常量
  *
- * @param $msg
- * @param int [$type] 0 = Normal, 1 = Warning, 2 = Error
+ * @param string $node
+ * @param bool   $parseArray
+ *
+ * @return array|stdClass
  */
-function logs($msg, $type = 0) {
-    echo date('Y-m-d H:i:s').'  '.($type == 1 ? 'W' : $type == 2 ? 'E' : ' ').'  '.$msg."\n";
+function parseJsonConstant(string $node, bool $parseArray = false) {
+    $json = json_decode(file_get_contents(__DIR__.'/Website/j/constant.json'));
+    if($parseArray) {
+        $ret = [];
+        foreach($json->$node as $v) {
+            $ret[] = $v[0];
+        }
+    } else {
+        $ret = new stdClass();
+        foreach($json->$node as $k => $v) {
+            $v = $v[0];
+            $ret->$v = $k;
+        }
+    }
+    return $ret;
+}
+
+/**
+ * 输出日志
+ *
+ * @param mixed  $message
+ * @param string $type
+ */
+function logs($message, string $type = ' ') {
+    if(!is_string($message)) {
+        $message = (string)$message;
+    }
+    $message = str_replace("\n", "\n                        ", $message);
+    if($type == '') {
+        $type = ' ';
+    } elseif(strlen($type) > 1) {
+        $type = substr($type, 0, 1);
+    }
+    echo date('Y-m-d H:i:s').'  '.$type.'  '.$message."\n";
+}
+
+/**
+ * 连接心跳
+ *
+ * @param TcpConnection $connection
+ */
+function heartBeat(TcpConnection $connection) {
+    $connection->lastMessageTime = time();
+}
+
+/**
+ * 取当前时间戳（13位）
+ * @return string
+ */
+function timestamp() {
+    list($t1, $t2) = explode(' ', microtime());
+    return $t2.ceil(($t1 * 1000));
 }

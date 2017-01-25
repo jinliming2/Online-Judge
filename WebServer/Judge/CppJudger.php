@@ -17,16 +17,35 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/5
- * Time: 16:28
+ * Date: 2016/12/11
+ * Time: 13:27
  */
 
 
-namespace Exception;
-use Constant\MESSAGE_CODE;
+namespace Judge;
 
+/**
+ * Class CppJudger
+ * @package Judge
+ */
+class CppJudger extends Judger {
+    /**
+     * 代码文件文件名
+     * @var string
+     */
+    protected $filename = 'main.cpp';
 
-class TestCaseCountException extends \Exception {
-    public $code = MESSAGE_CODE::TEST_CASE_COUNT_ERROR;
-    public $message = '测试用例与答案的数量不匹配';
+    /**
+     * 测试命令行
+     * @return string
+     */
+    protected function command() {
+        return sprintf(
+            'docker run -v %s:/mnt/main.cpp:ro -i --rm --net none --security-opt seccomp=unconfined liming/cpp -t %f -m %d < %s 2>/dev/null',
+            $this->filename,
+            $this->time_limit,
+            $this->memory_limit,
+            $this->in
+        );
+    }
 }

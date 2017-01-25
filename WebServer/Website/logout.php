@@ -17,32 +17,11 @@
 
 /**
  * Created by Liming
- * Date: 2016/11/4
- * Time: 13:51
+ * Date: 2017/1/18
+ * Time: 16:17
  */
-
-
-namespace Constant;
-
-
-/**
- * Class MESSAGE_CODE
- * @package Constant
- */
-abstract class MESSAGE_CODE {
-    const UNKNOWN_ERROR = -1;
-    const SUCCESS = 0;
-    const UNKNOWN_LANGUAGE = 1;
-    const TEST_CASE_COUNT_ERROR = 2;
-    const NEED_RE_LOGIN = 3;
-    const USERNAME_PASSWORD_ERROR = 4;
-    const NEED_LOGIN = 5;
-    const CANNOT_CREATE_PROCESS = 6;
-    const NEED_MORE_INFORMATION = 7;
-    const ACCESS_DENY = 8;
-    const PARAMETER_ERROR = 9;
-    const USERNAME_ALREADY_EXIST = 10;
-    const QUESTION_DOES_NOT_EXIST = 11;
-    const RESULT_CALLBACK = 12;
-    const START_JUDGE = 13;
+session_start();
+if(isset($_SESSION['user'])) {
+    unset($_SESSION['user']);
 }
+header('Location: '.(isset($_GET['url']) ? $_GET['url'] : '/'), true, 301);
