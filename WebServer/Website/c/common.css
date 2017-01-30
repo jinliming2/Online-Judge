@@ -115,14 +115,14 @@ button:active {
     border-radius: 5px;
     animation-fill-mode: both;
     animation-duration: .5s;
-    animation-name: bounceIn;
+    animation-name: bounce-in;
     overflow: hidden;
     box-shadow: 1px 1px 50px rgba(0, 0, 0, .3);
 }
 
 .dialog_close {
     animation-duration: .3s;
-    animation-name: bounceOut;
+    animation-name: bounce-out;
 }
 
 .dialog_title {
@@ -146,10 +146,10 @@ button:active {
     stroke: black;
     stroke-width: 2px;
     cursor: pointer;
-    transition: stroke, transform 1s;
+    transition: stroke 1s, transform 1s;
 }
 
-.dialog_btnClose:hover {
+.dialog_btnClose:hover, .common-alert-btnClose:hover {
     stroke: red;
     transform: rotate(-360deg);
 }
@@ -160,7 +160,56 @@ button:active {
     border: none;
 }
 
-@keyframes bounceIn {
+#common-alert-container {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 30%;
+}
+
+.common-alert-message {
+    background: rgba(255, 255, 255, .75);
+    border-radius: 5px;
+    animation-fill-mode: both;
+    animation-duration: .5s;
+    animation-name: pop-in;
+    border: 1px solid black;
+    margin: 2px;
+}
+
+.common-alert-message-close {
+    animation-duration: .3s;
+    animation-name: pop-out;
+}
+
+.common-alert-title {
+    padding: 0 60px 0 10px;
+    width: 100%;
+    font-weight: bold;
+    overflow: hidden;
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    background-color: #f8f8f8;
+}
+
+.common-alert-btnClose {
+    position: absolute;
+    top: 2px;
+    right: 10px;
+    font-size: 16px;
+    line-height: 16px;
+    stroke: black;
+    stroke-width: 2px;
+    cursor: pointer;
+    transition: stroke 1s, transform 1s;
+}
+
+.common-alert-body {
+    width: 100%;
+    padding: 2px 8px;
+}
+
+@keyframes bounce-in {
     0% {
         opacity: 0;
         transform: scale(.5);
@@ -171,7 +220,7 @@ button:active {
     }
 }
 
-@keyframes bounceOut {
+@keyframes bounce-out {
     0% {
         transform: scale(1)
     }
@@ -181,5 +230,29 @@ button:active {
     100% {
         opacity: 0;
         transform: scale(.5)
+    }
+}
+
+@keyframes pop-in {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pop-out {
+    0% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-15px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(30px);
     }
 }
