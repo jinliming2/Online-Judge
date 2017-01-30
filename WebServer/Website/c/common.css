@@ -192,6 +192,16 @@ button:active {
     background-color: #f8f8f8;
 }
 
+.common-alert-title-error {
+    color: #533;
+    background-color: #f88888;
+}
+
+.common-alert-title-warning {
+    color: #553;
+    background-color: #f8f888;
+}
+
 .common-alert-btnClose {
     position: absolute;
     top: 2px;

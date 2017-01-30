@@ -116,7 +116,7 @@ let request = (method, url, data = null, success = null, error = null, complete 
     }
     xmlHttp.send(data);
 };
-let alert = (message, title = 'Message', time = 10000) => {
+let alert = (message, type = 'info', title = 'Message', time = 10000) => {
     //init
     let container = document.getElementById('common-alert-container');
     if(!container) {
@@ -136,6 +136,8 @@ let alert = (message, title = 'Message', time = 10000) => {
     m.classList.add('common-alert-message');
     let title_div = document.createElement('div');
     title_div.classList.add('common-alert-title');
+    type[0] == 'e' && title_div.classList.add('common-alert-title-error');
+    type[0] == 'w' && title_div.classList.add('common-alert-title-warning');
     title_div.innerHTML = title;
     let btnClose = document.createElement('span');
     btnClose.classList.add('common-alert-btnClose');

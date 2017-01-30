@@ -20,7 +20,7 @@
 "use strict";
 class Message {
     constructor() {
-        this._ready = null;
+        this.ready = null;
         this._connected = false;
         this._callbackList = [];
         this._events = {
@@ -36,21 +36,21 @@ class Message {
         };
         this._connection = new WebSocket('ws://' + window.location.hostname + ':8080');
         this._connection.onopen = (e) => {
-            this._ready = false;
+            this.ready = false;
             this._connected = true;
             for(let event of this._events.open) {
                 event.call(this, e);
             }
         };
         this._connection.onclose = (e) => {
-            this._ready = false;
+            this.ready = false;
             this._connected = false;
             for(let event of this._events.close) {
                 event.call(this, e);
             }
         };
         this._connection.onerror = (e) => {
-            this._ready = false;
+            this.ready = false;
             this._connected = false;
             for(let event of this._events.error) {
                 event.call(this, e);
@@ -93,7 +93,7 @@ class Message {
     }
 
     login(token) {
-        if(this._ready === false) {
+        if(this.ready === false) {
             this._connection.send(JSON.stringify({
                 'type': constantIndex(constant['message_type'], 'Login'),
                 'token': token
@@ -102,31 +102,55 @@ class Message {
     }
 
     sendMessage(message, callback) {
-        if(this._ready) {
+        if(this.ready) {
             message._t || (message._t = Date.now());
-            this._callbackList[this._callbackList.length] = [message._t, callback];
+            callback && (this._callbackList[this._callbackList.length] = [message._t, callback]);
             this._connection.send(JSON.stringify(message));
         }
     }
 }
 
 (() => {
-    let msg = new Message();
-    msg.addType('Error', (msg) => {
-    });
-    msg.addType('Login', (msg) => {
-        switch(constant['message_code'][msg.code][0]) {
-            case 'Success':
-                break;
-            case 'LogonTimeout':
-                break;
-        }
-    });
-    msg.addType('Judge', (msg) => {
-    });
-    msg.addType('JudgeResult', (msg) => {
-    });
-    msg.addEvent('open', (e) => {
-        msg.login(getCookie('token'));
-    });
+    let msg, heartBeat = -1;
+    let connect = () => {
+        msg = new Message();
+        msg.addEvent('open', (e) => {
+            heartBeat = setInterval(() => {
+                msg.sendMessage('heart-beat');
+            }, 240000);
+        });
+        msg.addEvent('close', (e) => {
+            clearInterval(heartBeat);
+            alert('与服务器的连接中断！', 'w');
+            setTimeout(() => {
+                alert('重新连接……');
+                connect();
+            }, 5000);
+        });
+        msg.addEvent('error', (e) => {
+            alert('无法与服务器建立连接！', 'e');
+        });
+        msg.addType('Error', (msg) => {
+        });
+        msg.addType('Login', (msg) => {
+            switch(constant['message_code'][msg.code][0]) {
+                case 'Success':
+                    msg.ready = true;
+                    alert('登录成功！');
+                    break;
+                case 'LogonTimeout':
+                    msg.ready = false;
+                    alert('由于在其他地方登录，当前Session已失效，请注销并重新登录！', 'e');
+                    break;
+            }
+        });
+        msg.addType('Judge', (msg) => {
+        });
+        msg.addType('JudgeResult', (msg) => {
+        });
+        msg.addEvent('open', (e) => {
+            msg.login(getCookie('token'));
+        });
+    };
+    connect();
 })();
