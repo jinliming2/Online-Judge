@@ -36,7 +36,7 @@ let editor_edited = false;
             let file = new Blob([editor.getValue()], {type: 'plain/text'});
             let event = document.createEvent('MouseEvents');
             event.initEvent('click', false, false);
-            a.download = document.title + '.' + constant.language_type[language.value][4];
+            a.download = document.title + '.' + constant.language_type[language.value][6];
             a.href = URL.createObjectURL(file);
             a.dispatchEvent(event);
         });
@@ -54,8 +54,10 @@ let editor_edited = false;
             if(!editor_edited) {
                 editor.session.setMode(constant.language_type[language.value][1]);
                 editor.setValue(constant.language_type[language.value][2]);
-                editor.gotoLine(constant.language_type[language.value][3]);
+                editor.navigateTo(constant.language_type[language.value][3], constant.language_type[language.value][4]);
+                editor.selection.selectTo(constant.language_type[language.value][3], constant.language_type[language.value][5]);
                 editor_edited = false;
+                editor.focus();
             }
         };
         let _language = getCookie('_language');
@@ -67,5 +69,34 @@ let editor_edited = false;
         }
         change();
         language.addEventListener('change', change);
+
+        let _key = '_qS_' + getQuery('id');
+        window.addEventListener('beforeunload', () => {
+            if(editor_edited) {
+                let pos = editor.selection.getCursor();
+                let content = editor.getValue();
+                if(content == '') {
+                    sessionStorage.removeItem(_key);
+                    return;
+                }
+                for(let code of constant.language_type) {
+                    if(content == code[2]) {
+                        sessionStorage.removeItem(_key);
+                        return;
+                    }
+                }
+                sessionStorage.setItem(_key, pos.row + ' ' + pos.column + "\n" + content);
+            }
+        });
+
+        let saved_code = sessionStorage.getItem(_key);
+        if(saved_code) {
+            let l = saved_code.indexOf("\n");
+            editor.setValue(saved_code.substr(l + 1));
+            l = saved_code.substr(0, l).split(' ');
+            console.log(l);
+            editor.navigateTo(l[0], l[1]);
+            editor.focus();
+        }
     }
 })();

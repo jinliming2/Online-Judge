@@ -38,6 +38,13 @@ let ajax = (method, url, data, success, error, complete) => {
     }
     xmlHttp.send(data);
 };
+let getQuery = (name) => {
+    let result = location.search.match(new RegExp('[\?\&]' + name + '=([^\&]+)', 'i'));
+    if(result == null || result.length < 1) {
+        return '';
+    }
+    return result[1];
+};
 let setCookie = (key, value, time) => {
     let exp = new Date(Date.now() + time);
     document.cookie = key + '=' + encodeURIComponent(value) + ";expires=" + exp.toGMTString();

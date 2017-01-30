@@ -164,7 +164,8 @@ button:active {
     position: fixed;
     right: 0;
     bottom: 0;
-    width: 30%;
+    width: 380px;
+    z-index: 9999;
 }
 
 .common-alert-message {

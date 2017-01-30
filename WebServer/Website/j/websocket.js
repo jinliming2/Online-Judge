@@ -106,24 +106,26 @@ class Message {
             message._t || (message._t = Date.now());
             callback && (this._callbackList[this._callbackList.length] = [message._t, callback]);
             this._connection.send(JSON.stringify(message));
+        } else {
+            alert('通讯服务还没有登录，请尝试刷新页面！', 'e');
         }
     }
 }
 
 (() => {
-    let msg, heartBeat = -1;
+    let heartBeat = -1;
     let connect = () => {
-        msg = new Message();
-        msg.addEvent('open', (e) => {
+        window.messageServer = new Message();
+        window.messageServer.addEvent('open', (e) => {
             heartBeat = setInterval(() => {
-                msg.sendMessage('heart-beat');
+                window.messageServer.sendMessage('heart-beat');
             }, 240000);
             let token = getCookie('token');
             if(token) {
-                msg.login(token);
+                window.messageServer.login(token);
             }
         });
-        msg.addEvent('close', (e) => {
+        window.messageServer.addEvent('close', (e) => {
             clearInterval(heartBeat);
             alert('与服务器的连接中断！', 'w');
             setTimeout(() => {
@@ -131,12 +133,12 @@ class Message {
                 connect();
             }, 5000);
         });
-        msg.addEvent('error', (e) => {
+        window.messageServer.addEvent('error', (e) => {
             alert('无法与服务器建立连接！', 'e');
         });
-        msg.addType('Error', (msg) => {
+        window.messageServer.addType('Error', (msg) => {
         });
-        msg.addType('Login', (msg) => {
+        window.messageServer.addType('Login', (msg) => {
             switch(constant['message_code'][msg.code][0]) {
                 case 'Success':
                     msg.ready = true;
@@ -148,9 +150,9 @@ class Message {
                     break;
             }
         });
-        msg.addType('Judge', (msg) => {
+        window.messageServer.addType('Judge', (msg) => {
         });
-        msg.addType('JudgeResult', (msg) => {
+        window.messageServer.addType('JudgeResult', (msg) => {
         });
     };
     connect();
