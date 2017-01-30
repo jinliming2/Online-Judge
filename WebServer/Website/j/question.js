@@ -41,45 +41,31 @@ let editor_edited = false;
             a.dispatchEvent(event);
         });
 
-        let callback = () => {
-            let language = document.getElementById('language');
-            language.innerHTML = '';
-            for(let i = 0; i < constant.language_type.length; ++i) {
-                let option = document.createElement('option');
-                option.value = i;
-                option.innerHTML = constant.language_type[i][0];
-                language.appendChild(option);
-            }
-            let change = () => {
-                setCookie('_language', language.value, 2592000000);
-                if(!editor_edited) {
-                    editor.session.setMode(constant.language_type[language.value][1]);
-                    editor.setValue(constant.language_type[language.value][2]);
-                    editor.gotoLine(constant.language_type[language.value][3]);
-                    editor_edited = false;
-                }
-            };
-            let _language = getCookie('_language');
-            if(_language) {
-                language.value = _language;
-            } else {
-                language.value = 0;
-                setCookie('_language', 0, 2592000000);
-            }
-            change();
-            language.addEventListener('change', change);
-        };
-        if(constant) {
-            callback();
-            return;
+        let language = document.getElementById('language');
+        language.innerHTML = '';
+        for(let i = 0; i < constant.language_type.length; ++i) {
+            let option = document.createElement('option');
+            option.value = i;
+            option.innerHTML = constant.language_type[i][0];
+            language.appendChild(option);
         }
-        ajax('GET', '/j/constant.json', null, (xmlHttp) => {
-            try {
-                constant = JSON.parse(xmlHttp.responseText);
-                callback();
-            } catch (e) {
-                console.error('Load Constant Failed.');
+        let change = () => {
+            setCookie('_language', language.value, 2592000000);
+            if(!editor_edited) {
+                editor.session.setMode(constant.language_type[language.value][1]);
+                editor.setValue(constant.language_type[language.value][2]);
+                editor.gotoLine(constant.language_type[language.value][3]);
+                editor_edited = false;
             }
-        });
+        };
+        let _language = getCookie('_language');
+        if(_language) {
+            language.value = _language;
+        } else {
+            language.value = 0;
+            setCookie('_language', 0, 2592000000);
+        }
+        change();
+        language.addEventListener('change', change);
     }
 })();

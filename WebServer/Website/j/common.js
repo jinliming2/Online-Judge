@@ -19,7 +19,6 @@
  */
 "use strict";
 const CLOSE_BUTTON = '<svg viewBox="0 0 16 16" width="16px" height="16px" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L14 14M2 14L14 2"></path></svg>';
-let constant = null;
 let ajax = (method, url, data, success, error, complete) => {
     data = data || null;
     let xmlHttp = new XMLHttpRequest();
@@ -166,14 +165,5 @@ let alert = (message, type = 'info', title = 'Message', time = 10000) => {
     });
     buttons[2] && buttons[2].addEventListener('click', () => {
         location.replace('/logout.php?url=' + encodeURIComponent(location.href.replace(/^https?:\/\/[^/]+/, '')));
-    });
-})();
-(() => {
-    ajax('GET', '/j/constant.json', null, (xmlHttp) => {
-        try {
-            constant = JSON.parse(xmlHttp.responseText);
-        } catch(e) {
-            console.error('Load Constant Failed.');
-        }
     });
 })();

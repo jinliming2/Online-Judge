@@ -31,7 +31,7 @@ use Workerman\Connection\TcpConnection;
  * @return array|stdClass
  */
 function parseJsonConstant(string $node, bool $parseArray = false) {
-    $json = json_decode(file_get_contents(__DIR__.'/Website/j/constant.json'));
+    $json = json_decode(file_get_contents(__DIR__.'/Constant/constant.json'));
     if($parseArray) {
         $ret = [];
         foreach($json->$node as $v) {

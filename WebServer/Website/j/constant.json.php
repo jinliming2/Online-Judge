@@ -17,18 +17,18 @@
 
 /**
  * Created by Liming
- * Date: 2016/12/11
- * Time: 14:47
+ * Date: 2017/1/30
+ * Time: 15:21
  */
-define('WEBP', strpos($_SERVER['HTTP_ACCEPT'], 'image/webp') === false ? '' : '.webp');
-define('IS_GET', $_SERVER['REQUEST_METHOD'] == 'GET');
-define('IS_POST', $_SERVER['REQUEST_METHOD'] == 'POST');
-define('IS_HTTPS', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || $_SERVER['SERVER_PORT'] == 443);
-session_start();
-if(isset($_SESSION['user']->_id)) {
-    if(!isset($_COOKIE['token'])) {
-        setcookie('token', $_SESSION['user']->token, null, null, null, IS_HTTPS, false);
+$file = __DIR__.'/../../Constant/constant.json';
+$last = gmdate('D, d M Y H:i:s T', filemtime($file));
+if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+    if($last == $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
+        header('Last-Modified: '.$last, true, 304);
+        die;
     }
-} else {
-    setcookie('token', '', -1, null, null, IS_HTTPS, false);
 }
+header('Content-Type:application/javascript; charset=utf-8', true);
+header('Last-Modified: '.$last, true, 200);
+?>
+let constant = <?php include $file; ?>;
