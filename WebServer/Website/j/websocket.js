@@ -118,6 +118,10 @@ class Message {
             heartBeat = setInterval(() => {
                 msg.sendMessage('heart-beat');
             }, 240000);
+            let token = getCookie('token');
+            if(token) {
+                msg.login(token);
+            }
         });
         msg.addEvent('close', (e) => {
             clearInterval(heartBeat);
@@ -147,9 +151,6 @@ class Message {
         msg.addType('Judge', (msg) => {
         });
         msg.addType('JudgeResult', (msg) => {
-        });
-        msg.addEvent('open', (e) => {
-            msg.login(getCookie('token'));
         });
     };
     connect();
