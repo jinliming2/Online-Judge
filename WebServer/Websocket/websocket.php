@@ -150,9 +150,14 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
         }
     });
     //用户注销
-    Channel\Client::on('logout', function(string $token) use ($worker) {
+    Channel\Client::on('logout', function(string $token) use ($worker, $MESSAGE_TYPE) {
         foreach($worker->connections as $connection) {
             if($connection->user_info->token == $token) {
+                $connection->send(json_encode([
+                    'type'    => $MESSAGE_TYPE->Logout,
+                    'message' => 'Logged out.',
+                    '_t'      => timestamp()
+                ]));
                 $connection->close();
             }
         }

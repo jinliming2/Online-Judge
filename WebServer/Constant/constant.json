@@ -2,6 +2,7 @@
   "message_type": [
     ["Error"],
     ["Login"],
+    ["Logout"],
     ["Judge"],
     ["JudgeResult"]
   ],

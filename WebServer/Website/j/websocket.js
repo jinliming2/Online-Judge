@@ -150,6 +150,9 @@ class Message {
                     break;
             }
         });
+        window.messageServer.addType('Logout', (msg) => {
+            alert('当前用户已注销！将断开服务连接！');
+        });
         window.messageServer.addType('Judge', (msg) => {
         });
         window.messageServer.addType('JudgeResult', (msg) => {
