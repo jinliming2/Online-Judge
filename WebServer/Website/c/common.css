@@ -23,6 +23,7 @@ html, body {
 * {
     box-sizing: border-box;
     user-select: none;
+    outline: none;
     font-family: "Source Code Pro", "Microsoft YaHei", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", sans-serif;
 }
 
@@ -169,13 +170,13 @@ button:active {
 }
 
 .common-alert-message {
-    background: rgba(255, 255, 255, .75);
-    border-radius: 5px;
     animation-fill-mode: both;
     animation-duration: .5s;
     animation-name: pop-in;
-    border: 1px solid black;
     margin: 2px;
+    border: 1px solid #e2e2e2;
+    background: rgba(255, 255, 255, .75);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, .24);
 }
 
 .common-alert-message-close {
