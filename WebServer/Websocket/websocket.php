@@ -154,6 +154,7 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
         foreach($worker->connections as $connection) {
             if($connection->user_info->token == $token) {
                 $connection->send(json_encode([
+                    'code'    => 0,
                     'type'    => $MESSAGE_TYPE->Logout,
                     'message' => 'Logged out.',
                     '_t'      => timestamp()

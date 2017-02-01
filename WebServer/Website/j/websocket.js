@@ -31,6 +31,7 @@ class Message {
         this._type = {
             'Error': [],
             'Login': [],
+            'Logout': [],
             'Judge': [],
             'JudgeResult': []
         };
