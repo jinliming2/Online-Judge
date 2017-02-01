@@ -141,11 +141,11 @@ class Message {
         window.messageServer.addType('Login', (msg) => {
             switch(constant['message_code'][msg.code][0]) {
                 case 'Success':
-                    msg.ready = true;
+                    window.messageServer.ready = true;
                     alert('登录成功！');
                     break;
                 case 'LogonTimeout':
-                    msg.ready = false;
+                    window.messageServer.ready = false;
                     alert('由于在其他地方登录，当前Session已失效，请注销并重新登录！', 'e');
                     break;
             }
