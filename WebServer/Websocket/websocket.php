@@ -149,6 +149,14 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
             }
         }
     });
+    //用户注销
+    Channel\Client::on('logout', function(string $token) use ($worker) {
+        foreach($worker->connections as $connection) {
+            if($connection->user_info->token == $token) {
+                $connection->close();
+            }
+        }
+    });
     logs('Websocket server ['.$worker->id.'] now listening on '.CONFIG['websocket']['listen']);
 };
 

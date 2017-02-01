@@ -20,8 +20,19 @@
  * Date: 2017/1/18
  * Time: 16:17
  */
+require __DIR__.'/../Workerman/Autoloader.php';
+require __DIR__.'/../Channel/src/Client.php';
+require __DIR__.'/../config.php';
+use Database\User;
+
+define('IS_HTTPS', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || $_SERVER['SERVER_PORT'] == 443);
 session_start();
 if(isset($_SESSION['user'])) {
+    User::getInstance()->logOut($_SESSION['user']->token);
+    //Workerman 通讯客户
+    Channel\Client::connect(CONFIG['websocket']['channel']['listen'], CONFIG['websocket']['channel']['port']);
+    Channel\Client::publish('logout', $_SESSION['user']->token);
     unset($_SESSION['user']);
 }
+setcookie('token', '', -1, null, null, IS_HTTPS, false);
 header('Location: '.(isset($_GET['url']) ? $_GET['url'] : '/'), true, 301);
