@@ -121,7 +121,7 @@ class Message {
         window.messageServer = new Message();
         window.messageServer.addEvent('open', (e) => {
             heartBeat = setInterval(() => {
-                window.messageServer.sendMessage('heart-beat');
+                window.messageServer.sendMessage({'heart-beat': 'heart-beat'});
             }, 240e3);
             let token = getCookie('token');
             if(token) {
