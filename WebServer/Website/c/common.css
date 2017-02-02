@@ -199,6 +199,11 @@ button[disabled] {
     background-color: #f8f8f8;
 }
 
+.common-alert-title-congratulation {
+    color: #353;
+    background-color: #88f888;
+}
+
 .common-alert-title-error {
     color: #533;
     background-color: #f88888;

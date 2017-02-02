@@ -142,6 +142,7 @@ let alert = (message, type = 'info', title = 'Message', time = 10000) => {
     m.classList.add('common-alert-message');
     let title_div = document.createElement('div');
     title_div.classList.add('common-alert-title');
+    type[0] == 'c' && title_div.classList.add('common-alert-title-congratulation');
     type[0] == 'e' && title_div.classList.add('common-alert-title-error');
     type[0] == 'w' && title_div.classList.add('common-alert-title-warning');
     title_div.innerHTML = title;

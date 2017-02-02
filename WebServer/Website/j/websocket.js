@@ -170,7 +170,7 @@ class Message {
                 switch(constant['judge_status'][msg.code][0]) {
                     case 'Accepted':
                         _m = '运行完成，答案正确！';
-                        _t = 'i';
+                        _t = 'c';
                         break;
                     case 'CompileError':
                         _m = '编译未通过！请确认编程语言是否选择正确，并检查代码是否存在错误！';
