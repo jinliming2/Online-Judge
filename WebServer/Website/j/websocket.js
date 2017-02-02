@@ -156,8 +156,52 @@ class Message {
             alert('当前用户已注销！将断开服务连接！');
         });
         window.messageServer.addType('Judge', (msg) => {
+            if(msg.hasOwnProperty('code')) {
+                switch(constant['message_code'][msg.code][0]) {
+                    case 'StartJudging':
+                        alert('已开始测试代码！', 'i', msg.id);
+                        break;
+                }
+            }
         });
         window.messageServer.addType('JudgeResult', (msg) => {
+            if(msg.hasOwnProperty('code')) {
+                let _m = '', _t;
+                switch(constant['judge_status'][msg.code][0]) {
+                    case 'Accepted':
+                        _m = '运行完成，答案正确！';
+                        _t = 'i';
+                        break;
+                    case 'CompileError':
+                        _m = '编译未通过！请确认编程语言是否选择正确，并检查代码是否存在错误！';
+                        _t = 'e';
+                        break;
+                    case 'CompileTimeout':
+                        _m = '编译超时！请联系管理员解决！';
+                        _t = 'w';
+                        break;
+                    case 'WrongAnswer':
+                        _m = '运行完成，但是答案貌似不对呢！输出一定要按照要求的格式哦！一点点不同都不行！';
+                        _t = 'e';
+                        break;
+                    case 'RuntimeError':
+                        _m = '运行过程中出现了错误！要检查一下是不是有没有捕获的异常，比如数组越界非法访问等！';
+                        _t = 'e';
+                        break;
+                    case 'Timeout':
+                        _m = '不小心运行超时了！是不是出现了死循环？再优化优化代码吧，有时暴力破解是行不通的哦！';
+                        _t = 'w';
+                        break;
+                    case 'UnknownError':
+                        _m = '未知错误！';
+                        _t = 'w';
+                        break;
+                }
+                if(msg.hasOwnProperty('info')) {
+                    _m += '<br>' + msg.info.replace(/\n/g, '<br>');
+                }
+                alert(_m, _t, msg.id);
+            }
         });
     };
     connect();

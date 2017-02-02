@@ -110,7 +110,7 @@ let editor_edited = false;
             btnSubmit.disabled = true;
             let _timer = setTimeout(() => {
                 btnSubmit.disabled = false;
-                alert('请求超时，请重试！');
+                alert('请求超时，请重试！', 'w');
             }, 10e3);
             if(!window.messageServer.sendMessage({
                     'type': constantIndex(constant['message_type'], 'Judge'),
@@ -133,13 +133,13 @@ let editor_edited = false;
                     if(e.hasOwnProperty('code')) {
                         switch(constant['message_code'][e.code][0]) {
                             case 'TooFrequent':
-                                alert('提交请求过于频繁，请过一会再试！');
+                                alert('提交请求过于频繁，请过一会再试！', 'w');
                                 break;
                             case 'AccessDeny':
-                                alert('权限不足！请刷新并确认账号信息再试！');
+                                alert('权限不足！请刷新并确认账号信息再试！', 'e');
                                 break;
                             case 'Success':
-                                alert('提交成功，id: ' + e.id);
+                                alert('提交成功，正在排队', 'i', e.id);
                                 break;
                         }
                     }
