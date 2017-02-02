@@ -28,6 +28,8 @@ require __DIR__.'/message.php';
 $worker = new Worker('text://'.CONFIG['judgeServer']['listen']);
 //同时服务进程数
 $worker->count = CONFIG['judgeServer']['process'];
+//Workerman服务名称
+$worker->name = 'Judge Server';
 
 /**
  * 启动服务

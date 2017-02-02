@@ -39,6 +39,8 @@ define('HEARTBEAT_TIME', 300);
 $worker = new Worker('websocket://'.CONFIG['websocket']['listen']);
 //同时服务进程数
 $worker->count = CONFIG['websocket']['process'];
+//Workerman服务名称
+$worker->name = 'Websocket';
 
 /**
  * 启动服务
