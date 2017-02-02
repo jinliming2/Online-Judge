@@ -1,6 +1,6 @@
 .idea/
-WebServer/answer/
-WebServer/test_case/
+WebServer/out/
+WebServer/in/
 WebServer/log/
 WebServer/tmp/
 WebServer/*.php.pid
