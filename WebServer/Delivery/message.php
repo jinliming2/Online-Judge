@@ -86,6 +86,6 @@ function mStartJudge(TcpConnection $connection, stdClass $data) {
         }
         $connection->send(json_encode($ret));
     };
-    $task->send(json_encode([$data->data]));
+    $task->send(json_encode($data->data));
     $task->connect();
 }
