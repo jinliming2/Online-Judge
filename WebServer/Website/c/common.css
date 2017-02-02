@@ -98,6 +98,11 @@ button:active {
     opacity: 1;
 }
 
+button[disabled] {
+    background-color: #888;
+    opacity: 1;
+}
+
 .pop_window_background {
     position: fixed;
     z-index: 1000;

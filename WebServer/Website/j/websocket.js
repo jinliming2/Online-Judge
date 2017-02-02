@@ -107,8 +107,10 @@ class Message {
             message._t || (message._t = Date.now());
             callback && (this._callbackList[this._callbackList.length] = [message._t, callback]);
             this._connection.send(JSON.stringify(message));
+            return true;
         } else {
             alert('通讯服务还没有登录，请尝试刷新页面！', 'e');
+            return false;
         }
     }
 }
@@ -120,7 +122,7 @@ class Message {
         window.messageServer.addEvent('open', (e) => {
             heartBeat = setInterval(() => {
                 window.messageServer.sendMessage('heart-beat');
-            }, 240000);
+            }, 240e3);
             let token = getCookie('token');
             if(token) {
                 window.messageServer.login(token);
@@ -130,9 +132,8 @@ class Message {
             clearInterval(heartBeat);
             alert('与服务器的连接中断！', 'w');
             setTimeout(() => {
-                alert('重新连接……');
                 connect();
-            }, 5000);
+            }, 3e3);
         });
         window.messageServer.addEvent('error', (e) => {
             alert('无法与服务器建立连接！', 'e');

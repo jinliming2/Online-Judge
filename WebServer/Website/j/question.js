@@ -22,6 +22,7 @@ let editor = null;
 let editor_edited = false;
 (() => {
     if(document.getElementById('editor')) {
+        //编辑器初始化
         editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.setFontSize('16px');
@@ -31,6 +32,7 @@ let editor_edited = false;
             editor_edited = true;
         });
 
+        //代码下载保存功能
         document.getElementById('download').addEventListener('click', () => {
             let a = document.createElement('a');
             let file = new Blob([editor.getValue()], {type: 'plain/text'});
@@ -41,6 +43,7 @@ let editor_edited = false;
             a.dispatchEvent(event);
         });
 
+        //切换编程语言修改模板
         let language = document.getElementById('language');
         language.innerHTML = '';
         for(let i = 0; i < constant.language_type.length; ++i) {
@@ -70,6 +73,7 @@ let editor_edited = false;
         change();
         language.addEventListener('change', change);
 
+        //刷新页面临时保存代码
         let _key = '_qS_' + getQuery('id');
         window.addEventListener('beforeunload', () => {
             if(editor_edited) {
@@ -89,6 +93,7 @@ let editor_edited = false;
             }
         });
 
+        //恢复代码
         let saved_code = sessionStorage.getItem(_key);
         if(saved_code) {
             let l = saved_code.indexOf("\n");
@@ -98,5 +103,50 @@ let editor_edited = false;
             editor.navigateTo(l[0], l[1]);
             editor.focus();
         }
+
+        //代码提交
+        let btnSubmit = document.getElementById('submit');
+        btnSubmit.addEventListener('click', () => {
+            btnSubmit.disabled = true;
+            let _timer = setTimeout(() => {
+                btnSubmit.disabled = false;
+                alert('请求超时，请重试！');
+            }, 10e3);
+            if(!window.messageServer.sendMessage({
+                    'type': constantIndex(constant['message_type'], 'Judge'),
+                    'qid': getQuery('id'),
+                    'language': language.value,
+                    'source_code': editor.getValue()
+                }, (e) => {
+                    clearTimeout(_timer);
+                    let _tt = 10;
+                    btnSubmit.disabled = true;
+                    _timer = setInterval(() => {
+                        if(!_tt) {
+                            clearInterval(_timer);
+                            btnSubmit.innerHTML = '提交';
+                            btnSubmit.disabled = false;
+                        } else {
+                            btnSubmit.innerHTML = '提交（' + --_tt + '）';
+                        }
+                    }, 1e3);
+                    if(e.hasOwnProperty('code')) {
+                        switch(constant['message_code'][e.code][0]) {
+                            case 'TooFrequent':
+                                alert('提交请求过于频繁，请过一会再试！');
+                                break;
+                            case 'AccessDeny':
+                                alert('权限不足！请刷新并确认账号信息再试！');
+                                break;
+                            case 'Success':
+                                alert('提交成功，id: ' + e.id);
+                                break;
+                        }
+                    }
+                })) {
+                clearTimeout(_timer);
+                btnSubmit.disabled = false;
+            }
+        });
     }
 })();
