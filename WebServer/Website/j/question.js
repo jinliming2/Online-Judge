@@ -115,7 +115,7 @@ let editor_edited = false;
             if(!window.messageServer.sendMessage({
                     'type': constantIndex(constant['message_type'], 'Judge'),
                     'qid': getQuery('id'),
-                    'language': language.value,
+                    'language': parseInt(language.value),
                     'source_code': editor.getValue()
                 }, (e) => {
                     clearTimeout(_timer);
