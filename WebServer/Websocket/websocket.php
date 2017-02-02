@@ -80,36 +80,36 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                             //请求服务成功，发送任务
                             $task->send(json_encode([
                                 'type' => DELIVERY_MESSAGE::JUDGE,
-                                'data' => $task->task->judge_info
+                                'data' => $task->task['judge_info']
                             ]));
                             //向用户发送开始消息
                             Channel\Client::publish('message', [
-                                'user'    => (string)$task->task->uid,
+                                'user'    => (string)$task->task['uid'],
                                 'message' => [
                                     'code'    => $MESSAGE_CODE->StartJudging,
                                     'type'    => $MESSAGE_TYPE->Judge,
                                     'message' => 'Start Judging',
-                                    'id'      => (string)$task->task->rid,
+                                    'id'      => (string)$task->task['rid'],
                                     '_t'      => timestamp()
                                 ]
                             ]);
                         } elseif($message->code == DELIVERY_MESSAGE::JUDGE_SUCCEED) {
                             $task->close();
                             //任务完成
-                            Result::getInstance()->updateResult($task->task->rid, $message->result);
+                            Result::getInstance()->updateResult($task->task['rid'], $message->result);
                             //向用户发送结果
                             $ret = [
                                 'code'    => $message->result,
                                 'type'    => $MESSAGE_TYPE->JudgeResult,
                                 'message' => 'Judge Result',
-                                'id'      => (string)$task->task->rid,
+                                'id'      => (string)$task->task['rid'],
                                 '_t'      => timestamp()
                             ];
                             if(isset($message->info)) {
                                 $ret['info'] = $message->info;
                             }
                             Channel\Client::publish('message', [
-                                'user'    => (string)$task->task->uid,
+                                'user'    => (string)$task->task['uid'],
                                 'message' => $ret
                             ]);
                         } elseif($message->code == DELIVERY_MESSAGE::REQUEST_FAILED) {
