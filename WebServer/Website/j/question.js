@@ -99,7 +99,6 @@ let editor_edited = false;
             let l = saved_code.indexOf("\n");
             editor.setValue(saved_code.substr(l + 1));
             l = saved_code.substr(0, l).split(' ');
-            console.log(l);
             editor.navigateTo(l[0], l[1]);
             editor.focus();
         }

@@ -60,7 +60,6 @@ class Message {
         this._connection.onmessage = (e) => {
             try {
                 let data = JSON.parse(e.data);
-                console.log(data);
                 if(data.hasOwnProperty('_t')) {
                     let flag = true;
                     for(let callback of this._callbackList) {
