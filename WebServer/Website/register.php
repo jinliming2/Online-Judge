@@ -34,10 +34,10 @@ if(IS_POST) {
     }
     if($username && $password && $name) {
         $data = [];
-        if(isset($_POST['email'])) {
+        if(!empty($_POST['email'])) {
             $data['email'] = $_POST['email'];
         }
-        if(isset($_POST['intro'])) {
+        if(!empty($_POST['intro'])) {
             $data['intro'] = $_POST['intro'];
         }
         $uid = User::getInstance()->register($username, $password, $name, $data);
