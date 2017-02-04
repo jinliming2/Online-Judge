@@ -82,5 +82,5 @@ function heartBeat(TcpConnection $connection) {
 function timestamp() {
     list($t1, $t2) = explode(' ', microtime());
     $t1 = round($t1 * 1000);
-    return $t2.($t1 >= 100 ? $t1 : ($t1 >= 10 ? '0'.$t1 : '00'.$t1));
+    return floatval($t2.($t1 >= 100 ? $t1 : ($t1 >= 10 ? '0'.$t1 : '00'.$t1)));
 }

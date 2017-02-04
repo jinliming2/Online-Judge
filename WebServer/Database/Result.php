@@ -118,7 +118,9 @@ class Result extends Database {
      * @return array
      */
     public function getQuestionResult(ObjectID $uid, ObjectID $qid) {
-        $query = new Query(['uid' => $uid, 'qid' => $qid]);
+        $query = new Query(['uid' => $uid, 'qid' => $qid], [
+            'sort' => ['time' => -1]
+        ]);
         return parent::$connection->executeQuery(self::$table, $query)->toArray();
     }
 }
