@@ -21,7 +21,7 @@
 * Time: 13:32
 */
 require_once __DIR__.'/../Workerman/Autoloader.php';
-require '../Template/constant.php';
+require __DIR__.'/../Template/constant.php';
 use Database\Question;
 ?>
 <!DOCTYPE html>

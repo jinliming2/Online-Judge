@@ -7,14 +7,14 @@
     ["JudgeResult"]
   ],
   "judge_status": [
-    ["Accepted"],
-    ["WaitingForJudge"],
-    ["CompileError"],
-    ["CompileTimeout"],
-    ["WrongAnswer"],
-    ["RuntimeError"],
-    ["Timeout"],
-    ["UnknownError"]
+    ["Accepted", "通过"],
+    ["WaitingForJudge", "排队等待"],
+    ["CompileError", "编译出错"],
+    ["CompileTimeout", "编译超时"],
+    ["WrongAnswer", "答案错误（WA）"],
+    ["RuntimeError", "运行时错误（RE）"],
+    ["Timeout", "运行超时"],
+    ["UnknownError", "未知错误"]
   ],
   "message_code": [
     ["Success"],

@@ -26,6 +26,7 @@ namespace Database;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Query;
 
 /**
  * Class Result
@@ -109,4 +110,15 @@ class Result extends Database {
     }
 
     /** 查 */
+    /**
+     * 获取用户提交历史
+     * @param ObjectID $uid
+     * @param ObjectID $qid
+     *
+     * @return array
+     */
+    public function getQuestionResult(ObjectID $uid, ObjectID $qid) {
+        $query = new Query(['uid' => $uid, 'qid' => $qid]);
+        return parent::$connection->executeQuery(self::$table, $query)->toArray();
+    }
 }

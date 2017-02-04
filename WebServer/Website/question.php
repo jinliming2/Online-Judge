@@ -21,8 +21,9 @@
  * Time: 16:35
  */
 require_once __DIR__.'/../Workerman/Autoloader.php';
-require '../Template/constant.php';
+require __DIR__.'/../Template/constant.php';
 use Database\Question;
+use Database\Result;
 use MongoDB\BSON\ObjectID;
 
 if(empty($_GET['id'])) {
@@ -86,6 +87,34 @@ if(isset($_SESSION['user']->_id)) {
 <div class="flex">
     <button id="submit" type="submit">提交</button>
 </div>
+<table>
+    <tr>
+        <th>id</th>
+        <th>语言</th>
+        <th>代码</th>
+        <th>状态</th>
+        <th>提交时间</th>
+    </tr>
+    <?php
+    $results = Result::getInstance()->getQuestionResult(new ObjectID($_SESSION['user']->_id), $qid);
+    $statusArray = json_decode(file_get_contents(__DIR__.'/../Constant/constant.json'))->judge_status;
+    $status = [];
+    foreach($statusArray as $s) {
+        $status[] = $s[1];
+    }
+    foreach($results as $result) {
+        ?>
+    <tr>
+        <td><?= $result->_id ?></td>
+        <td><?= $result->language ?></td>
+        <td><button type="button" data-id="<?= $result->_id ?>">下载</button></td>
+        <td><?= $status[$result->result] ?></td>
+        <td><?= date('Y-m-d H:i:s', $result->time / 1000) ?></td>
+    </tr>
+        <?php
+    }
+    ?>
+</table>
     <?php
 } else {
     ?>
