@@ -1,0 +1,32 @@
+{
+  "message_type": [
+    ["Error"],
+    ["Login"],
+    ["Logout"],
+    ["Judge"],
+    ["JudgeResult"]
+  ],
+  "judge_status": [
+    ["Accepted"],
+    ["WaitingForJudge"],
+    ["CompileError"],
+    ["CompileTimeout"],
+    ["WrongAnswer"],
+    ["RuntimeError"],
+    ["Timeout"],
+    ["UnknownError"]
+  ],
+  "message_code": [
+    ["Success"],
+    ["ServiceUnavailable"],
+    ["AccessDeny"],
+    ["LogonTimeout"],
+    ["TooFrequent"],
+    ["StartJudging"]
+  ],
+  "language_type": [
+    ["C", "ace/mode/c_cpp", "#include <stdio.h>\n\nint main() {\n    //your code goes here\n    return 0;\n}\n", 3, 4, 25, "c"],
+    ["C++", "ace/mode/c_cpp", "#include <iostream>\nusing namespace std;\n\nint main() {\n    //your code goes here\n    return 0;\n}\n", 4, 4, 25, "cpp"],
+    ["JAVA", "ace/mode/java", "/* Don't place package name! */\nimport java.util.*;\n\n/* Name of the class has to be \"Main\" only if the class is public. */\npublic class Main {\n    public static void main (String[] args) {\n        //your code goes here\n    }\n}\n", 6, 8, 29, "java"]
+  ]
+}

@@ -27,7 +27,10 @@ use Workerman\Worker;
 require __DIR__.'/message.php';
 
 $worker = new Worker('text://'.CONFIG['delivery']['listen']);
+//同时服务进程数
 $worker->count = 1;
+//Workerman服务名称
+$worker->name = 'Delivery';
 
 /**
  * 启动服务
@@ -98,7 +101,7 @@ $worker->onMessage = function(TcpConnection $connection, string $data) {
                 mRequest($connection);
                 break;
             case DELIVERY_MESSAGE::JUDGE:  //开始
-                mJudge($connection, $d);
+                mStartJudge($connection, $d);
                 break;
         }
     } catch (Exception $e) {

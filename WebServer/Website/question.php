@@ -94,6 +94,7 @@ if(isset($_SESSION['user']->_id)) {
 }
 ?>
 <?php include '../Template/footer.html'; ?>
+<script src="/j/websocket.js"></script>
 <script src="/j/ace/src-min-noconflict/ace.js"></script>
 <script src="/j/question.js"></script>
 </body>

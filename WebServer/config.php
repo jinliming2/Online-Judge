@@ -36,8 +36,9 @@ define('CONFIG', [
         'interval' => 10,  //用户提交评判请求最短时间间隔（秒）
         'mongoDB'  => 'mongodb://localhost:27017',  //MongoDB数据库连接
         'channel'  => [  //进程通信服务
-            'listen' => '[::1]',  //监听地址
-            'port'   => 2206  //监听端口
+            'listen'  => '[::1]',  //监听地址
+            'address' => '::1',  //IPv4与listen一样，IPv6请去掉中括号
+            'port'    => 2206  //监听端口
         ]
     ],
     'delivery'    => [  //判题分配服务

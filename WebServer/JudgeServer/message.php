@@ -59,7 +59,7 @@ function createDirectory(string $temp_path) {
  * @param string $temp_path
  */
 function clean(string $temp_path) {
-    if(strpos($temp_path, CONFIG['judge temp']) === 0) {  //如果没有找到是返回False
+    if(strpos($temp_path, CONFIG['judgeServer']['tmp']) === 0) {  //如果没有找到是返回False
         system('rm -rf '.$temp_path);
     }
 }

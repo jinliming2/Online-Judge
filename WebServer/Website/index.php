@@ -58,6 +58,7 @@ $questions = Question::getInstance()->getList([], 0, 100);
     ?>
 </div>
 <?php include '../Template/footer.html'; ?>
+<script src="/j/websocket.js"></script>
 <script src="/j/index.js"></script>
 </body>
 </html>

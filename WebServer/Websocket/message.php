@@ -118,7 +118,7 @@ function mJudge(TcpConnection $connection, stdClass $data) {
         'rid'        => $result,
         'uid'        => $connection->user_info->_id,
         'judge_info' => [
-            'qid'       => $question->_id,
+            'qid'       => (string)$question->_id,
             'time'      => $question->time,
             'memory'    => $question->memory,
             'language'  => $data->language,

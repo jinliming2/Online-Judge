@@ -23,6 +23,7 @@ html, body {
 * {
     box-sizing: border-box;
     user-select: none;
+    outline: none;
     font-family: "Source Code Pro", "Microsoft YaHei", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", sans-serif;
 }
 
@@ -97,6 +98,11 @@ button:active {
     opacity: 1;
 }
 
+button[disabled] {
+    background-color: #888;
+    opacity: 1;
+}
+
 .pop_window_background {
     position: fixed;
     z-index: 1000;
@@ -115,14 +121,14 @@ button:active {
     border-radius: 5px;
     animation-fill-mode: both;
     animation-duration: .5s;
-    animation-name: bounceIn;
+    animation-name: bounce-in;
     overflow: hidden;
     box-shadow: 1px 1px 50px rgba(0, 0, 0, .3);
 }
 
 .dialog_close {
     animation-duration: .3s;
-    animation-name: bounceOut;
+    animation-name: bounce-out;
 }
 
 .dialog_title {
@@ -146,10 +152,10 @@ button:active {
     stroke: black;
     stroke-width: 2px;
     cursor: pointer;
-    transition: stroke, transform 1s;
+    transition: stroke 1s, transform 1s;
 }
 
-.dialog_btnClose:hover {
+.dialog_btnClose:hover, .common-alert-btnClose:hover {
     stroke: red;
     transform: rotate(-360deg);
 }
@@ -160,7 +166,72 @@ button:active {
     border: none;
 }
 
-@keyframes bounceIn {
+#common-alert-container {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 380px;
+    z-index: 9999;
+}
+
+.common-alert-message {
+    animation-fill-mode: both;
+    animation-duration: .5s;
+    animation-name: pop-in;
+    margin: 2px;
+    border: 1px solid #e2e2e2;
+    background: rgba(255, 255, 255, .75);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, .24);
+}
+
+.common-alert-message-close {
+    animation-duration: .3s;
+    animation-name: pop-out;
+}
+
+.common-alert-title {
+    padding: 0 60px 0 10px;
+    width: 100%;
+    font-weight: bold;
+    overflow: hidden;
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    background-color: #f8f8f8;
+}
+
+.common-alert-title-congratulation {
+    color: #353;
+    background-color: #88f888;
+}
+
+.common-alert-title-error {
+    color: #533;
+    background-color: #f88888;
+}
+
+.common-alert-title-warning {
+    color: #553;
+    background-color: #f8f888;
+}
+
+.common-alert-btnClose {
+    position: absolute;
+    top: 2px;
+    right: 10px;
+    font-size: 16px;
+    line-height: 16px;
+    stroke: black;
+    stroke-width: 2px;
+    cursor: pointer;
+    transition: stroke 1s, transform 1s;
+}
+
+.common-alert-body {
+    width: 100%;
+    padding: 2px 8px;
+}
+
+@keyframes bounce-in {
     0% {
         opacity: 0;
         transform: scale(.5);
@@ -171,7 +242,7 @@ button:active {
     }
 }
 
-@keyframes bounceOut {
+@keyframes bounce-out {
     0% {
         transform: scale(1)
     }
@@ -181,5 +252,29 @@ button:active {
     100% {
         opacity: 0;
         transform: scale(.5)
+    }
+}
+
+@keyframes pop-in {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pop-out {
+    0% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-15px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(30px);
     }
 }

@@ -20,6 +20,9 @@
  * Date: 2016/12/11
  * Time: 14:47
  */
+require_once __DIR__.'/../Workerman/Autoloader.php';
+use Database\User;
+
 define('WEBP', strpos($_SERVER['HTTP_ACCEPT'], 'image/webp') === false ? '' : '.webp');
 define('IS_GET', $_SERVER['REQUEST_METHOD'] == 'GET');
 define('IS_POST', $_SERVER['REQUEST_METHOD'] == 'POST');
@@ -29,4 +32,13 @@ if(isset($_SESSION['user']->_id)) {
     if(!isset($_COOKIE['token'])) {
         setcookie('token', $_SESSION['user']->token, null, null, null, IS_HTTPS, false);
     }
+} elseif(isset($_COOKIE['token'])) {
+    $user = User::getInstance()->login($_COOKIE['token']);
+    if($user) {
+        $user->_id = (string)$user->_id;
+        $_SESSION['user'] = $user;
+    }
+}
+if(!isset($_SESSION['user']->_id)) {
+    setcookie('token', '', -1, null, null, IS_HTTPS, false);
 }

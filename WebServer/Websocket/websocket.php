@@ -39,6 +39,8 @@ define('HEARTBEAT_TIME', 300);
 $worker = new Worker('websocket://'.CONFIG['websocket']['listen']);
 //同时服务进程数
 $worker->count = CONFIG['websocket']['process'];
+//Workerman服务名称
+$worker->name = 'Websocket';
 
 /**
  * 启动服务
@@ -80,36 +82,36 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                             //请求服务成功，发送任务
                             $task->send(json_encode([
                                 'type' => DELIVERY_MESSAGE::JUDGE,
-                                'data' => $task->task->judge_info
+                                'data' => $task->task['judge_info']
                             ]));
                             //向用户发送开始消息
                             Channel\Client::publish('message', [
-                                'user'    => (string)$task->task->uid,
+                                'user'    => (string)$task->task['uid'],
                                 'message' => [
                                     'code'    => $MESSAGE_CODE->StartJudging,
-                                    'type'    => $MESSAGE_TYPE->JudgeResult,
+                                    'type'    => $MESSAGE_TYPE->Judge,
                                     'message' => 'Start Judging',
-                                    'id'      => (string)$task->task->rid,
+                                    'id'      => (string)$task->task['rid'],
                                     '_t'      => timestamp()
                                 ]
                             ]);
                         } elseif($message->code == DELIVERY_MESSAGE::JUDGE_SUCCEED) {
                             $task->close();
                             //任务完成
-                            Result::getInstance()->updateResult($task->task->rid, $message->result);
+                            Result::getInstance()->updateResult($task->task['rid'], $message->result);
                             //向用户发送结果
                             $ret = [
                                 'code'    => $message->result,
                                 'type'    => $MESSAGE_TYPE->JudgeResult,
                                 'message' => 'Judge Result',
-                                'id'      => (string)$task->task->rid,
+                                'id'      => (string)$task->task['rid'],
                                 '_t'      => timestamp()
                             ];
                             if(isset($message->info)) {
                                 $ret['info'] = $message->info;
                             }
                             Channel\Client::publish('message', [
-                                'user'    => (string)$task->task->uid,
+                                'user'    => (string)$task->task['uid'],
                                 'message' => $ret
                             ]);
                         } elseif($message->code == DELIVERY_MESSAGE::REQUEST_FAILED) {
@@ -146,6 +148,20 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
             if(isset($connection->user_info) && $event_data['user'] == $connection->user_info->_id) {
                 heartBeat($connection);
                 $connection->send(json_encode($event_data['message']));
+            }
+        }
+    });
+    //用户注销
+    Channel\Client::on('logout', function(string $token) use ($worker, $MESSAGE_TYPE) {
+        foreach($worker->connections as $connection) {
+            if($connection->user_info->token == $token) {
+                $connection->send(json_encode([
+                    'code'    => 0,
+                    'type'    => $MESSAGE_TYPE->Logout,
+                    'message' => 'Logged out.',
+                    '_t'      => timestamp()
+                ]));
+                $connection->close();
             }
         }
     });

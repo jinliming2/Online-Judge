@@ -68,7 +68,7 @@ function mRequest(TcpConnection $connection) {
  * @param TcpConnection $connection
  * @param stdClass      $data
  */
-function mJudge(TcpConnection $connection, stdClass $data) {
+function mStartJudge(TcpConnection $connection, stdClass $data) {
     if(!isset($connection->server)) {
         return;
     }
@@ -86,6 +86,6 @@ function mJudge(TcpConnection $connection, stdClass $data) {
         }
         $connection->send(json_encode($ret));
     };
-    $task->send(json_encode([$data->data]));
+    $task->send(json_encode($data->data));
     $task->connect();
 }
