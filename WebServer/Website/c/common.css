@@ -34,6 +34,10 @@ html, body {
     align-items: center;
 }
 
+.fix {
+    overflow: hidden;
+}
+
 #header {
     width: 100%;
     background-color: black;

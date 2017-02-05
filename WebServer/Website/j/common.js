@@ -19,6 +19,7 @@
  */
 "use strict";
 const CLOSE_BUTTON = '<svg viewBox="0 0 16 16" width="16px" height="16px" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L14 14M2 14L14 2"></path></svg>';
+document.root = document.getElementsByTagName('html')[0];
 let ajax = (method, url, data, success, error, complete) => {
     data = data || null;
     let xmlHttp = new XMLHttpRequest();
@@ -94,12 +95,14 @@ let popWindow = (width, height, title, content, iFrame = false) => {
     dialog.appendChild(body);
     background.appendChild(dialog);
     document.body.appendChild(background);
+    document.root.classList.add('fix');
     window.closePopWindow = () => {
         window.closePopWindow = undefined;
         background.style.backgroundColor = 'rgba(0, 0, 0, 0)';
         dialog.classList.add('dialog_close');
         setTimeout(() => {
             document.body.removeChild(background);
+            document.root.classList.remove('fix');
         }, 300);
     };
     btnClose.addEventListener('click', window.closePopWindow);
