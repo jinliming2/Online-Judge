@@ -148,14 +148,21 @@ let editor_edited = false;
             }
         });
 
-        //监听结果事件
+        //查看历史代码
         let history = document.getElementById('history');
+        history.addEventListener('click', (e) => {
+            if(e.target.dataset.id && e.target.dataset.language) {
+                popWindow(800, 500, 'View Code - ' + e.target.dataset.id, `/code.php?id=${e.target.dataset.id}&language=${e.target.dataset.language}`, true);
+            }
+        });
+
+        //监听结果事件
         window.messageServer.addType('JudgeResult', (msg) => {
             if(msg.hasOwnProperty('code')) {
                 let row = history.insertRow(1);
                 row.insertCell().innerHTML = msg.id;
                 row.insertCell().innerHTML = constant['language_type'][msg.language][0];
-                row.insertCell().innerHTML = `<button type="button" data-id="${msg.id}">下载</button>`;
+                row.insertCell().innerHTML = `<button type="button" data-id="${msg.id}" data-language="${msg.language}">查看</button>`;
                 row.insertCell().innerHTML = constant['judge_status'][msg.code][1];
                 row.insertCell().innerHTML = msg.time;
             }

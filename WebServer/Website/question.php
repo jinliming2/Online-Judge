@@ -80,7 +80,7 @@ if(isset($_SESSION['user']->_id)) {
         <span id="language_tip"><i>请正确选择代码语言，选择错误将可能会导致在线编译出错！</i></span>
     </span>
     <span>
-        <button id="download">保存代码</button>
+        <button id="download" type="button">保存代码</button>
     </span>
 </div>
 <pre id="editor"></pre>
@@ -113,7 +113,7 @@ if(isset($_SESSION['user']->_id)) {
     <tr>
         <td><?= $result->_id ?></td>
         <td><?= $language[$result->language] ?></td>
-        <td><button type="button" data-id="<?= $result->_id ?>">下载</button></td>
+        <td><button type="button" data-id="<?= $result->_id ?>" data-language="<?= $result->language ?>">查看</button></td>
         <td><?= $status[$result->result] ?></td>
         <td><?= date('Y-m-d H:i:s', $result->time / 1000) ?></td>
     </tr>

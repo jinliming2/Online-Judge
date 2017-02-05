@@ -123,4 +123,19 @@ class Result extends Database {
         ]);
         return parent::$connection->executeQuery(self::$table, $query)->toArray();
     }
+
+    /**
+     * 获取单条结果记录
+     * @param ObjectID $rid
+     *
+     * @return \stdClass|false
+     */
+    public function getUserResult(ObjectID $rid) {
+        $query = new Query(['_id' => $rid]);
+        $result = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        if(count($result) > 0) {
+            return $result[0];
+        }
+        return false;
+    }
 }
