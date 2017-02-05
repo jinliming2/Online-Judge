@@ -97,16 +97,22 @@ if(isset($_SESSION['user']->_id)) {
     </tr>
     <?php
     $results = Result::getInstance()->getQuestionResult(new ObjectID($_SESSION['user']->_id), $qid);
-    $statusArray = json_decode(file_get_contents(__DIR__.'/../Constant/constant.json'))->judge_status;
+    $json = json_decode(file_get_contents(__DIR__.'/../Constant/constant.json'));
+    $statusArray = $json->judge_status;
+    $languageArray = $json->language_type;
     $status = [];
+    $language = [];
     foreach($statusArray as $s) {
         $status[] = $s[1];
+    }
+    foreach($languageArray as $l) {
+        $language[] = $l[0];
     }
     foreach($results as $result) {
         ?>
     <tr>
         <td><?= $result->_id ?></td>
-        <td><?= $result->language ?></td>
+        <td><?= $language[$result->language] ?></td>
         <td><button type="button" data-id="<?= $result->_id ?>">下载</button></td>
         <td><?= $status[$result->result] ?></td>
         <td><?= date('Y-m-d H:i:s', $result->time / 1000) ?></td>
