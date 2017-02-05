@@ -62,7 +62,7 @@ if($result->uid != $_SESSION['user']->_id) {
     <title>View Code - Home</title>
 </head>
 <body>
-<pre id="editor"><?= $result->code ?></pre>
+<pre id="editor"><?= htmlspecialchars($result->code) ?></pre>
 <div class="flex">
     <button id="download" type="button">下载代码</button>
 </div>
