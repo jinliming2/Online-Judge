@@ -101,11 +101,13 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                             Result::getInstance()->updateResult($task->task['rid'], $message->result);
                             //向用户发送结果
                             $ret = [
-                                'code'    => $message->result,
-                                'type'    => $MESSAGE_TYPE->JudgeResult,
-                                'message' => 'Judge Result',
-                                'id'      => (string)$task->task['rid'],
-                                '_t'      => timestamp()
+                                'code'     => $message->result,
+                                'type'     => $MESSAGE_TYPE->JudgeResult,
+                                'message'  => 'Judge Result',
+                                'id'       => (string)$task->task['rid'],
+                                'time'     => date('Y-m-d H:i:s', $task->task['start_time'] / 1000),
+                                'language' => $task->task['judge_info']['language'],
+                                '_t'       => timestamp()
                             ];
                             if(isset($message->info)) {
                                 $ret['info'] = $message->info;

@@ -87,7 +87,7 @@ if(isset($_SESSION['user']->_id)) {
 <div class="flex">
     <button id="submit" type="submit">提交</button>
 </div>
-<table>
+<table id="history">
     <tr>
         <th>id</th>
         <th>语言</th>

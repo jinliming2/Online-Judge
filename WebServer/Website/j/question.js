@@ -147,5 +147,18 @@ let editor_edited = false;
                 btnSubmit.disabled = false;
             }
         });
+
+        //监听结果事件
+        let history = document.getElementById('history');
+        window.messageServer.addType('JudgeResult', (msg) => {
+            if(msg.hasOwnProperty('code')) {
+                let row = history.insertRow(1);
+                row.insertCell().innerHTML = msg.id;
+                row.insertCell().innerHTML = constant['language_type'][msg.language][0];
+                row.insertCell().innerHTML = `<button type="button" data-id="${msg.id}">下载</button>`;
+                row.insertCell().innerHTML = constant['judge_status'][msg.code][1];
+                row.insertCell().innerHTML = msg.time;
+            }
+        });
     }
 })();
