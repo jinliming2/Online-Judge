@@ -22,6 +22,7 @@
  */
 use Constant\DELIVERY_MESSAGE;
 use Database\Result;
+use Database\User;
 use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Connection\TcpConnection;
 use Workerman\Lib\Timer;
@@ -47,7 +48,7 @@ $worker->name = 'Websocket';
  *
  * @param Worker $worker
  */
-$worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_CODE) {
+$worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_CODE, $JUDGE_STATUS) {
     //任务队列
     $worker->process_pool = [];
     //心跳检测
@@ -64,19 +65,19 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
         }
     });
     //任务处理
-    Timer::add(5, function() use ($worker, $MESSAGE_TYPE, $MESSAGE_CODE) {
+    Timer::add(5, function() use ($worker, $MESSAGE_TYPE, $MESSAGE_CODE, $JUDGE_STATUS) {
         $count = count($worker->process_pool);
         if($count > 0) {
             //查询可用服务数
             $task = new AsyncTcpConnection('text://'.CONFIG['websocket']['delivery']);
-            $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $count, $MESSAGE_TYPE, $MESSAGE_CODE) {
+            $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $count, $MESSAGE_TYPE, $MESSAGE_CODE, $JUDGE_STATUS) {
                 $task->close();
                 //创建服务请求
                 $count = min($count, intval($message));
                 for($i = 0; $i < $count; ++$i) {
                     $task = new AsyncTcpConnection('text://'.CONFIG['websocket']['delivery']);
                     $task->task = array_shift($worker->process_pool);
-                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $MESSAGE_TYPE, $MESSAGE_CODE) {
+                    $task->onMessage = function(AsyncTcpConnection $task, string $message) use ($worker, $MESSAGE_TYPE, $MESSAGE_CODE, $JUDGE_STATUS) {
                         $message = json_decode($message);
                         if($message->code == DELIVERY_MESSAGE::REQUEST_SUCCEED) {
                             //请求服务成功，发送任务
@@ -99,6 +100,10 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                             $task->close();
                             //任务完成
                             Result::getInstance()->updateResult($task->task['rid'], $message->result);
+                            User::getInstance()->modify_inc($task->task['uid'], [
+                                'totalPass'   => ($message->result == $JUDGE_STATUS->Accepted ? 1 : 0),
+                                'totalSubmit' => 1
+                            ]);
                             //向用户发送结果
                             $ret = [
                                 'code'     => $message->result,

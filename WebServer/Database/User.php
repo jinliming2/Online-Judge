@@ -153,6 +153,18 @@ class User extends Database {
     }
 
     /**
+     * 修改资料 - 增减字段
+     *
+     * @param ObjectID $user_id
+     * @param array    $data
+     */
+    public function modify_inc(ObjectID $user_id, array $data) {
+        $bulk = new BulkWrite();
+        $bulk->update(['_id' => $user_id], ['$inc' => $data]);
+        parent::$connection->executeBulkWrite(self::$table, $bulk);
+    }
+
+    /**
      * 修改资料 - 删除字段
      *
      * @param ObjectID $user_id
@@ -182,6 +194,34 @@ class User extends Database {
         $query = new Query(['username' => $username]);
         $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
         return count($rows) > 0;
+    }
+
+    /**
+     * 取用户提交历史记录
+     *
+     * @param ObjectID $uid
+     *
+     * @return false|stdClass
+     */
+    public function getHistory(ObjectID $uid) {
+        $query = new Query(['_id' => $uid]);
+        $row = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        if(count($row) > 0) {
+            $row = $row[0];
+            $result = new stdClass();
+            if(isset($row->totalPass)) {
+                $result->pass = $row->totalPass;
+            } else {
+                $result->pass = 0;
+            }
+            if(isset($row->totalSubmit)) {
+                $result->submit = $row->totalSubmit;
+            } else {
+                $result->submit = 0;
+            }
+            return $result;
+        }
+        return false;
     }
 
     /**

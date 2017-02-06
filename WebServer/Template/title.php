@@ -20,6 +20,10 @@
  * Date: 2017/1/17
  * Time: 17:35
  */
+require_once __DIR__.'/../Workerman/Autoloader.php';
+use Database\User;
+use MongoDB\BSON\ObjectID;
+
 ?>
 <header id="header">
     <div id="header_top" class="flex">
@@ -42,11 +46,12 @@
 </header>
 <?php
 if(isset($_SESSION['user']->_id)) {
+    $history = User::getInstance()->getHistory(new ObjectID($_SESSION['user']->_id));
     ?>
 <div id="information" class="flex">
     <span><?= $_SESSION['user']->name ?><?= $_SESSION['user']->su ? '[管理员]' : '' ?></span>
-    <span>已解决 0 个问题</span>
-    <span>解决效率：0%</span>
+    <span>已解决 <?= $history->pass ?> 个问题</span>
+    <span>解决效率：<?= $history->submit == 0 ? 0 : round($history->pass / $history->submit * 100, 3) ?>%</span>
 </div>
     <?php
 }
