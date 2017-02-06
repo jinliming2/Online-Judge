@@ -23,6 +23,7 @@
 use Constant\DELIVERY_MESSAGE;
 use Database\Result;
 use Database\User;
+use MongoDB\BSON\ObjectID;
 use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Connection\TcpConnection;
 use Workerman\Lib\Timer;
@@ -100,10 +101,12 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                             $task->close();
                             //任务完成
                             Result::getInstance()->updateResult($task->task['rid'], $message->result);
-                            User::getInstance()->modify_inc($task->task['uid'], [
-                                'totalPass'   => ($message->result == $JUDGE_STATUS->Accepted ? 1 : 0),
-                                'totalSubmit' => 1
-                            ]);
+                            if(!Result::getInstance()->getQuestionStatus($task->task['uid'], new ObjectID($task->task['judge_info']['qid']), $JUDGE_STATUS->Accepted)) {
+                                User::getInstance()->modify_inc($task->task['uid'], [
+                                    'totalPass'   => ($message->result == $JUDGE_STATUS->Accepted ? 1 : 0),
+                                    'totalSubmit' => 1
+                                ]);
+                            }
                             //向用户发送结果
                             $ret = [
                                 'code'     => $message->result,

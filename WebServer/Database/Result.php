@@ -112,6 +112,7 @@ class Result extends Database {
     /** 查 */
     /**
      * 获取用户提交历史
+     *
      * @param ObjectID $uid
      * @param ObjectID $qid
      *
@@ -126,6 +127,7 @@ class Result extends Database {
 
     /**
      * 获取单条结果记录
+     *
      * @param ObjectID $rid
      *
      * @return \stdClass|false
@@ -137,5 +139,20 @@ class Result extends Database {
             return $result[0];
         }
         return false;
+    }
+
+    /**
+     * 取问题是否已有状态
+     *
+     * @param ObjectID $uid
+     * @param ObjectID $qid
+     * @param int      $status
+     *
+     * @return bool
+     */
+    public function getQuestionStatus(ObjectID $uid, ObjectID $qid, int $status) {
+        $query = new Query(['uid' => $uid, 'qid' => $qid, 'result' => $status]);
+        $result = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        return count($result) > 0;
     }
 }
