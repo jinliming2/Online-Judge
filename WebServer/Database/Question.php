@@ -26,6 +26,7 @@ namespace Database;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
 use stdClass;
 
@@ -50,7 +51,7 @@ class Question extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        self::$table = parent::$database.'.'.self::$table;
+        parent::$tableName = parent::$database.'.'.self::$table;
     }
 
     /**
@@ -82,7 +83,7 @@ class Question extends Database {
             'adder'       => $username,
             'add_time'    => timestamp()
         ], $data));
-        $result = parent::$connection->executeBulkWrite(self::$table, $bulk);
+        $result = parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
@@ -104,7 +105,7 @@ class Question extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $id], ['$set' => $data]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
     }
 
     /**
@@ -122,7 +123,7 @@ class Question extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $id], ['$unset' => $arr]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
     }
 
     /** 查 */
@@ -135,7 +136,7 @@ class Question extends Database {
      */
     public function getOne(ObjectID $id) {
         $query = new Query(['_id' => $id]);
-        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        $rows = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
         if(count($rows) > 0) {
             if(!isset($rows[0]->time)) {
                 $rows[0]->time = 1;
@@ -162,7 +163,7 @@ class Question extends Database {
             'skip'  => $start,
             'limit' => $count
         ]);
-        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        $rows = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
         if(count($rows) > 0) {
             unset($row);
             foreach($rows as &$row) {
@@ -177,5 +178,18 @@ class Question extends Database {
             return $rows;
         }
         return false;
+    }
+
+    /**
+     * 取总记录数
+     *
+     * @param array $condition
+     *
+     * @return int
+     */
+    public function getCount(array $condition) {
+        $command = new Command(['count' => self::$table, 'query' => $condition]);
+        $result = parent::$connection->executeCommand(parent::$database, $command);
+        return $result->toArray()[0]->n;
     }
 }
