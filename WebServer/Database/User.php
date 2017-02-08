@@ -182,6 +182,69 @@ class User extends Database {
         parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
+    /**
+     * 修改资料 - 批量
+     *
+     * @param array $user_ids
+     * @param array $data
+     */
+    public function modify_batch(array $user_ids, array $data) {
+        if(isset($data['_id'])) {
+            unset($data['_id']);
+        }
+        $bulk = new BulkWrite();
+        foreach($user_ids as $user_id) {
+            $bulk->update(['_id' => $user_id], ['$set' => $data]);
+        }
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改资料 - 增减字段 - 批量
+     *
+     * @param array $user_ids
+     * @param array $data
+     */
+    public function modify_inc_batch(array $user_ids, array $data) {
+        $bulk = new BulkWrite();
+        foreach($user_ids as $user_id) {
+            $bulk->update(['_id' => $user_id], ['$inc' => $data]);
+        }
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改资料 - 删除字段 - 批量
+     *
+     * @param array $user_ids
+     * @param array $columns 字段列表，一维string数组，字段名
+     */
+    public function modify_unset_batch(array $user_ids, array $columns) {
+        $arr = [];
+        foreach($columns as $column) {
+            if($column != 'username' && $column != 'password' && $column != 'name' && $column != 'su') {
+                $arr[$column] = null;
+            }
+        }
+        $bulk = new BulkWrite();
+        foreach($user_ids as $user_id) {
+            $bulk->update(['_id' => $user_id], ['$unset' => $arr]);
+        }
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改密码
+     * @param ObjectID $user_id
+     * @param string   $password
+     */
+    public function modifyPassword(ObjectID $user_id, string $password) {
+        $this->modify($user_id, [
+            'password' => password_hash($password, PASSWORD_DEFAULT)
+        ]);
+        $this->modify_unset($user_id, ['token']);
+    }
+
     /** 查 */
     /**
      * 用户名是否存在
@@ -255,11 +318,20 @@ class User extends Database {
         return false;
     }
 
+    /**
+     * 取用户列表
+     *
+     * @param array $condition
+     * @param int   $start
+     * @param int   $count
+     *
+     * @return array
+     */
     public function getList(array $condition, int $start = 0, int $count = 0) {
         $query = new Query($condition, [
             'projection' => ['password' => 0],
-            'skip'  => $start,
-            'limit' => $count
+            'skip'       => $start,
+            'limit'      => $count
         ]);
         return parent::$connection->executeQuery($this->tableName, $query)->toArray();
     }

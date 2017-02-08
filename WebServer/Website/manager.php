@@ -23,6 +23,78 @@
 require_once __DIR__.'/../Workerman/Autoloader.php';
 require __DIR__.'/../Template/constant.php';
 use Database\User;
+use MongoDB\BSON\ObjectID;
+
+if(empty($_SESSION['user']->su) || !$_SESSION['user']->su) {
+    header('Location: /', true, 301);
+    die;
+}
+
+if(IS_POST) {
+    if(empty($_GET['c'])) {
+        header('Location: ?', true, 303);
+        die;
+    } elseif($_GET['c'] == 'user') {
+        if(!empty($_POST['c'])) {
+            switch($_POST['c']) {
+                case 'ban_batch':
+                    if(isset($_POST['ids']) && is_array($_POST['ids'])) {
+                        unset($id);
+                        foreach($_POST['ids'] as &$id) {
+                            $id = new ObjectID($id);
+                        }
+                        unset($id);
+                        User::getInstance()->modify_batch($_POST['ids'], ['ban' => true]);
+                        User::getInstance()->modify_unset_batch($_POST['ids'], ['token']);
+                    }
+                    break;
+                case 'ban':
+                    if(isset($_POST['id'])) {
+                        $_POST['id'] = new ObjectID($_POST['id']);
+                        User::getInstance()->modify($_POST['id'], ['ban' => true]);
+                        User::getInstance()->modify_unset($_POST['id'], ['token']);
+                        header('Content-type: application/json');
+                        echo json_encode(['code' => 0, 'message' => 'success']);
+                        exit;
+                    } else {
+                        header('Content-type: application/json');
+                        echo json_encode(['code' => -1, 'message' => 'error']);
+                        exit;
+                    }
+                    break;
+                case 'unban':
+                    if(isset($_POST['id'])) {
+                        $_POST['id'] = new ObjectID($_POST['id']);
+                        User::getInstance()->modify_unset($_POST['id'], ['ban']);
+                        header('Content-type: application/json');
+                        echo json_encode(['code' => 0, 'message' => 'success']);
+                        exit;
+                    } else {
+                        header('Content-type: application/json');
+                        echo json_encode(['code' => -1, 'message' => 'error']);
+                        exit;
+                    }
+                    break;
+                case 'reset':
+                    if(!empty($_POST['id']) && !empty($_POST['p'])) {
+                        User::getInstance()->modifyPassword(new ObjectID($_POST['id']), $_POST['p']);
+                        header('Content-type: application/json');
+                        echo json_encode(['code' => 0, 'message' => 'success']);
+                        exit;
+                    } else {
+                        header('Content-type: application/json');
+                        echo json_encode(['code' => -1, 'message' => 'error']);
+                        exit;
+                    }
+                    break;
+            }
+        }
+    } elseif($_GET['c'] == 'question') {
+    } else {
+        header('Location: ?', true, 303);
+        die;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
@@ -42,12 +114,12 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
     $users = User::getInstance()->getList([], 0, 100);
     ?>
 <div id="control">
-    <button id="btnDelete">批量删除选中用户</button>
+    <button id="btnBan">批量封禁选中用户</button>
     <input id="txtSearch" placeholder="查找 id/账号">
 </div>
-<table>
+<table id="table">
     <tr>
-        <th><input type="checkbox"></th>
+        <th><input id="selectAll" type="checkbox"></th>
         <th>id</th>
         <th>账号</th>
         <th>用户名</th>

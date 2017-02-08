@@ -61,7 +61,7 @@ if(IS_POST) {
             } elseif(isset($username) && isset($password)) {
                 $user = User::getInstance()->login($username, $password);
                 $token = '';
-                if($user !== false) {
+                if($user !== false && (!isset($user->ban) || !$user->ban)) {
                     $user->_id = (string)$user->_id;
                     $token = $user->token;
                     $_SESSION['user'] = $user;

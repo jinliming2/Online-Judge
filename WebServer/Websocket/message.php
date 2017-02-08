@@ -39,7 +39,7 @@ function mLogin(TcpConnection $connection, stdClass $data) {
         return;
     }
     $user = User::getInstance()->login($data->token);
-    if($user === false) {
+    if($user === false || (isset($user->ban) && $user->ban)) {
         $connection->send(json_encode([
             'code'    => $MESSAGE_CODE->LogonTimeout,
             'type'    => $MESSAGE_TYPE->Login,

@@ -125,6 +125,34 @@ let request = (method, url, data = null, success = null, error = null, complete 
     }
     xmlHttp.send(data);
 };
+let formRequest = (method = 'GET', url = null, data = null, target = null) => {
+    let form = document.createElement('form');
+    form.style.display = 'none';
+    form.method = method;
+    url && (form.action = url);
+    target && (form.target = target);
+    for(let param in data) {
+        if(data.hasOwnProperty(param)) {
+            if(data[param] instanceof Array) {
+                for(let i = 0; i < data[param].length; ++i) {
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = param + '[]';
+                    input.value = data[param][i];
+                    form.appendChild(input);
+                }
+            } else {
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = param;
+                input.value = data[param];
+                form.appendChild(input);
+            }
+        }
+    }
+    document.body.appendChild(form);
+    form.submit();
+};
 let alert = (message, type = 'info', title = 'Message', time = 10000) => {
     //init
     let container = document.getElementById('common-alert-container');

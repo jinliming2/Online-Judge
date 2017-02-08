@@ -39,7 +39,7 @@ if(IS_POST) {
             location.href = '/';
         }
         <?php
-        if(isset($user) && $user !== false) {
+        if(isset($user) && $user !== false && (!isset($user->ban) || !$user->ban)) {
             $user->_id = (string)$user->_id;
             $token = $user->token;
             $_SESSION['user'] = $user;
@@ -63,7 +63,7 @@ if(IS_POST) {
     <div class="line">
         <label for="password">密码</label>
         <input id="password" type="password" name="password" required minlength="8" placeholder="密码">
-        <div id="tip"><?= isset($user) && $user === false ? '用户名或密码错误！' : '' ?></div>
+        <div id="tip"><?= isset($user) && $user === false ? '用户名或密码错误！' : (isset($user) && isset($user->ban) && $user->ban ? '该账号已被限制登录，请联系管理员解决！' : '') ?></div>
     </div>
     <div class="line">
         <button id="submit" type="submit">登录</button>
