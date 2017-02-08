@@ -49,7 +49,7 @@ class Result extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        parent::$tableName = parent::$database.'.'.self::$table;
+        $this->tableName = parent::$database.'.'.self::$table;
     }
 
     /**
@@ -85,7 +85,7 @@ class Result extends Database {
             'time'     => timestamp(),
             'result'   => $JUDGE_STATUS->WaitingForJudge
         ], $data));
-        $result = parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        $result = parent::$connection->executeBulkWrite($this->tableName, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
@@ -106,7 +106,7 @@ class Result extends Database {
         $bulk->update(['_id' => $rid], ['$set' => [
             'result' => $result
         ]]);
-        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /** 查 */
@@ -122,7 +122,7 @@ class Result extends Database {
         $query = new Query(['uid' => $uid, 'qid' => $qid], [
             'sort' => ['time' => -1]
         ]);
-        return parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        return parent::$connection->executeQuery($this->tableName, $query)->toArray();
     }
 
     /**
@@ -134,7 +134,7 @@ class Result extends Database {
      */
     public function getUserResult(ObjectID $rid) {
         $query = new Query(['_id' => $rid]);
-        $result = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        $result = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         if(count($result) > 0) {
             return $result[0];
         }
@@ -152,7 +152,7 @@ class Result extends Database {
      */
     public function getQuestionStatus(ObjectID $uid, ObjectID $qid, int $status) {
         $query = new Query(['uid' => $uid, 'qid' => $qid, 'result' => $status]);
-        $result = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        $result = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         return count($result) > 0;
     }
 }

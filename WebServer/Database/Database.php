@@ -40,7 +40,7 @@ abstract class Database {
      * 表名
      * @var string
      */
-    protected static $tableName;
+    protected $tableName;
     /**
      * 数据库连接
      * @var Manager

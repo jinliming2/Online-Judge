@@ -51,7 +51,7 @@ class Question extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        parent::$tableName = parent::$database.'.'.self::$table;
+        $this->tableName = parent::$database.'.'.self::$table;
     }
 
     /**
@@ -83,7 +83,7 @@ class Question extends Database {
             'adder'       => $username,
             'add_time'    => timestamp()
         ], $data));
-        $result = parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        $result = parent::$connection->executeBulkWrite($this->tableName, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
@@ -105,7 +105,7 @@ class Question extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $id], ['$set' => $data]);
-        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /**
@@ -123,7 +123,7 @@ class Question extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $id], ['$unset' => $arr]);
-        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /** 查 */
@@ -136,7 +136,7 @@ class Question extends Database {
      */
     public function getOne(ObjectID $id) {
         $query = new Query(['_id' => $id]);
-        $rows = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         if(count($rows) > 0) {
             if(!isset($rows[0]->time)) {
                 $rows[0]->time = 1;
@@ -163,7 +163,7 @@ class Question extends Database {
             'skip'  => $start,
             'limit' => $count
         ]);
-        $rows = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         if(count($rows) > 0) {
             unset($row);
             foreach($rows as &$row) {

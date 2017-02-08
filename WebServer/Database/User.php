@@ -50,7 +50,7 @@ class User extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        parent::$tableName = parent::$database.'.'.self::$table;
+        $this->tableName = parent::$database.'.'.self::$table;
     }
 
     /**
@@ -114,7 +114,7 @@ class User extends Database {
             'name'     => $name,
             'su'       => false
         ], $data));
-        $result = parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        $result = parent::$connection->executeBulkWrite($this->tableName, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
@@ -134,7 +134,7 @@ class User extends Database {
         $bulk->update(['token' => $token], ['$unset' => [
             'token' => null
         ]]);
-        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /**
@@ -149,7 +149,7 @@ class User extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $user_id], ['$set' => $data]);
-        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /**
@@ -161,7 +161,7 @@ class User extends Database {
     public function modify_inc(ObjectID $user_id, array $data) {
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $user_id], ['$inc' => $data]);
-        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /**
@@ -179,7 +179,7 @@ class User extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $user_id], ['$unset' => $arr]);
-        parent::$connection->executeBulkWrite(parent::$tableName, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /** 查 */
@@ -192,7 +192,7 @@ class User extends Database {
      */
     public function usernameExists(string $username) {
         $query = new Query(['username' => $username]);
-        $rows = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         return count($rows) > 0;
     }
 
@@ -205,7 +205,7 @@ class User extends Database {
      */
     public function getHistory(ObjectID $uid) {
         $query = new Query(['_id' => $uid]);
-        $row = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        $row = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         if(count($row) > 0) {
             $row = $row[0];
             $result = new stdClass();
@@ -240,7 +240,7 @@ class User extends Database {
         } else {
             $query = new Query(['username' => $account]);
         }
-        $rows = parent::$connection->executeQuery(parent::$tableName, $query)->toArray();
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         if(count($rows) > 0) {
             if(is_null($password)) {
                 return $rows[0];
