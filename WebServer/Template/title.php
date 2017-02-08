@@ -30,10 +30,15 @@ use MongoDB\BSON\ObjectID;
         <div id="header_top_left">Online Judge</div>
         <div id="header_top_right" class="flex">
             <?php
-            if(isset($_SESSION['user'])) {
+            if(isset($_SESSION['user']->_id)) {
                 ?>
             <div id="logout" class="header_button">注销</div>
                 <?php
+                if(isset($_SESSION['user']->su) && $_SESSION['user']->su) {
+                    ?>
+            <a class="header_button" href="/manager.php" target="_blank">管理</a>
+                    <?php
+                }
             } else {
                 ?>
             <div id="login" class="header_button">登录</div>

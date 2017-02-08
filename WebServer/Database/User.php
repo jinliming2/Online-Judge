@@ -254,4 +254,13 @@ class User extends Database {
         }
         return false;
     }
+
+    public function getList(array $condition, int $start = 0, int $count = 0) {
+        $query = new Query($condition, [
+            'projection' => ['password' => 0],
+            'skip'  => $start,
+            'limit' => $count
+        ]);
+        return parent::$connection->executeQuery($this->tableName, $query)->toArray();
+    }
 }

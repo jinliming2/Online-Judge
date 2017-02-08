@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-nav {
-    justify-content: center !important;
-}
 
-nav > button {
-    margin: 8px 16px;
-}
-
-#control {
-    background-color: #ccc;
-    padding: 15px calc((100% - 1170px) / 2);
-}
-
-table {
-    width: 1170px;
-    margin: 16px auto;
-}
-
-
+/**
+ * Created by Liming on 2017/2/6.
+ */
+"use strict";
+(() => {
+    document.getElementById('btnUser').addEventListener('click', () => {
+        location.href = '?c=user';
+    });
+    document.getElementById('btnQuestion').addEventListener('click', () => {
+        location.href = '?c=question';
+    });
+})();

@@ -68,22 +68,6 @@ aside {
 table {
     width: 1170px;
     margin: 16px auto;
-    text-align: center;
-    border-spacing: 0;
-}
-
-th {
-    background-color: black;
-    color: white;
-    padding: 8px;
-}
-
-tr:nth-child(odd) {
-    background-color: #ccc;
-}
-
-td {
-    padding: 8px;
 }
 
 #login_tip {
