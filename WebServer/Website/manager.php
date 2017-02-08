@@ -43,6 +43,7 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
     ?>
 <div id="control">
     <button id="btnDelete">批量删除选中用户</button>
+    <input id="txtSearch" placeholder="查找 id/账号">
 </div>
 <table>
     <tr>
@@ -73,8 +74,8 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
         <td><?= $user->username ?></td>
         <td><?= $user->name ?></td>
         <td><?= $submit == 0 ? 0 : round($pass / $submit * 100, 3) ?>%</td>
-        <td><button data-id="<?= $user->_id ?>">重置</button></td>
-        <td><button data-id="<?= $user->_id ?>"><?= isset($user->ban) && $user->ban ? '解封' : '封禁' ?></button></td>
+        <td><button data-id="<?= $user->_id ?>" data-c="reset">重置</button></td>
+        <td><button data-id="<?= $user->_id ?>" data-c="<?= isset($user->ban) && $user->ban ? 'unban' : 'ban' ?>"><?= isset($user->ban) && $user->ban ? '解封' : '封禁' ?></button></td>
     </tr>
         <?php
     }

@@ -26,9 +26,19 @@ nav > button {
     padding: 15px calc((100% - 1170px) / 2);
 }
 
+#txtSearch {
+    width: 300px;
+    line-height: 38px;
+    border:none;
+    border-radius: 3px;
+    padding: 0 6px;
+}
+
 table {
     width: 1170px;
     margin: 16px auto;
 }
 
-
+td {
+    user-select: initial;
+}
