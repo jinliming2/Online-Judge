@@ -91,6 +91,16 @@ class Question extends Database {
     }
 
     /** 删 */
+    /**
+     * 删除
+     *
+     * @param ObjectID $id
+     */
+    public function delete(ObjectID $id) {
+        $bulk = new BulkWrite();
+        $bulk->delete(['_id' => $id], ['limit' => true]);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
 
     /** 改 */
     /**
@@ -156,7 +166,7 @@ class Question extends Database {
      * @param int   $start
      * @param int   $count
      *
-     * @return false|array
+     * @return array
      */
     public function getList(array $condition, int $start = 0, int $count = 0) {
         $query = new Query($condition, [
@@ -164,20 +174,17 @@ class Question extends Database {
             'limit' => $count
         ]);
         $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
-        if(count($rows) > 0) {
-            unset($row);
-            foreach($rows as &$row) {
-                if(!isset($row->time)) {
-                    $row->time = 1;
-                }
-                if(!isset($row->memory)) {
-                    $row->memory = 65536;
-                }
+        unset($row);
+        foreach($rows as &$row) {
+            if(!isset($row->time)) {
+                $row->time = 1;
             }
-            unset($row);
-            return $rows;
+            if(!isset($row->memory)) {
+                $row->memory = 65536;
+            }
         }
-        return false;
+        unset($row);
+        return $rows;
     }
 
     /**

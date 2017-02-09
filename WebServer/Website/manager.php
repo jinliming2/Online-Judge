@@ -22,6 +22,7 @@
  */
 require_once __DIR__.'/../Workerman/Autoloader.php';
 require __DIR__.'/../Template/constant.php';
+use Database\Question;
 use Database\User;
 use MongoDB\BSON\ObjectID;
 
@@ -90,6 +91,15 @@ if(IS_POST) {
             }
         }
     } elseif($_GET['c'] == 'question') {
+        if(!empty($_POST['c'])) {
+            switch($_POST['c']) {
+                case 'delete':
+                    if(!empty($_POST['id'])) {
+                        Question::getInstance()->delete(new ObjectID($_POST['id']));
+                    }
+                    break;
+            }
+        }
     } else {
         header('Location: ?', true, 303);
         die;
@@ -138,7 +148,7 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
 </div>
 <table id="table">
     <tr>
-        <th><input id="selectAll" type="checkbox"></th>
+        <th><input id="selectAll" title="全选" type="checkbox"></th>
         <th>id</th>
         <th>账号</th>
         <th>用户名</th>
@@ -174,7 +184,57 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
 </table>
     <?php
 } elseif(!empty($_GET['c']) && $_GET['c'] == 'question') {
+    $condition = [];
+    if(!empty($_GET['search'])) {
+        try {
+            $condition = [
+                '$or' => [
+                    ['_id' => new ObjectID($_GET['search'])],
+                    ['title' => $_GET['search']],
+                    ['adder' => $_GET['search']]
+                ]
+            ];
+        } catch (InvalidArgumentException $e) {
+            $condition = [
+                '$or' => [
+                    ['title' => $_GET['search']],
+                    ['adder' => $_GET['search']]
+                ]
+            ];
+        }
+    }
+    $questions = Question::getInstance()->getList($condition, 0, 100);
     ?>
+<div id="control">
+    <button id="btnInsert">新建</button>
+    <input id="txtSearch" placeholder="查找 id/标题/添加者"<?= !empty($_GET['search']) ? ' value="'.$_GET['search'].'"' : '' ?>>
+</div>
+<table id="table">
+    <tr>
+        <th><input id="selectAll" title="全选" type="checkbox"></th>
+        <th>id</th>
+        <th>标题</th>
+        <th>添加者</th>
+        <th>添加时间</th>
+        <th>修改</th>
+        <th>删除</th>
+    </tr>
+    <?php
+    foreach($questions as $question) {
+        ?>
+    <tr>
+        <td><input type="checkbox" data-id="<?= $question->_id ?>"></td>
+        <td><?= $question->_id ?></td>
+        <td><?= $question->title ?></td>
+        <td><?= $question->adder ?></td>
+        <td><?= date('Y-m-d H:i:s', $question->add_time / 1000) ?></td>
+        <td><button data-id="<?= $question->_id ?>" data-c="modify">修改</button></td>
+        <td><button data-id="<?= $question->_id ?>" data-c="delete">删除</button></td>
+    </tr>
+        <?php
+    }
+    ?>
+</table>
     <?php
 }
 ?>

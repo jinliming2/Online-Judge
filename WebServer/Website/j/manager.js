@@ -28,14 +28,15 @@
 
     //全选/全不选
     let selectAll = document.getElementById('selectAll');
-    selectAll.addEventListener('change', (e) => {
+    selectAll && selectAll.addEventListener('change', (e) => {
         document.querySelectorAll('input[type=checkbox]').forEach((checkbox) => {
             checkbox.checked = e.target.checked;
         });
     });
 
     //批量封禁
-    document.getElementById('btnBan').addEventListener('click', () => {
+    let btnBan = document.getElementById('btnBan');
+    btnBan && btnBan.addEventListener('click', () => {
         selectAll.checked = false;
         let checkbox = document.querySelectorAll('input:checked');
         let data = {
@@ -49,16 +50,23 @@
     });
 
     //按钮冒泡事件
-    document.getElementById('table').addEventListener('click', (e) => {
+    let table = document.getElementById('table');
+    table && table.addEventListener('click', (e) => {
         if(e.target.dataset.c && e.target.dataset.id) {
             if(e.target.dataset.c == 'reset') {
                 let newPassword, _newPassword;
                 newPassword = prompt('请设置一个新的密码：');
+                if(!newPassword) {
+                    return;
+                }
                 if(newPassword.length < 8) {
                     alert('密码长度必须大于8！');
                     return;
                 }
-                newPassword && (_newPassword = prompt('请再输入一次以确认输入无误：'));
+                _newPassword = prompt('请再输入一次以确认输入无误：');
+                if(!_newPassword) {
+                    return;
+                }
                 if(newPassword) {
                     if(newPassword != _newPassword) {
                         alert('两次输入不一致！修改失败！', 'e');
@@ -113,15 +121,21 @@
                 }, () => {
                     alert('网络错误，请重试！', 'e');
                 });
+            } else if(e.target.dataset.c == 'modify') {
+            } else if(e.target.dataset.c == 'delete') {
+                formRequest('POST', null, {
+                    c: 'delete',
+                    id: e.target.dataset.id
+                });
             }
         }
     });
 
-    //ID/账号/用户名查找
+    //ID/账号/用户名/标题/添加者查找
     let txtSearch = document.getElementById('txtSearch');
-    txtSearch.addEventListener('keypress', (e) => {
+    txtSearch && txtSearch.addEventListener('keypress', (e) => {
         if(e.keyCode == 13) {
-            location.href = '?c=user&search=' + txtSearch.value;
+            location.href = '?c=' + getQuery('c') + (txtSearch.value.length > 0 ? '&search=' + txtSearch.value : '');
         }
     });
 })();
