@@ -122,6 +122,7 @@
                     alert('网络错误，请重试！', 'e');
                 });
             } else if(e.target.dataset.c == 'modify') {
+                popWindow(800, 600, '修改问题', '/new_question.php?id=' + e.target.dataset.id, true);
             } else if(e.target.dataset.c == 'delete') {
                 formRequest('POST', null, {
                     c: 'delete',
@@ -137,5 +138,11 @@
         if(e.keyCode == 13) {
             location.href = '?c=' + getQuery('c') + (txtSearch.value.length > 0 ? '&search=' + txtSearch.value : '');
         }
+    });
+
+    //新建问题
+    let btnInsert = document.getElementById('btnInsert');
+    btnInsert && btnInsert.addEventListener('click', () => {
+        popWindow(800, 600, '新建问题', '/new_question.php', true);
     });
 })();

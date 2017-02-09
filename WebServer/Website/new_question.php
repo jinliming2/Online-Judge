@@ -23,6 +23,22 @@
 require_once __DIR__.'/../Workerman/Autoloader.php';
 require __DIR__.'/../Template/constant.php';
 use Database\Question;
+use MongoDB\BSON\ObjectID;
+
+if(empty($_SESSION['user']->su) || !$_SESSION['user']->su) {
+    header('Location: /', true, 301);
+    die;
+}
+
+$adder = $_SESSION['user']->name;
+if(!empty($_GET['id'])) {
+    $question = Question::getInstance()->getOne(new ObjectID($_GET['id']));
+    $title = $question->title;
+    $description = $question->description;
+    $adder = $question->adder;
+    $add_time = $question->add_time;
+    $tags = $question->tags;
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
@@ -39,19 +55,48 @@ use Database\Question;
 <body>
 <form method="post">
     <div class="line">
-        <label for="username">用户名</label>
-        <input id="username" type="text" name="username" required autofocus placeholder="用户名" autocomplete="off"<?= isset($username) ? ' value="'.$username.'"' : '' ?>>
+        <label for="title">标题</label>
+        <input id="title" type="text" name="title" required autofocus placeholder="标题" autocomplete="off"<?= isset($title) ? ' value="'.$title.'"' : '' ?>>
     </div>
     <div class="line">
-        <label for="password">密码</label>
-        <input id="password" type="password" name="password" required minlength="8" placeholder="密码">
-        <div id="tip"><?= isset($user) && $user === false ? '用户名或密码错误！' : (isset($user) && isset($user->ban) && $user->ban ? '该账号已被限制登录，请联系管理员解决！' : '') ?></div>
+        <label for="description">详细描述</label>
+        <textarea id="description" name="description" required placeholder="详细描述（允许使用除了script之外的任意html标签！，比如使用<br>换行，使用<style>指定样式之类。）"><?= isset($description) ? $description : '' ?></textarea>
     </div>
     <div class="line">
-        <button id="submit" type="submit">登录</button>
+        <label for="adder">添加者</label>
+        <input id="adder" type="text" name="adder" readonly placeholder="添加者" value="<?= $adder ?>">
+    </div>
+    <div id="tags">
+        <label>标签</label>
+        <button id="add_tag" type="button">添加</button>
+        <?php
+        if(isset($tags)) {
+            foreach($tags as $tag) {
+                ?>
+        <div class="lines">
+            <input type="text" name="tags[]" required placeholder="标签" value="<?= $tag ?>"><button type="button">删除</button>
+        </div>
+                <?php
+            }
+        }
+        ?>
+    </div>
+    <?php
+    if(isset($add_time)) {
+        ?>
+    <div class="line">
+        <label for="add_time">添加时间</label>
+        <input id="add_time" type="text" readonly placeholder="添加时间" value="<?= date('Y-m-d H:i:s', $add_time / 1000) ?>">
+    </div>
+        <?php
+    }
+    ?>
+    <div class="line">
+        <button id="submit" type="submit">提交</button>
     </div>
 </form>
 <?php include '../Template/footer.html'; ?>
+<script src="/j/new_question.js"></script>
 </body>
 </html>
 
