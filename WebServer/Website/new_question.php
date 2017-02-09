@@ -17,18 +17,12 @@
 
 /**
  * Created by Liming
- * Date: 2016/12/29
- * Time: 15:13
+ * Date: 2017/2/9
+ * Time: 18:12
  */
 require_once __DIR__.'/../Workerman/Autoloader.php';
 require __DIR__.'/../Template/constant.php';
-use Database\User;
-
-if(IS_POST) {
-    $username = isset($_POST['username']) ? $_POST['username'] : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $user = User::getInstance()->login($username, $password);
-}
+use Database\Question;
 ?>
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
@@ -38,21 +32,9 @@ if(IS_POST) {
         if(parent && parent == window) {
             location.href = '/';
         }
-        <?php
-        if(isset($user) && $user !== false && (!isset($user->ban) || !$user->ban)) {
-            $user->_id = (string)$user->_id;
-            $token = $user->token;
-            $_SESSION['user'] = $user;
-            setcookie('token', $token, null, null, null, IS_HTTPS, false);
-            ?>
-        parent.location.reload(true);
-        parent.closePopWindow && parent.closePopWindow();
-            <?php
-        }
-        ?>
     </script>
-    <link rel="stylesheet" href="/c/login.css">
-    <title>Login - Online Judge</title>
+    <link rel="stylesheet" href="/c/new_question.css">
+    <title>Add New Question - Online Judge</title>
 </head>
 <body>
 <form method="post">
@@ -72,3 +54,5 @@ if(IS_POST) {
 <?php include '../Template/footer.html'; ?>
 </body>
 </html>
+
+

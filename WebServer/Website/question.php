@@ -47,7 +47,7 @@ if($question === false) {
 <head>
     <?php include '../Template/head.html'; ?>
     <link rel="stylesheet" href="/c/question.css">
-    <title><?= $question->title ?> - Online Judge - Question</title>
+    <title><?= $question->title ?> - Question - Online Judge</title>
 </head>
 <body>
 <?php include '../Template/title.php'; ?>

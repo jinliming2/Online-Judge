@@ -76,7 +76,7 @@ if(IS_POST) {
         ?>
     </script>
     <link rel="stylesheet" href="/c/register.css">
-    <title>Register - Home</title>
+    <title>Register - Online Judge</title>
 </head>
 <body>
 <form method="post">

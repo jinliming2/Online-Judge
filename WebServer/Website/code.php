@@ -59,7 +59,7 @@ if($result->uid != $_SESSION['user']->_id) {
         }
     </script>
     <link rel="stylesheet" href="/c/code.css">
-    <title>View Code - Home</title>
+    <title>View Code - Online Judge</title>
 </head>
 <body>
 <pre id="editor"><?= htmlspecialchars($result->code) ?></pre>

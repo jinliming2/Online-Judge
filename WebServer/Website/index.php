@@ -37,7 +37,7 @@ if($_maxPage > 0 && $page >= $_maxPage) {
 <head>
     <?php include '../Template/head.html'; ?>
     <link rel="stylesheet" href="/c/index.css">
-    <title>Online Judge - Home</title>
+    <title>Home - Online Judge</title>
 </head>
 <body>
 <?php include '../Template/title.php'; ?>

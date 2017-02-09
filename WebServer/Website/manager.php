@@ -111,7 +111,7 @@ if(IS_POST) {
 <head>
     <?php include '../Template/head.html'; ?>
     <link rel="stylesheet" href="/c/manager.css">
-    <title>Online Judge - Manager</title>
+    <title>Manager - Online Judge</title>
 </head>
 <body>
 <?php include '../Template/title.php'; ?>
