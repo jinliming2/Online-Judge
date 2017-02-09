@@ -116,4 +116,12 @@
             }
         }
     });
+
+    //ID/账号/用户名查找
+    let txtSearch = document.getElementById('txtSearch');
+    txtSearch.addEventListener('keypress', (e) => {
+        if(e.keyCode == 13) {
+            location.href = '?c=user&search=' + txtSearch.value;
+        }
+    });
 })();

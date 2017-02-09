@@ -111,11 +111,30 @@ if(IS_POST) {
 </nav>
 <?php
 if(!empty($_GET['c']) && $_GET['c'] == 'user') {
-    $users = User::getInstance()->getList([], 0, 100);
+    $condition = [];
+    if(!empty($_GET['search'])) {
+        try {
+            $condition = [
+                '$or' => [
+                    ['_id' => new ObjectID($_GET['search'])],
+                    ['username' => $_GET['search']],
+                    ['name' => $_GET['search']]
+                ]
+            ];
+        } catch (InvalidArgumentException $e) {
+            $condition = [
+                '$or' => [
+                    ['username' => $_GET['search']],
+                    ['name' => $_GET['search']]
+                ]
+            ];
+        }
+    }
+    $users = User::getInstance()->getList($condition, 0, 100);
     ?>
 <div id="control">
     <button id="btnBan">批量封禁选中用户</button>
-    <input id="txtSearch" placeholder="查找 id/账号">
+    <input id="txtSearch" placeholder="查找 id/账号/用户名"<?= !empty($_GET['search']) ? ' value="'.$_GET['search'].'"' : '' ?>>
 </div>
 <table id="table">
     <tr>
