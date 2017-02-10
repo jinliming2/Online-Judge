@@ -105,6 +105,9 @@ if(IS_POST) {
         die;
     }
 }
+
+$page = empty($_GET['page']) ? 0 : intval($_GET['page']) - 1;
+$pageSize = 100;
 ?>
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
@@ -140,7 +143,14 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
             ];
         }
     }
-    $users = User::getInstance()->getList($condition, 0, 100);
+
+    $_maxPage = ceil(User::getInstance()->getCount($condition) / $pageSize);
+    if($_maxPage > 0 && $page >= $_maxPage) {
+        header('Location: ?c=user&page='.$_maxPage, true, 301);
+        die;
+    }
+
+    $users = User::getInstance()->getList($condition, $page * $pageSize, $pageSize);
     ?>
 <div id="control">
     <button id="btnBan">批量封禁选中用户</button>
@@ -182,6 +192,20 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
     }
     ?>
 </table>
+<div class="pages">
+    <?php
+    if($page > 0) {
+        ?>
+    <a class="button" href="?page=<?= $page ?>">上一页</a>
+        <?php
+    }
+    if($page < $_maxPage - 1) {
+        ?>
+    <a class="button" href="?page=<?= $page + 2 ?>">下一页</a>
+        <?php
+    }
+    ?>
+</div>
     <?php
 } elseif(!empty($_GET['c']) && $_GET['c'] == 'question') {
     $condition = [];
@@ -203,7 +227,14 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
             ];
         }
     }
-    $questions = Question::getInstance()->getList($condition, 0, 100);
+
+    $_maxPage = ceil(Question::getInstance()->getCount($condition) / $pageSize);
+    if($_maxPage > 0 && $page >= $_maxPage) {
+        header('Location: ?c=user&page='.$_maxPage, true, 301);
+        die;
+    }
+
+    $questions = Question::getInstance()->getList($condition, $page * $pageSize, $pageSize);
     ?>
 <div id="control">
     <button id="btnInsert">新建</button>
@@ -235,6 +266,20 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
     }
     ?>
 </table>
+<div class="pages">
+    <?php
+    if($page > 0) {
+        ?>
+    <a class="button" href="?page=<?= $page ?>">上一页</a>
+        <?php
+    }
+    if($page < $_maxPage - 1) {
+        ?>
+    <a class="button" href="?page=<?= $page + 2 ?>">下一页</a>
+        <?php
+    }
+    ?>
+</div>
     <?php
 }
 ?>

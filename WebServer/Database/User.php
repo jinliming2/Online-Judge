@@ -26,6 +26,7 @@ namespace Database;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
 use stdClass;
 
@@ -334,5 +335,18 @@ class User extends Database {
             'limit'      => $count
         ]);
         return parent::$connection->executeQuery($this->tableName, $query)->toArray();
+    }
+
+    /**
+     * 取总记录数
+     *
+     * @param array $condition
+     *
+     * @return int
+     */
+    public function getCount(array $condition) {
+        $command = new Command(['count' => self::$table, 'query' => $condition]);
+        $result = parent::$connection->executeCommand(parent::$database, $command);
+        return $result->toArray()[0]->n;
     }
 }
