@@ -65,6 +65,11 @@ aside {
     margin: 8px;
 }
 
+table {
+    width: 1170px;
+    margin: 16px auto;
+}
+
 #login_tip {
     text-align: center;
 }

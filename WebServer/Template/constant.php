@@ -34,7 +34,7 @@ if(isset($_SESSION['user']->_id)) {
     }
 } elseif(isset($_COOKIE['token'])) {
     $user = User::getInstance()->login($_COOKIE['token']);
-    if($user) {
+    if($user && (!isset($user->ban) || !$user->ban)) {
         $user->_id = (string)$user->_id;
         $_SESSION['user'] = $user;
     }

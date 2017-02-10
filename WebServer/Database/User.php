@@ -26,6 +26,7 @@ namespace Database;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
 use stdClass;
 
@@ -50,7 +51,7 @@ class User extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        self::$table = parent::$database.'.'.self::$table;
+        $this->tableName = parent::$database.'.'.self::$table;
     }
 
     /**
@@ -114,7 +115,7 @@ class User extends Database {
             'name'     => $name,
             'su'       => false
         ], $data));
-        $result = parent::$connection->executeBulkWrite(self::$table, $bulk);
+        $result = parent::$connection->executeBulkWrite($this->tableName, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
@@ -134,7 +135,7 @@ class User extends Database {
         $bulk->update(['token' => $token], ['$unset' => [
             'token' => null
         ]]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /**
@@ -149,7 +150,19 @@ class User extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $user_id], ['$set' => $data]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改资料 - 增减字段
+     *
+     * @param ObjectID $user_id
+     * @param array    $data
+     */
+    public function modify_inc(ObjectID $user_id, array $data) {
+        $bulk = new BulkWrite();
+        $bulk->update(['_id' => $user_id], ['$inc' => $data]);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /**
@@ -167,7 +180,70 @@ class User extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $user_id], ['$unset' => $arr]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改资料 - 批量
+     *
+     * @param array $user_ids
+     * @param array $data
+     */
+    public function modify_batch(array $user_ids, array $data) {
+        if(isset($data['_id'])) {
+            unset($data['_id']);
+        }
+        $bulk = new BulkWrite();
+        foreach($user_ids as $user_id) {
+            $bulk->update(['_id' => $user_id], ['$set' => $data]);
+        }
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改资料 - 增减字段 - 批量
+     *
+     * @param array $user_ids
+     * @param array $data
+     */
+    public function modify_inc_batch(array $user_ids, array $data) {
+        $bulk = new BulkWrite();
+        foreach($user_ids as $user_id) {
+            $bulk->update(['_id' => $user_id], ['$inc' => $data]);
+        }
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改资料 - 删除字段 - 批量
+     *
+     * @param array $user_ids
+     * @param array $columns 字段列表，一维string数组，字段名
+     */
+    public function modify_unset_batch(array $user_ids, array $columns) {
+        $arr = [];
+        foreach($columns as $column) {
+            if($column != 'username' && $column != 'password' && $column != 'name' && $column != 'su') {
+                $arr[$column] = null;
+            }
+        }
+        $bulk = new BulkWrite();
+        foreach($user_ids as $user_id) {
+            $bulk->update(['_id' => $user_id], ['$unset' => $arr]);
+        }
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
+
+    /**
+     * 修改密码
+     * @param ObjectID $user_id
+     * @param string   $password
+     */
+    public function modifyPassword(ObjectID $user_id, string $password) {
+        $this->modify($user_id, [
+            'password' => password_hash($password, PASSWORD_DEFAULT)
+        ]);
+        $this->modify_unset($user_id, ['token']);
     }
 
     /** 查 */
@@ -180,8 +256,36 @@ class User extends Database {
      */
     public function usernameExists(string $username) {
         $query = new Query(['username' => $username]);
-        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         return count($rows) > 0;
+    }
+
+    /**
+     * 取用户提交历史记录
+     *
+     * @param ObjectID $uid
+     *
+     * @return false|stdClass
+     */
+    public function getHistory(ObjectID $uid) {
+        $query = new Query(['_id' => $uid]);
+        $row = parent::$connection->executeQuery($this->tableName, $query)->toArray();
+        if(count($row) > 0) {
+            $row = $row[0];
+            $result = new stdClass();
+            if(isset($row->totalPass)) {
+                $result->pass = $row->totalPass;
+            } else {
+                $result->pass = 0;
+            }
+            if(isset($row->totalSubmit)) {
+                $result->submit = $row->totalSubmit;
+            } else {
+                $result->submit = 0;
+            }
+            return $result;
+        }
+        return false;
     }
 
     /**
@@ -200,7 +304,7 @@ class User extends Database {
         } else {
             $query = new Query(['username' => $account]);
         }
-        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         if(count($rows) > 0) {
             if(is_null($password)) {
                 return $rows[0];
@@ -213,5 +317,36 @@ class User extends Database {
             }
         }
         return false;
+    }
+
+    /**
+     * 取用户列表
+     *
+     * @param array $condition
+     * @param int   $start
+     * @param int   $count
+     *
+     * @return array
+     */
+    public function getList(array $condition, int $start = 0, int $count = 0) {
+        $query = new Query($condition, [
+            'projection' => ['password' => 0],
+            'skip'       => $start,
+            'limit'      => $count
+        ]);
+        return parent::$connection->executeQuery($this->tableName, $query)->toArray();
+    }
+
+    /**
+     * 取总记录数
+     *
+     * @param array $condition
+     *
+     * @return int
+     */
+    public function getCount(array $condition) {
+        $command = new Command(['count' => self::$table, 'query' => $condition]);
+        $result = parent::$connection->executeCommand(parent::$database, $command);
+        return $result->toArray()[0]->n;
     }
 }

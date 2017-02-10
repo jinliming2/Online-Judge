@@ -26,6 +26,7 @@ namespace Database;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
 use stdClass;
 
@@ -50,7 +51,7 @@ class Question extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        self::$table = parent::$database.'.'.self::$table;
+        $this->tableName = parent::$database.'.'.self::$table;
     }
 
     /**
@@ -82,7 +83,7 @@ class Question extends Database {
             'adder'       => $username,
             'add_time'    => timestamp()
         ], $data));
-        $result = parent::$connection->executeBulkWrite(self::$table, $bulk);
+        $result = parent::$connection->executeBulkWrite($this->tableName, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
@@ -90,6 +91,16 @@ class Question extends Database {
     }
 
     /** 删 */
+    /**
+     * 删除
+     *
+     * @param ObjectID $id
+     */
+    public function delete(ObjectID $id) {
+        $bulk = new BulkWrite();
+        $bulk->delete(['_id' => $id], ['limit' => true]);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
+    }
 
     /** 改 */
     /**
@@ -104,7 +115,7 @@ class Question extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $id], ['$set' => $data]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /**
@@ -122,7 +133,7 @@ class Question extends Database {
         }
         $bulk = new BulkWrite();
         $bulk->update(['_id' => $id], ['$unset' => $arr]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /** 查 */
@@ -135,7 +146,7 @@ class Question extends Database {
      */
     public function getOne(ObjectID $id) {
         $query = new Query(['_id' => $id]);
-        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
         if(count($rows) > 0) {
             if(!isset($rows[0]->time)) {
                 $rows[0]->time = 1;
@@ -155,27 +166,37 @@ class Question extends Database {
      * @param int   $start
      * @param int   $count
      *
-     * @return false|array
+     * @return array
      */
     public function getList(array $condition, int $start = 0, int $count = 0) {
         $query = new Query($condition, [
             'skip'  => $start,
             'limit' => $count
         ]);
-        $rows = parent::$connection->executeQuery(self::$table, $query)->toArray();
-        if(count($rows) > 0) {
-            unset($row);
-            foreach($rows as &$row) {
-                if(!isset($row->time)) {
-                    $row->time = 1;
-                }
-                if(!isset($row->memory)) {
-                    $row->memory = 65536;
-                }
+        $rows = parent::$connection->executeQuery($this->tableName, $query)->toArray();
+        unset($row);
+        foreach($rows as &$row) {
+            if(!isset($row->time)) {
+                $row->time = 1;
             }
-            unset($row);
-            return $rows;
+            if(!isset($row->memory)) {
+                $row->memory = 65536;
+            }
         }
-        return false;
+        unset($row);
+        return $rows;
+    }
+
+    /**
+     * 取总记录数
+     *
+     * @param array $condition
+     *
+     * @return int
+     */
+    public function getCount(array $condition) {
+        $command = new Command(['count' => self::$table, 'query' => $condition]);
+        $result = parent::$connection->executeCommand(parent::$database, $command);
+        return $result->toArray()[0]->n;
     }
 }

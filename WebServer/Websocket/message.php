@@ -39,7 +39,7 @@ function mLogin(TcpConnection $connection, stdClass $data) {
         return;
     }
     $user = User::getInstance()->login($data->token);
-    if($user === false) {
+    if($user === false || (isset($user->ban) && $user->ban)) {
         $connection->send(json_encode([
             'code'    => $MESSAGE_CODE->LogonTimeout,
             'type'    => $MESSAGE_TYPE->Login,
@@ -117,6 +117,7 @@ function mJudge(TcpConnection $connection, stdClass $data) {
     $connection->worker->process_pool[] = [
         'rid'        => $result,
         'uid'        => $connection->user_info->_id,
+        'start_time' => timestamp(),
         'judge_info' => [
             'qid'       => (string)$question->_id,
             'time'      => $question->time,

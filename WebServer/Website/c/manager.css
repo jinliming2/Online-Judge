@@ -1,0 +1,44 @@
+/*
+ * Copyright 2017 Liming Jin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+nav {
+    justify-content: center !important;
+}
+
+nav > button {
+    margin: 8px 16px;
+}
+
+#control {
+    background-color: #ccc;
+    padding: 15px calc((100% - 1170px) / 2);
+}
+
+#txtSearch {
+    width: 300px;
+    line-height: 38px;
+    border:none;
+    border-radius: 3px;
+    padding: 0 6px;
+}
+
+table {
+    width: 1170px;
+    margin: 16px auto;
+}
+
+td {
+    user-select: initial;
+}

@@ -1,0 +1,71 @@
+/*
+ * Copyright 2017 Liming Jin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+.line {
+    width: 100%;
+    padding: 8px;
+    text-align: center;
+}
+
+label {
+    display: inline-block;
+    width: 80px;
+    text-align: right;
+}
+
+input {
+    height: 38px;
+    width: calc(100% - 100px);
+    line-height: 38px;
+    border: 1px solid #E6E6E6;
+    border-radius: 3px;
+    outline: none;
+    padding: 0 10px;
+}
+
+textarea {
+    width: calc(100% - 100px);
+    height: auto;
+    min-height: 200px;
+    line-height: 20px;
+    font-size: 14px;
+    padding: 6px 10px;
+    border: 1px solid #E6E6E6;
+    border-radius: 3px;
+    outline: none;
+    resize: vertical;
+    vertical-align: top;
+}
+
+input[readonly] {
+    cursor: not-allowed;
+    user-select: initial;
+}
+
+#tags {
+    width: calc(100% - 20px);
+    padding: 8px 0;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    /*box-shadow: 3px 2px 10px 0 rgba(0, 0, 0, .2);*/
+}
+
+.lines {
+    padding: 8px 0 8px 90px;
+}
+
+.lines > input {
+    margin-right: 10px;
+}

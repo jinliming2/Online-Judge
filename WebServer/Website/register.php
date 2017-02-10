@@ -21,7 +21,7 @@
  * Time: 15:14
  */
 require_once __DIR__.'/../Workerman/Autoloader.php';
-require '../Template/constant.php';
+require __DIR__.'/../Template/constant.php';
 use Database\User;
 
 if(IS_POST) {
@@ -34,10 +34,10 @@ if(IS_POST) {
     }
     if($username && $password && $name) {
         $data = [];
-        if(isset($_POST['email'])) {
+        if(!empty($_POST['email'])) {
             $data['email'] = $_POST['email'];
         }
-        if(isset($_POST['intro'])) {
+        if(!empty($_POST['intro'])) {
             $data['intro'] = $_POST['intro'];
         }
         $uid = User::getInstance()->register($username, $password, $name, $data);
@@ -61,7 +61,7 @@ if(IS_POST) {
             } elseif(isset($username) && isset($password)) {
                 $user = User::getInstance()->login($username, $password);
                 $token = '';
-                if($user !== false) {
+                if($user !== false && (!isset($user->ban) || !$user->ban)) {
                     $user->_id = (string)$user->_id;
                     $token = $user->token;
                     $_SESSION['user'] = $user;
@@ -76,7 +76,7 @@ if(IS_POST) {
         ?>
     </script>
     <link rel="stylesheet" href="/c/register.css">
-    <title>Register - Home</title>
+    <title>Register - Online Judge</title>
 </head>
 <body>
 <form method="post">

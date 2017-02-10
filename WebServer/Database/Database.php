@@ -37,6 +37,11 @@ abstract class Database {
      */
     protected static $database = 'Judge';
     /**
+     * 表名
+     * @var string
+     */
+    protected $tableName;
+    /**
      * 数据库连接
      * @var Manager
      */

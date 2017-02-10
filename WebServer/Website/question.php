@@ -21,8 +21,9 @@
  * Time: 16:35
  */
 require_once __DIR__.'/../Workerman/Autoloader.php';
-require '../Template/constant.php';
+require __DIR__.'/../Template/constant.php';
 use Database\Question;
+use Database\Result;
 use MongoDB\BSON\ObjectID;
 
 if(empty($_GET['id'])) {
@@ -46,7 +47,7 @@ if($question === false) {
 <head>
     <?php include '../Template/head.html'; ?>
     <link rel="stylesheet" href="/c/question.css">
-    <title><?= $question->title ?> - Online Judge - Question</title>
+    <title><?= $question->title ?> - Question - Online Judge</title>
 </head>
 <body>
 <?php include '../Template/title.php'; ?>
@@ -79,13 +80,47 @@ if(isset($_SESSION['user']->_id)) {
         <span id="language_tip"><i>请正确选择代码语言，选择错误将可能会导致在线编译出错！</i></span>
     </span>
     <span>
-        <button id="download">保存代码</button>
+        <button id="download" type="button">保存代码</button>
     </span>
 </div>
 <pre id="editor"></pre>
 <div class="flex">
     <button id="submit" type="submit">提交</button>
 </div>
+<table id="history">
+    <tr>
+        <th>id</th>
+        <th>语言</th>
+        <th>代码</th>
+        <th>状态</th>
+        <th>提交时间</th>
+    </tr>
+    <?php
+    $results = Result::getInstance()->getQuestionResult(new ObjectID($_SESSION['user']->_id), $qid);
+    $json = json_decode(file_get_contents(__DIR__.'/../Constant/constant.json'));
+    $statusArray = $json->judge_status;
+    $languageArray = $json->language_type;
+    $status = [];
+    $language = [];
+    foreach($statusArray as $s) {
+        $status[] = $s[1];
+    }
+    foreach($languageArray as $l) {
+        $language[] = $l[0];
+    }
+    foreach($results as $result) {
+        ?>
+    <tr>
+        <td><?= $result->_id ?></td>
+        <td><?= $language[$result->language] ?></td>
+        <td><button type="button" data-id="<?= $result->_id ?>" data-language="<?= $result->language ?>">查看</button></td>
+        <td><?= $status[$result->result] ?></td>
+        <td><?= date('Y-m-d H:i:s', $result->time / 1000) ?></td>
+    </tr>
+        <?php
+    }
+    ?>
+</table>
     <?php
 } else {
     ?>

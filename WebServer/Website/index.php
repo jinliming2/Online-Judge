@@ -21,24 +21,32 @@
 * Time: 13:32
 */
 require_once __DIR__.'/../Workerman/Autoloader.php';
-require '../Template/constant.php';
+require __DIR__.'/../Template/constant.php';
 use Database\Question;
+
+$page = empty($_GET['page']) ? 0 : intval($_GET['page']) - 1;
+$pageSize = 100;
+$_maxPage = ceil(Question::getInstance()->getCount([]) / $pageSize);
+if($_maxPage > 0 && $page >= $_maxPage) {
+    header('Location: ?page='.$_maxPage, true, 301);
+    die;
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
 <head>
     <?php include '../Template/head.html'; ?>
     <link rel="stylesheet" href="/c/index.css">
-    <title>Online Judge - Home</title>
+    <title>Home - Online Judge</title>
 </head>
 <body>
 <?php include '../Template/title.php'; ?>
 <?php
-$questions = Question::getInstance()->getList([], 0, 100);
+$questions = Question::getInstance()->getList([], $page * $pageSize, $pageSize);
 ?>
 <div id="questions">
     <?php
-    foreach($questions as $question){
+    foreach($questions as $question) {
         ?>
     <a href="question.php?id=<?= $question->_id ?>" target="_blank" class="question">
         <span class="date"><?= date('Y-m-d H:i:s', $question->add_time / 1000) ?></span>
@@ -53,6 +61,20 @@ $questions = Question::getInstance()->getList([], 0, 100);
         }
         ?>
     </a>
+        <?php
+    }
+    ?>
+</div>
+<div class="pages">
+    <?php
+    if($page > 0) {
+        ?>
+    <a class="button" href="?page=<?= $page ?>">上一页</a>
+        <?php
+    }
+    if($page < $_maxPage - 1) {
+        ?>
+    <a class="button" href="?page=<?= $page + 2 ?>">下一页</a>
         <?php
     }
     ?>

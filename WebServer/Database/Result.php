@@ -26,6 +26,7 @@ namespace Database;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Query;
 
 /**
  * Class Result
@@ -48,7 +49,7 @@ class Result extends Database {
      */
     protected function __construct() {
         parent::__construct();
-        self::$table = parent::$database.'.'.self::$table;
+        $this->tableName = parent::$database.'.'.self::$table;
     }
 
     /**
@@ -84,7 +85,7 @@ class Result extends Database {
             'time'     => timestamp(),
             'result'   => $JUDGE_STATUS->WaitingForJudge
         ], $data));
-        $result = parent::$connection->executeBulkWrite(self::$table, $bulk);
+        $result = parent::$connection->executeBulkWrite($this->tableName, $bulk);
         if($result->getInsertedCount() > 0) {
             return $insert;
         }
@@ -105,8 +106,53 @@ class Result extends Database {
         $bulk->update(['_id' => $rid], ['$set' => [
             'result' => $result
         ]]);
-        parent::$connection->executeBulkWrite(self::$table, $bulk);
+        parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 
     /** 查 */
+    /**
+     * 获取用户提交历史
+     *
+     * @param ObjectID $uid
+     * @param ObjectID $qid
+     *
+     * @return array
+     */
+    public function getQuestionResult(ObjectID $uid, ObjectID $qid) {
+        $query = new Query(['uid' => $uid, 'qid' => $qid], [
+            'sort' => ['time' => -1]
+        ]);
+        return parent::$connection->executeQuery($this->tableName, $query)->toArray();
+    }
+
+    /**
+     * 获取单条结果记录
+     *
+     * @param ObjectID $rid
+     *
+     * @return \stdClass|false
+     */
+    public function getUserResult(ObjectID $rid) {
+        $query = new Query(['_id' => $rid]);
+        $result = parent::$connection->executeQuery($this->tableName, $query)->toArray();
+        if(count($result) > 0) {
+            return $result[0];
+        }
+        return false;
+    }
+
+    /**
+     * 取问题是否已有状态
+     *
+     * @param ObjectID $uid
+     * @param ObjectID $qid
+     * @param int      $status
+     *
+     * @return bool
+     */
+    public function getQuestionStatus(ObjectID $uid, ObjectID $qid, int $status) {
+        $query = new Query(['uid' => $uid, 'qid' => $qid, 'result' => $status]);
+        $result = parent::$connection->executeQuery($this->tableName, $query)->toArray();
+        return count($result) > 0;
+    }
 }
