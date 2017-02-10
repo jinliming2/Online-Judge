@@ -30,6 +30,38 @@ if(empty($_SESSION['user']->su) || !$_SESSION['user']->su) {
     die;
 }
 
+if(IS_POST) {
+    if(!empty($_GET['id'])) {
+        Question::getInstance()->modify(new ObjectID($_GET['id']), $_POST);
+    } else {
+        $title = $_POST['title'];
+        $description = $_POST['description'];
+        $adder = $_POST['adder'];
+        unset($_POST['title']);
+        unset($_POST['description']);
+        unset($_POST['adder']);
+        Question::getInstance()->add($title, $description, $adder, $_POST);
+    }
+    echo <<<EOF
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <?php include '../Template/head.html'; ?>
+    <script>
+        if(parent && parent == window) {
+            location.href = '/';
+        }
+        parent.location.reload(true);
+        parent.closePopWindow && parent.closePopWindow();
+    </script>
+    <title>Success - Add New Question - Online Judge</title>
+</head>
+<body>操作成功！</body>
+</html>
+EOF;
+    exit;
+}
+
 $adder = $_SESSION['user']->name;
 if(!empty($_GET['id'])) {
     $question = Question::getInstance()->getOne(new ObjectID($_GET['id']));
