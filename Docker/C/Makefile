@@ -12,16 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-EasySandbox.so: EasySandbox.o malloc.o
-	gcc -shared EasySandbox.o malloc.o -o EasySandbox.so -ldl
-	cp EasySandbox.so C/EasySandbox.so
-	cp EasySandbox.so Cpp/EasySandbox.so
-
-EasySandbox.o: EasySandbox/EasySandbox.c
-	gcc -c -fPIC -std=c99 -g -Wall -D_BSD_SOURCE EasySandbox/EasySandbox.c -o EasySandbox.o
-
-malloc.o: EasySandbox/malloc.c
-	gcc -c -fPIC -std=c99 -g -Wall -D_BSD_SOURCE EasySandbox/malloc.c -o malloc.o
-
-clean:
-	rm EasySandbox.o malloc.o
+make: EasySandbox.so
+	docker build -f ./Dockerfile -t liming/c .

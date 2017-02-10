@@ -20,6 +20,7 @@
  * Date: 2016/12/10
  * Time: 21:39
  */
+use Judge\CJudger;
 use Judge\CppJudger;
 use Judge\Judger;
 use Workerman\Connection\TcpConnection;
@@ -75,7 +76,7 @@ function getJudger(stdClass $judger_info) {
     global $LANGUAGE_TYPE;
     switch($LANGUAGE_TYPE[$judger_info->language]) {
         case 'C':
-            return null;  //TODO: C Judger
+            return new CJudger($judger_info);
         case 'C++':
             return new CppJudger($judger_info);
         case 'JAVA':
