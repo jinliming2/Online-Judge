@@ -73,3 +73,21 @@ table {
 #login_tip {
     text-align: center;
 }
+
+.error_tip {
+    margin: 0 3px;
+    border-bottom: 2px dotted black;
+    cursor: pointer;
+}
+
+.error_tip_box {
+    position: absolute;
+    z-index: 999;
+    background-color: white;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, .24);
+    padding: 8px;
+}
+
+template {
+    display: none;
+}
