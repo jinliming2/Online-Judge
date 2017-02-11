@@ -14,3 +14,6 @@
 
 make: EasySandbox.so
 	docker build -f ./Dockerfile -t liming/c .
+
+nocache: EasySandbox.so
+	docker build --no-cache -f ./Dockerfile -t liming/c .
