@@ -100,12 +100,15 @@ class Result extends Database {
      *
      * @param ObjectID $rid
      * @param int      $result
+     * @param string   $info
      */
-    public function updateResult(ObjectID $rid, int $result) {
+    public function updateResult(ObjectID $rid, int $result, string $info = null) {
         $bulk = new BulkWrite();
-        $bulk->update(['_id' => $rid], ['$set' => [
-            'result' => $result
-        ]]);
+        $s = ['result' => $result];
+        if(!empty($info)) {
+            $s['info'] = $info;
+        }
+        $bulk->update(['_id' => $rid], ['$set' => $s]);
         parent::$connection->executeBulkWrite($this->tableName, $bulk);
     }
 

@@ -100,7 +100,11 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                         } elseif($message->code == DELIVERY_MESSAGE::JUDGE_SUCCEED) {
                             $task->close();
                             //任务完成
-                            Result::getInstance()->updateResult($task->task['rid'], $message->result);
+                            if(isset($message->info)) {
+                                Result::getInstance()->updateResult($task->task['rid'], $message->result, $message->info);
+                            } else {
+                                Result::getInstance()->updateResult($task->task['rid'], $message->result);
+                            }
                             if(!Result::getInstance()->getQuestionStatus($task->task['uid'], new ObjectID($task->task['judge_info']['qid']), $JUDGE_STATUS->Accepted)) {
                                 User::getInstance()->modify_inc($task->task['uid'], [
                                     'totalPass'   => ($message->result == $JUDGE_STATUS->Accepted ? 1 : 0),
@@ -118,7 +122,7 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                                 '_t'       => timestamp()
                             ];
                             if(isset($message->info)) {
-                                $ret['info'] = $message->info;
+                                $ret['info'] = htmlspecialchars($message->info);
                             }
                             Channel\Client::publish('message', [
                                 'user'    => (string)$task->task['uid'],
