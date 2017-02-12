@@ -103,6 +103,26 @@ let editor_edited = false;
             editor.focus();
         }
 
+        //监听结果事件
+        let JudgeResultListened;
+        let ListenJudgeResult = () => {
+            window.messageServer.addType('JudgeResult', (msg) => {
+                if(msg.hasOwnProperty('code')) {
+                    let row = history.insertRow(1);
+                    row.insertCell().innerHTML = msg.id;
+                    row.insertCell().innerHTML = constant['language_type'][msg.language][0];
+                    row.insertCell().innerHTML = `<button type="button" data-id="${msg.id}" data-language="${msg.language}">查看</button>`;
+                    row.insertCell().innerHTML = constant['judge_status'][msg.code][1] + (msg.hasOwnProperty('info') ? `<span class="error_tip">？<template>${msg.info}</template></span>` : '');
+                    row.insertCell().innerHTML = msg.time;
+                }
+            });
+            JudgeResultListened = true;
+            window.messageServer.addEvent('close', () => {
+                JudgeResultListened = false;
+            });
+        };
+        ListenJudgeResult();
+
         //代码提交
         let btnSubmit = document.getElementById('submit');
         btnSubmit.addEventListener('click', () => {
@@ -145,6 +165,9 @@ let editor_edited = false;
                 })) {
                 clearTimeout(_timer);
                 btnSubmit.disabled = false;
+                if(!JudgeResultListened) {
+                    ListenJudgeResult();
+                }
             }
         });
 
@@ -153,18 +176,6 @@ let editor_edited = false;
         history.addEventListener('click', (e) => {
             if(e.target.dataset.id && e.target.dataset.language) {
                 popWindow(800, 500, 'View Code - ' + e.target.dataset.id, `/code.php?id=${e.target.dataset.id}&language=${e.target.dataset.language}`, true);
-            }
-        });
-
-        //监听结果事件
-        window.messageServer.addType('JudgeResult', (msg) => {
-            if(msg.hasOwnProperty('code')) {
-                let row = history.insertRow(1);
-                row.insertCell().innerHTML = msg.id;
-                row.insertCell().innerHTML = constant['language_type'][msg.language][0];
-                row.insertCell().innerHTML = `<button type="button" data-id="${msg.id}" data-language="${msg.language}">查看</button>`;
-                row.insertCell().innerHTML = constant['judge_status'][msg.code][1] + (msg.hasOwnProperty('info') ? `<span class="error_tip">？<template>${msg.info}</template></span>` : '');
-                row.insertCell().innerHTML = msg.time;
             }
         });
 
