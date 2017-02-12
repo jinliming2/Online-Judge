@@ -235,7 +235,7 @@ button[disabled] {
 
 .common-alert-body {
     width: 100%;
-    height: 300px;
+    max-height: 300px;
     overflow-y: auto;
     padding: 2px 8px;
 }
