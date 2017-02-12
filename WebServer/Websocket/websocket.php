@@ -122,7 +122,7 @@ $worker->onWorkerStart = function(Worker $worker) use ($MESSAGE_TYPE, $MESSAGE_C
                                 '_t'       => timestamp()
                             ];
                             if(isset($message->info)) {
-                                $ret['info'] = htmlspecialchars($message->info);
+                                $ret['info'] = preg_replace('/[\r\n]/', '<br>', htmlspecialchars($message->info));
                             }
                             Channel\Client::publish('message', [
                                 'user'    => (string)$task->task['uid'],
