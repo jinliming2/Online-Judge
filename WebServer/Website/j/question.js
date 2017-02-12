@@ -165,9 +165,8 @@ let editor_edited = false;
                 })) {
                 clearTimeout(_timer);
                 btnSubmit.disabled = false;
-                if(!JudgeResultListened) {
-                    ListenJudgeResult();
-                }
+            } else if(!JudgeResultListened) {
+                ListenJudgeResult();
             }
         });
 
