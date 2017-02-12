@@ -60,7 +60,7 @@ abstract class Judger {
     /**
      * Judger constructor.
      *
-     * @param array $judge_info
+     * @param stdClass $judge_info
      */
     public function __construct(stdClass $judge_info) {
         $this->in = CONFIG['judgeServer']['in'].$judge_info->qid;
@@ -97,7 +97,7 @@ abstract class Judger {
      */
     protected function validate(array $result) {
         global $JUDGE_STATUS;
-        $answer = preg_split('/[\r\n]+/', trim(file_get_contents($this->out)));
+        $answer = preg_split('/ *[\r\n]+ */', trim(file_get_contents($this->out)));
         $last = $result[count($result) - 1];
         if($last == 'Compile Error') {
             return [
@@ -122,10 +122,11 @@ abstract class Judger {
         }
         $wa = false;
         for($i = count($result) - 2, $j = count($answer) - 1; $i >= 0 && $j >= 0; --$i, --$j) {
-            while($result[$i] == '<<entering SECCOMP mode>>') {
+            $_r = trim($result[$i]);
+            while($_r == '<<entering SECCOMP mode>>' || $_r == '') {
                 --$i;
             }
-            if($result[$i] != $answer[$j]) {
+            if($_r != $answer[$j]) {
                 $wa = true;
                 break;
             }
