@@ -22,6 +22,7 @@
  */
 use Judge\CJudger;
 use Judge\CppJudger;
+use Judge\JavaJudger;
 use Judge\Judger;
 use Workerman\Connection\TcpConnection;
 
@@ -80,7 +81,7 @@ function getJudger(stdClass $judger_info) {
         case 'C++':
             return new CppJudger($judger_info);
         case 'JAVA':
-            return null;  //TODO: JAVA Judger
+            return new JavaJudger($judger_info);
         default:
             return null;
     }

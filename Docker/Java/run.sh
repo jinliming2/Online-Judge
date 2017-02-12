@@ -1,0 +1,63 @@
+#!/bin/bash
+# Copyright 2017 Liming Jin
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+timeout 30s javac -g:none -nowarn -d ~/ -s ~/ -h ~/ /mnt/Main.java 2>&1
+rc=$?
+if [ ${rc} -eq 124 ]; then
+    echo "Compile Time Out"
+elif [ ${rc} -ne 0 ]; then
+    echo "Compile Error"
+else
+    t=1.000
+    m=65536
+    while getopts "t:m:" arg; do
+        case ${arg} in
+            t)
+                t=$OPTARG;;
+            m)
+                m=$OPTARG;;
+            *);;
+        esac
+    done
+    error=0
+    read line
+    ulimit -u 1 -t `echo ${t}|awk '{print int($t) + 1;}'` -n 15
+    m=`echo ${m}|awk '{print int($m / 1024 + 1);}'`
+    while [ "$line"x != ""x ]; do
+        in="$line"
+        read line
+        while [ "$line"x != ""x ]; do
+            in="$in"$'\n'"$line"
+            read line
+        done
+        echo "$in" > ~/input.txt
+        timeout ${t}s java -classpath ~/ -Xms${m}M -Xmx${m}M -Xss${m}M Main < ~/input.txt
+        rc=$?
+        if [ ${rc} -eq 124 ]; then
+            echo "Time Out"
+            error=1
+            break
+        elif [ ${rc} -ne 0 ]; then
+            echo "Runtime Error"
+            error=1
+            break
+        fi
+        echo ""
+        read line
+    done
+    if [ ${error} -eq 0 ]; then
+        echo "Done"
+    fi
+fi
