@@ -125,6 +125,7 @@ abstract class Judger {
             $_r = trim($result[$i]);
             while($_r == '<<entering SECCOMP mode>>' || $_r == '') {
                 --$i;
+                $_r = trim($result[$i]);
             }
             if($_r != $answer[$j]) {
                 $wa = true;
