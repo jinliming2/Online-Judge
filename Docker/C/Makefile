@@ -13,7 +13,7 @@
 # limitations under the License.
 
 make: EasySandbox.so
-	docker build -f ./Dockerfile -t liming/cpp .
+	docker build -f ./Dockerfile -t liming/c .
 
 nocache: EasySandbox.so
-	docker build --no-cache -f ./Dockerfile -t liming/cpp .
+	docker build --no-cache -f ./Dockerfile -t liming/c .

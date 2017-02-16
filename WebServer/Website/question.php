@@ -114,7 +114,7 @@ if(isset($_SESSION['user']->_id)) {
         <td><?= $result->_id ?></td>
         <td><?= $language[$result->language] ?></td>
         <td><button type="button" data-id="<?= $result->_id ?>" data-language="<?= $result->language ?>">查看</button></td>
-        <td><?= $status[$result->result] ?></td>
+        <td><?= $status[$result->result] ?><?= !empty($result->info) ? '<span class="error_tip">？<template>'.preg_replace('/[\r\n]/', '<br>', htmlspecialchars($result->info)).'</template></span>' : '' ?></td>
         <td><?= date('Y-m-d H:i:s', $result->time / 1000) ?></td>
     </tr>
         <?php

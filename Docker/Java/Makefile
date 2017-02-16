@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-make: EasySandbox.so
-	docker build -f ./Dockerfile -t liming/cpp .
+make:
+	docker build -f ./Dockerfile -t liming/java .
 
-nocache: EasySandbox.so
-	docker build --no-cache -f ./Dockerfile -t liming/cpp .
+nocache:
+	docker build --no-cache -f ./Dockerfile -t liming/java .

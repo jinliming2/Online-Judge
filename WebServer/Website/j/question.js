@@ -103,6 +103,26 @@ let editor_edited = false;
             editor.focus();
         }
 
+        //监听结果事件
+        let JudgeResultListened;
+        let ListenJudgeResult = () => {
+            window.messageServer.addType('JudgeResult', (msg) => {
+                if(msg.hasOwnProperty('code')) {
+                    let row = history.insertRow(1);
+                    row.insertCell().innerHTML = msg.id;
+                    row.insertCell().innerHTML = constant['language_type'][msg.language][0];
+                    row.insertCell().innerHTML = `<button type="button" data-id="${msg.id}" data-language="${msg.language}">查看</button>`;
+                    row.insertCell().innerHTML = constant['judge_status'][msg.code][1] + (msg.hasOwnProperty('info') ? `<span class="error_tip">？<template>${msg.info}</template></span>` : '');
+                    row.insertCell().innerHTML = msg.time;
+                }
+            });
+            JudgeResultListened = true;
+            window.messageServer.addEvent('close', () => {
+                JudgeResultListened = false;
+            });
+        };
+        ListenJudgeResult();
+
         //代码提交
         let btnSubmit = document.getElementById('submit');
         btnSubmit.addEventListener('click', () => {
@@ -145,6 +165,8 @@ let editor_edited = false;
                 })) {
                 clearTimeout(_timer);
                 btnSubmit.disabled = false;
+            } else if(!JudgeResultListened) {
+                ListenJudgeResult();
             }
         });
 
@@ -156,15 +178,23 @@ let editor_edited = false;
             }
         });
 
-        //监听结果事件
-        window.messageServer.addType('JudgeResult', (msg) => {
-            if(msg.hasOwnProperty('code')) {
-                let row = history.insertRow(1);
-                row.insertCell().innerHTML = msg.id;
-                row.insertCell().innerHTML = constant['language_type'][msg.language][0];
-                row.insertCell().innerHTML = `<button type="button" data-id="${msg.id}" data-language="${msg.language}">查看</button>`;
-                row.insertCell().innerHTML = constant['judge_status'][msg.code][1];
-                row.insertCell().innerHTML = msg.time;
+        //编译错误详情
+        history.addEventListener('mouseover', (e) => {
+            if(e.target.classList.contains('error_tip') && !e.target.dataset.div) {
+                let div = document.createElement('div');
+                div.id = Date.now();
+                e.target.dataset.div = div.id;
+                div.innerHTML = e.target.getElementsByTagName('template')[0].innerHTML;
+                div.classList.add('error_tip_box');
+                div.style.left = e.clientX + document.body.scrollLeft + 20 + 'px';
+                div.style.top = e.clientY + document.body.scrollTop + 20 + 'px';
+                document.body.appendChild(div);
+            }
+        });
+        history.addEventListener('mouseout', (e) => {
+            if(e.target.classList.contains('error_tip') && e.target.dataset.div) {
+                document.body.removeChild(document.getElementById(e.target.dataset.div));
+                delete e.target.dataset.div;
             }
         });
     }

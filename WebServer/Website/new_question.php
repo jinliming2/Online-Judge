@@ -31,6 +31,10 @@ if(empty($_SESSION['user']->su) || !$_SESSION['user']->su) {
 }
 
 if(IS_POST) {
+    $_POST['description'] = preg_replace([
+        '/<script[^>]*>.*<\/script>/siU',
+        '/on[^ =]+=("[^"]*"|\'[^\']*\')/i'
+    ], ['', ''], $_POST['description']);
     if(!empty($_GET['id'])) {
         Question::getInstance()->modify(new ObjectID($_GET['id']), $_POST);
     } else {

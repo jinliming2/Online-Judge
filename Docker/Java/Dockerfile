@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-make: EasySandbox.so
-	docker build -f ./Dockerfile -t liming/cpp .
+FROM ubuntu
+MAINTAINER Liming Jin
+RUN apt-get update -y
+RUN apt-get install -y openjdk-8-jdk
+COPY run.sh  ~/run.sh
 
-nocache: EasySandbox.so
-	docker build --no-cache -f ./Dockerfile -t liming/cpp .
+
+ENTRYPOINT ["~/run.sh"]

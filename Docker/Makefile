@@ -14,6 +14,7 @@
 
 EasySandbox.so: EasySandbox.o malloc.o
 	gcc -shared EasySandbox.o malloc.o -o EasySandbox.so -ldl
+	cp EasySandbox.so C/EasySandbox.so
 	cp EasySandbox.so Cpp/EasySandbox.so
 
 EasySandbox.o: EasySandbox/EasySandbox.c
