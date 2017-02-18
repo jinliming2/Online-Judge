@@ -88,7 +88,7 @@ function mJudge(TcpConnection $connection, stdClass $data) {
     //登录检查
     if(!isset($connection->user_info)) {
         $connection->send(json_encode([
-            'code'    => $MESSAGE_CODE::AccessDeny,
+            'code'    => $MESSAGE_CODE->AccessDeny,
             'type'    => $MESSAGE_TYPE->Judge,
             'message' => 'Need Login First',
             '_t'      => $data->_t
@@ -134,4 +134,66 @@ function mJudge(TcpConnection $connection, stdClass $data) {
         'id'      => (string)$result,
         '_t'      => $data->_t
     ]));
+}
+
+/**
+ * 测试用例服务
+ *
+ * @param TcpConnection $connection
+ * @param stdClass      $data
+ */
+function mTestCase(TcpConnection $connection, stdClass $data) {
+    global $MESSAGE_TYPE, $MESSAGE_CODE;
+    //登录及管理员身份检查
+    if(!isset($connection->user_info) || !$connection->user_info->su) {
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_CODE->AccessDeny,
+            'type'    => $MESSAGE_TYPE->TestCase,
+            'message' => 'Permission deny!',
+            '_t'      => $data->_t
+        ]));
+        return;
+    }
+    //请求检查
+    if(!isset($data->qid) || !isset($data->c)) {
+        return;
+    }
+    if($data->c == $MESSAGE_CODE->FetchTestCase) {
+        //获取测试用例列表
+        $ret = ['i' => 0, 'o' => 0, 'data' => []];
+        if(file_exists(CONFIG['websocket']['in'].$data->qid) && file_exists(CONFIG['websocket']['out'].$data->qid)) {
+            $startI = empty($data->i) ? 0 : $data->i;
+            $startO = empty($data->o) ? 0 : $data->o;
+            $file_in = fopen(CONFIG['websocket']['in'].$data->qid, 'r');
+            $file_out = fopen(CONFIG['websocket']['out'].$data->qid, 'r');
+            fseek($file_in, $startI);
+            fseek($file_out, $startO);
+            for($i = 0; $i < 100; ++$i) {
+                $ret_tmp = ['i' => '', 'o' => ''];
+                while(($line = fgets($file_in)) && strlen($line) > 0) {
+                    $ret_tmp['i'] .= $line . "\n";
+                }
+                while(($line = fgets($file_out)) && strlen($line) > 0) {
+                    $ret_tmp['o'] .= $line . "\n";
+                }
+                $ret['data'][] = $ret_tmp;
+            }
+            $ret['i'] = ftell($file_in);
+            $ret['o'] = ftell($file_out);
+            fclose($file_in);
+            fclose($file_out);
+        }
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_CODE->FetchTestCase,
+            'type'    => $MESSAGE_TYPE->TestCase,
+            'message' => $ret,
+            '_t'      => $data->_t
+        ]));
+    } elseif($data->c == $MESSAGE_CODE->AddTestCase) {
+        //根据代码重新生成测试用例
+        //TODO: 根据代码生成测试用例
+    } elseif($data->c == $MESSAGE_CODE->InsertTestCase) {
+        //添加测试用例
+        //TODO: 添加测试用例
+    } else return;
 }

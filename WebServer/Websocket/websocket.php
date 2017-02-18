@@ -249,6 +249,9 @@ $worker->onMessage = function(TcpConnection $connection, string $data) use ($MES
             case $MESSAGE_TYPE->Judge:  //代码评判
                 mJudge($connection, $d);
                 break;
+            case $MESSAGE_TYPE->TestCase:  //测试用例服务
+                mTestCase($connection, $d);
+                break;
             default:
                 $connection->send(json_encode([
                     'code'    => $MESSAGE_CODE->AccessDeny,
