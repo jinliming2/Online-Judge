@@ -48,7 +48,7 @@ $questions = Question::getInstance()->getList([], $page * $pageSize, $pageSize);
     <?php
     foreach($questions as $question) {
         ?>
-    <a href="question.php?id=<?= $question->_id ?>" target="_blank" class="question">
+    <a href="/question.php?id=<?= $question->_id ?>" target="_blank" class="question">
         <span class="date"><?= date('Y-m-d H:i:s', $question->add_time / 1000) ?></span>
         <span class="title"><?= $question->title ?></span>
         <?php

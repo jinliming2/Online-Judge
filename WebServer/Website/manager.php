@@ -242,24 +242,24 @@ if(!empty($_GET['c']) && $_GET['c'] == 'user') {
 </div>
 <table id="table">
     <tr>
-        <th><input id="selectAll" title="全选" type="checkbox"></th>
         <th>id</th>
         <th>标题</th>
         <th>添加者</th>
         <th>添加时间</th>
         <th>修改</th>
+        <th>测试用例</th>
         <th>删除</th>
     </tr>
     <?php
     foreach($questions as $question) {
         ?>
     <tr>
-        <td><input type="checkbox" data-id="<?= $question->_id ?>"></td>
-        <td><?= $question->_id ?></td>
+        <td><a href="/question.php?id=<?= $question->_id ?>" target="_blank"><?= $question->_id ?></a></td>
         <td><?= $question->title ?></td>
         <td><?= $question->adder ?></td>
         <td><?= date('Y-m-d H:i:s', $question->add_time / 1000) ?></td>
         <td><button data-id="<?= $question->_id ?>" data-c="modify">修改</button></td>
+        <td><button data-id="<?= $question->_id ?>" data-c="test_case">查看</button></td>
         <td><button data-id="<?= $question->_id ?>" data-c="delete">删除</button></td>
     </tr>
         <?php

@@ -128,6 +128,8 @@
                     c: 'delete',
                     id: e.target.dataset.id
                 });
+            } else if(e.target.dataset.c == 'test_case') {
+                popWindow(1024, 768, '测试用例', '/test_case.php?id=' + e.target.dataset.id, true);
             }
         }
     });
