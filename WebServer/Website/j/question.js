@@ -54,14 +54,14 @@ let editor_edited = false;
         }
         let change = () => {
             setCookie('_language', language.value, 2592000000);
+            editor.session.setMode(constant.language_type[language.value][1]);
             if(!editor_edited) {
-                editor.session.setMode(constant.language_type[language.value][1]);
                 editor.setValue(constant.language_type[language.value][2]);
                 editor.navigateTo(constant.language_type[language.value][3], constant.language_type[language.value][4]);
                 editor.selection.selectTo(constant.language_type[language.value][3], constant.language_type[language.value][5]);
                 editor_edited = false;
-                editor.focus();
             }
+            editor.focus();
         };
         let _language = getCookie('_language');
         if(_language) {
