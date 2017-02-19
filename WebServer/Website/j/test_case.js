@@ -127,6 +127,7 @@
                     let btnDelete = document.createElement('button');
                     btnDelete.dataset.il = tc.il;
                     btnDelete.dataset.ol = tc.ol;
+                    btnDelete.innerHTML = '删除';
                     row.insertCell().appendChild(btnDelete);
                 }
             }

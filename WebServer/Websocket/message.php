@@ -174,6 +174,9 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
                 while(($line = fgets($file_in)) && strlen($line) > 0) {
                     $ret_tmp['i'] .= $line . "\n";
                 }
+                if($line === false) {
+                    break;
+                }
                 $ret_tmp['ol'] = ftell($file_out);
                 while(($line = fgets($file_out)) && strlen($line) > 0) {
                     $ret_tmp['o'] .= $line . "\n";
