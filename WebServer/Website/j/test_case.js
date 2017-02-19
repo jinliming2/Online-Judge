@@ -122,9 +122,13 @@
                 lastO = e.message.o;
                 for(let tc of e.message.data) {
                     let row = list.insertRow();
-                    row.classList.add('table-left');
-                    row.insertCell().innerHTML = tc.i.replace(/\n/g, "<br>");
-                    row.insertCell().innerHTML = tc.o.replace(/\n/g, "<br>");
+                    let cell;
+                    cell = row.insertCell();
+                    cell.classList.add('table-left');
+                    cell.innerHTML = tc.i.replace(/\n/g, "<br>");
+                    cell = row.insertCell();
+                    cell.classList.add('table-left');
+                    cell.innerHTML = tc.o.replace(/\n/g, "<br>");
                     let btnDelete = document.createElement('button');
                     btnDelete.dataset.il = tc.il;
                     btnDelete.dataset.ol = tc.ol;
