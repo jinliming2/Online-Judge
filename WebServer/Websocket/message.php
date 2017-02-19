@@ -155,10 +155,10 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
         return;
     }
     //请求检查
-    if(!isset($data->qid) || !isset($data->c)) {
+    if(!isset($data->qid) || !isset($data->code)) {
         return;
     }
-    if($data->c == $MESSAGE_CODE->FetchTestCase) {
+    if($data->code == $MESSAGE_CODE->FetchTestCase) {
         //获取测试用例列表
         $ret = ['i' => 0, 'o' => 0, 'data' => []];
         if(file_exists(CONFIG['websocket']['in'].$data->qid) && file_exists(CONFIG['websocket']['out'].$data->qid)) {
@@ -169,10 +169,12 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
             fseek($file_in, $startI);
             fseek($file_out, $startO);
             for($i = 0; $i < 100; ++$i) {
-                $ret_tmp = ['i' => '', 'o' => ''];
+                $ret_tmp = ['i' => '', 'o' => '', 'il' => -1, 'ol' => -1];
+                $ret_tmp['il'] = ftell($file_in);
                 while(($line = fgets($file_in)) && strlen($line) > 0) {
                     $ret_tmp['i'] .= $line . "\n";
                 }
+                $ret_tmp['ol'] = ftell($file_out);
                 while(($line = fgets($file_out)) && strlen($line) > 0) {
                     $ret_tmp['o'] .= $line . "\n";
                 }
@@ -189,10 +191,10 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
             'message' => $ret,
             '_t'      => $data->_t
         ]));
-    } elseif($data->c == $MESSAGE_CODE->AddTestCase) {
+    } elseif($data->code == $MESSAGE_CODE->AddTestCase) {
         //根据代码重新生成测试用例
         //TODO: 根据代码生成测试用例
-    } elseif($data->c == $MESSAGE_CODE->InsertTestCase) {
+    } elseif($data->code == $MESSAGE_CODE->InsertTestCase) {
         //添加测试用例
         //TODO: 添加测试用例
     } else return;

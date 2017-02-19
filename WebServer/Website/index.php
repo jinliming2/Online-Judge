@@ -69,12 +69,12 @@ $questions = Question::getInstance()->getList([], $page * $pageSize, $pageSize);
     <?php
     if($page > 0) {
         ?>
-    <a class="button" href="?page=<?= $page ?>">上一页</a>
+    <a role="button" href="?page=<?= $page ?>">上一页</a>
         <?php
     }
     if($page < $_maxPage - 1) {
         ?>
-    <a class="button" href="?page=<?= $page + 2 ?>">下一页</a>
+    <a role="button" href="?page=<?= $page + 2 ?>">下一页</a>
         <?php
     }
     ?>

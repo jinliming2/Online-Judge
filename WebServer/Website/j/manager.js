@@ -124,10 +124,12 @@
             } else if(e.target.dataset.c == 'modify') {
                 popWindow(800, 600, '修改问题', '/new_question.php?id=' + e.target.dataset.id, true);
             } else if(e.target.dataset.c == 'delete') {
-                formRequest('POST', null, {
-                    c: 'delete',
-                    id: e.target.dataset.id
-                });
+                if(confirm('此操作不可逆！确定要删除吗？')) {
+                    formRequest('POST', null, {
+                        c: 'delete',
+                        id: e.target.dataset.id
+                    });
+                }
             } else if(e.target.dataset.c == 'test_case') {
                 popWindow(1024, 768, '测试用例', '/test_case.php?id=' + e.target.dataset.id, true);
             }
