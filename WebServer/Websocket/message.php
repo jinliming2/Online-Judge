@@ -171,14 +171,14 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
             for($i = 0; $i < 100; ++$i) {
                 $ret_tmp = ['i' => '', 'o' => '', 'il' => -1, 'ol' => -1];
                 $ret_tmp['il'] = ftell($file_in);
-                while(($line = fgets($file_in)) && strlen($line) > 0) {
+                while(($line = fgets($file_in)) && ($line = trim($line)) && strlen($line) > 0) {
                     $ret_tmp['i'] .= $line . "\n";
                 }
                 if($line === false) {
                     break;
                 }
                 $ret_tmp['ol'] = ftell($file_out);
-                while(($line = fgets($file_out)) && strlen($line) > 0) {
+                while(($line = fgets($file_out)) && ($line = trim($line)) && strlen($line) > 0) {
                     $ret_tmp['o'] .= $line . "\n";
                 }
                 $ret['data'][] = $ret_tmp;
