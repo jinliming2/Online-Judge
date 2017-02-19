@@ -102,8 +102,8 @@ if($question === false) {
 <hr>
 <table id="list">
     <tr>
-        <th>输入</th>
-        <th>输出</th>
+        <th class="table-left">输入</th>
+        <th class="table-left">输出</th>
         <th>删除</th>
     </tr>
 </table>

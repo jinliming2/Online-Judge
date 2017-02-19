@@ -109,3 +109,7 @@ table {
 td {
     user-select: initial;
 }
+
+.table-left {
+    text-align: left;
+}
