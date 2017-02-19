@@ -125,9 +125,9 @@
                     row.insertCell().innerHTML = tc.i;
                     row.insertCell().innerHTML = tc.o;
                     let btnDelete = document.createElement('button');
-                    button.dataset.il = tc.il;
-                    button.dataset.ol = tc.ol;
-                    row.insertCell().appendChild(button);
+                    btnDelete.dataset.il = tc.il;
+                    btnDelete.dataset.ol = tc.ol;
+                    row.insertCell().appendChild(btnDelete);
                 }
             }
             loading = false;
