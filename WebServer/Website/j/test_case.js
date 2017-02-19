@@ -118,6 +118,9 @@
             'o': lastO
         }, (e) => {
             if(e.hasOwnProperty('message')) {
+                if(lastI == e.message.i && lastO == e.message.o) {
+                    document.removeEventListener('scroll', ajaxLoad);
+                }
                 lastI = e.message.i;
                 lastO = e.message.o;
                 for(let tc of e.message.data) {
@@ -147,9 +150,10 @@
         }, 1e3);
     };
     startTry();
-    document.addEventListener('scroll', () => {
+    let ajaxLoad = () => {
         if(document.body.scrollTop + document.body.offsetHeight >= document.body.scrollHeight - 50) {
             loadList();
         }
-    });
+    };
+    document.addEventListener('scroll', ajaxLoad);
 })();
