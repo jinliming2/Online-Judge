@@ -110,8 +110,7 @@
         if(loading) {
             return;
         }
-        loading = true;
-        messageServer.sendMessage({
+        loading = messageServer.sendMessage({
             'type': constantIndex(constant['message_type'], 'TestCase'),
             'code': constantIndex(constant['message_code'], 'FetchTestCase'),
             'qid': getQuery('id'),
@@ -134,7 +133,14 @@
             loading = false;
         });
     };
-    loadList();
+    let startTry = () => {
+        setTimeout(() => {
+            if(messageServer.ready) {
+                loadList();
+            } else startTry();
+        }, 1e3);
+    };
+    startTry();
     document.addEventListener('scroll', () => {
         if(document.body.scrollTop + document.body.offsetHeight >= document.body.scrollHeight - 50) {
             loadList();
