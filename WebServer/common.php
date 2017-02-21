@@ -84,3 +84,36 @@ function timestamp() {
     $t1 = round($t1 * 1000);
     return floatval($t2.($t1 >= 100 ? $t1 : ($t1 >= 10 ? '0'.$t1 : '00'.$t1)));
 }
+
+/**
+ * 删除文件中间部分，从指定位置删除到空行为止
+ *
+ * @param string $path
+ * @param int    $position
+ */
+function deleteFileToBlankLine(string $path, int $position) {
+    $file = fopen($path, 'r+');
+    $p1 = $position;
+    fseek($file, $p1);
+    while($line = fgets($file)) {  //定位到下一个空行
+        if(strlen(trim($line)) == 0) {
+            break;
+        }
+    }
+    if(ftell($file) == $p1) {
+        return;
+    }
+    while(true) {
+        $buffer = fread($file, 102400);  //最多100KB
+        if($buffer === false) {
+            break;
+        }
+        $p2 = ftell($file);
+        fseek($file, $p1);
+        fwrite($file, $buffer);
+        $p1 = ftell($file);
+        fseek($file, $p2);
+    }
+    ftruncate($file, $p1);
+    fclose($file);
+}

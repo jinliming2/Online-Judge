@@ -200,5 +200,23 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
     } elseif($data->code == $MESSAGE_CODE->InsertTestCase) {
         //添加测试用例
         //TODO: 添加测试用例
+    } elseif($data->code == $MESSAGE_CODE->DeleteTestCase) {
+        //删除测试用例
+        if(file_exists(CONFIG['websocket']['in'].$data->qid) && file_exists(CONFIG['websocket']['out'].$data->qid)) {
+            if(empty($data->i) || empty($data->o)) {
+                $connection->send(json_encode([
+                    'code'    => $MESSAGE_CODE->AccessDeny,
+                    'type'    => $MESSAGE_TYPE->TestCase,
+                    '_t'      => $data->_t
+                ]));
+            }
+            deleteFileToBlankLine(CONFIG['websocket']['in'].$data->qid, $data->i);
+            deleteFileToBlankLine(CONFIG['websocket']['out'].$data->qid, $data->o);
+        }
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_CODE->Success,
+            'type'    => $MESSAGE_TYPE->TestCase,
+            '_t'      => $data->_t
+        ]));
     } else return;
 }

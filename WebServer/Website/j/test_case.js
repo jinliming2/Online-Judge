@@ -156,4 +156,30 @@
         }
     };
     document.addEventListener('scroll', ajaxLoad);
+
+    //删除
+    list.addEventListener('click', (e) => {
+        if(!e.target.dataset.deleting && e.target.dataset.il && e.target.dataset.ol) {
+            e.target.dataset.deleting = true;
+            if(!messageServer.sendMessage({
+                'type': constantIndex(constant['message_type'], 'TestCase'),
+                'code': constantIndex(constant['message_code'], 'DeleteTestCase'),
+                'qid': getQuery('id'),
+                'i': e.target.dataset.il,
+                'o': e.target.dataset.ol
+            }, (msg) => {
+                if(msg.hasOwnProperty('code')) {
+                    switch(constant['judge_status'][msg.code][0]) {
+                        case 'Success':
+                            e.target.parentNode.parentNode.parentNode.removeChild(e.target.parentNode.parentNode);
+                            break;
+                        case 'AccessDeny':
+                            break;
+                    }
+                }
+            })) {
+                delete e.target.dataset.deleting;
+            }
+        }
+    });
 })();
