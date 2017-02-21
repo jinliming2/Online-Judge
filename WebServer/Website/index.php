@@ -48,7 +48,7 @@ $questions = Question::getInstance()->getList([], $page * $pageSize, $pageSize);
     <?php
     foreach($questions as $question) {
         ?>
-    <a href="question.php?id=<?= $question->_id ?>" target="_blank" class="question">
+    <a href="/question.php?id=<?= $question->_id ?>" target="_blank" class="question">
         <span class="date"><?= date('Y-m-d H:i:s', $question->add_time / 1000) ?></span>
         <span class="title"><?= $question->title ?></span>
         <?php
@@ -69,12 +69,12 @@ $questions = Question::getInstance()->getList([], $page * $pageSize, $pageSize);
     <?php
     if($page > 0) {
         ?>
-    <a class="button" href="?page=<?= $page ?>">上一页</a>
+    <a role="button" href="?page=<?= $page ?>">上一页</a>
         <?php
     }
     if($page < $_maxPage - 1) {
         ?>
-    <a class="button" href="?page=<?= $page + 2 ?>">下一页</a>
+    <a role="button" href="?page=<?= $page + 2 ?>">下一页</a>
         <?php
     }
     ?>

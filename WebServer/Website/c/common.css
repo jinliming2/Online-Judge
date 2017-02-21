@@ -82,7 +82,7 @@ html, body {
     padding: 15px calc((100% - 1170px) / 2);
 }
 
-button, a.button {
+button, [role=button] {
     display: inline-block;
     height: 38px;
     line-height: 38px;
@@ -97,15 +97,15 @@ button, a.button {
     opacity: .9;
 }
 
-button:hover, a.button:hover {
+button:hover, [role=button]:hover {
     opacity: .8;
 }
 
-button:active, a.button:active {
+button:active, [role=button]:active {
     opacity: 1;
 }
 
-button[disabled] {
+button[disabled], [role=button][disabled] {
     background-color: #888;
     opacity: 1;
 }

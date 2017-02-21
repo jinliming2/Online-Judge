@@ -24,6 +24,7 @@ use Judge\CJudger;
 use Judge\CppJudger;
 use Judge\JavaJudger;
 use Judge\Judger;
+use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Connection\TcpConnection;
 
 /**
@@ -34,7 +35,14 @@ use Workerman\Connection\TcpConnection;
  */
 function mProcess(TcpConnection $connection, stdClass $data) {
     $data->temp_path = createDirectory($data->temp_path);
-    $connection->send(json_encode(getJudger($data)->start()));
+    if(loadTestCase($data->qid)) {
+        $connection->send(json_encode(getJudger($data)->start()));
+    } else {
+        global $JUDGE_STATUS;
+        $connection->send(json_encode([
+            'result' => $JUDGE_STATUS->UnknownError
+        ]));
+    }
     clean($data->temp_path);
 }
 
@@ -85,4 +93,53 @@ function getJudger(stdClass $judger_info) {
         default:
             return null;
     }
+}
+
+/**
+ * 加载并缓存或更新测试用例
+ *
+ * @param string $qid
+ *
+ * @return bool
+ */
+function loadTestCase(string $qid) {
+    //目录
+    foreach(['in', 'out', 'version'] as $t) {
+        if(!is_dir(CONFIG['judgeServer'][$t])) {
+            mkdir(CONFIG['judgeServer'][$t], 0775, true);
+        }
+    }
+    //获取版本
+    $ch = curl_init('http://'.CONFIG['judgeServer']['testCase'].'/version/'.$qid);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $version = curl_exec($ch);
+    curl_close($ch);
+    //检查版本
+    if(
+        (!file_exists(CONFIG['judgeServer']['in'].$qid)) ||
+        (!file_exists(CONFIG['judgeServer']['out'].$qid)) ||
+        (!file_exists(CONFIG['judgeServer']['version'].$qid)) ||
+        $version != file_get_contents(CONFIG['judgeServer']['version'].$qid)
+    ) {
+        //下载
+        foreach(['in', 'out'] as $t) {
+            $file = fopen(CONFIG['judgeServer'][$t].$qid, 'w');
+            $ch = curl_init('http://'.CONFIG['judgeServer']['testCase'].'/'.$t.'/'.$qid);
+            curl_setopt($ch, CURLOPT_FILE, $file);
+            curl_exec($ch);
+            curl_close($ch);
+            fclose($file);
+        }
+        $v = explode("\n", $version);
+        if(trim($v[0]) != md5_file(CONFIG['judgeServer']['in'].$qid)) {
+            logs('Cannot download test case: in (md5 verified failed), id: '.$qid, 'E');
+            return false;
+        }
+        if(trim($v[1]) != md5_file(CONFIG['judgeServer']['out'].$qid)) {
+            logs('Cannot download test case: out (md5 verified failed), id: '.$qid, 'E');
+            return false;
+        }
+        file_put_contents(CONFIG['judgeServer']['version'].$qid, $version);
+    }
+    return true;
 }

@@ -88,7 +88,7 @@ function mJudge(TcpConnection $connection, stdClass $data) {
     //登录检查
     if(!isset($connection->user_info)) {
         $connection->send(json_encode([
-            'code'    => $MESSAGE_CODE::AccessDeny,
+            'code'    => $MESSAGE_CODE->AccessDeny,
             'type'    => $MESSAGE_TYPE->Judge,
             'message' => 'Need Login First',
             '_t'      => $data->_t
@@ -134,4 +134,116 @@ function mJudge(TcpConnection $connection, stdClass $data) {
         'id'      => (string)$result,
         '_t'      => $data->_t
     ]));
+}
+
+/**
+ * 测试用例服务
+ *
+ * @param TcpConnection $connection
+ * @param stdClass      $data
+ */
+function mTestCase(TcpConnection $connection, stdClass $data) {
+    global $MESSAGE_TYPE, $MESSAGE_CODE;
+    //登录及管理员身份检查
+    if(!isset($connection->user_info) || !$connection->user_info->su) {
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_CODE->AccessDeny,
+            'type'    => $MESSAGE_TYPE->TestCase,
+            'message' => 'Permission deny!',
+            '_t'      => $data->_t
+        ]));
+        return;
+    }
+    //请求检查
+    if(!isset($data->qid) || !isset($data->code)) {
+        return;
+    }
+    if($data->code == $MESSAGE_CODE->FetchTestCase) {
+        //获取测试用例列表
+        $ret = ['i' => 0, 'o' => 0, 'data' => []];
+        if(file_exists(CONFIG['websocket']['in'].$data->qid) && file_exists(CONFIG['websocket']['out'].$data->qid)) {
+            $startI = empty($data->i) ? 0 : $data->i;
+            $startO = empty($data->o) ? 0 : $data->o;
+            $file_in = fopen(CONFIG['websocket']['in'].$data->qid, 'r');
+            $file_out = fopen(CONFIG['websocket']['out'].$data->qid, 'r');
+            fseek($file_in, $startI);
+            fseek($file_out, $startO);
+            for($i = 0; $i < 100; ++$i) {
+                $ret_tmp = ['i' => '', 'o' => '', 'il' => -1, 'ol' => -1];
+                $ret_tmp['il'] = ftell($file_in);
+                while(($line = fgets($file_in)) && ($line = trim($line)) && strlen($line) > 0) {
+                    $ret_tmp['i'] .= $line . "\n";
+                }
+                if($line === false) {
+                    break;
+                }
+                $ret_tmp['ol'] = ftell($file_out);
+                while(($line = fgets($file_out)) && ($line = trim($line)) && strlen($line) > 0) {
+                    $ret_tmp['o'] .= $line . "\n";
+                }
+                $ret['data'][] = $ret_tmp;
+            }
+            $ret['i'] = ftell($file_in);
+            $ret['o'] = ftell($file_out);
+            fclose($file_in);
+            fclose($file_out);
+        }
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_CODE->FetchTestCase,
+            'type'    => $MESSAGE_TYPE->TestCase,
+            'message' => $ret,
+            '_t'      => $data->_t
+        ]));
+    } elseif($data->code == $MESSAGE_CODE->AddTestCase) {
+        //根据代码重新生成测试用例
+        //TODO: 根据代码生成测试用例
+    } elseif($data->code == $MESSAGE_CODE->InsertTestCase) {
+        //添加测试用例
+        if(empty($data->i) || empty($data->o)) {
+            $connection->send(json_encode([
+                'code'    => $MESSAGE_CODE->AccessDeny,
+                'type'    => $MESSAGE_TYPE->TestCase,
+                '_t'      => $data->_t
+            ]));
+            return;
+        }
+        //检查配对
+        if(getTestCount($data->i) != getTestCount($data->o)) {
+            $connection->send(json_encode([
+                'code'    => $MESSAGE_CODE->IODoesNotMatch,
+                'type'    => $MESSAGE_TYPE->TestCase,
+                '_t'      => $data->_t
+            ]));
+            return;
+        }
+        //写到文件
+        appendTestCase(CONFIG['websocket']['in'].$data->qid, $data->i);
+        appendTestCase(CONFIG['websocket']['out'].$data->qid, $data->o);
+        updateVersionFile(CONFIG['websocket']['version'].$data->qid, CONFIG['websocket']['in'].$data->qid, CONFIG['websocket']['out'].$data->qid);
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_CODE->Success,
+            'type'    => $MESSAGE_TYPE->TestCase,
+            '_t'      => $data->_t
+        ]));
+    } elseif($data->code == $MESSAGE_CODE->DeleteTestCase) {
+        //删除测试用例
+        if(file_exists(CONFIG['websocket']['in'].$data->qid) && file_exists(CONFIG['websocket']['out'].$data->qid)) {
+            if(empty($data->i) || empty($data->o)) {
+                $connection->send(json_encode([
+                    'code'    => $MESSAGE_CODE->AccessDeny,
+                    'type'    => $MESSAGE_TYPE->TestCase,
+                    '_t'      => $data->_t
+                ]));
+                return;
+            }
+            deleteFileToBlankLine(CONFIG['websocket']['in'].$data->qid, $data->i);
+            deleteFileToBlankLine(CONFIG['websocket']['out'].$data->qid, $data->o);
+            updateVersionFile(CONFIG['websocket']['version'].$data->qid, CONFIG['websocket']['in'].$data->qid, CONFIG['websocket']['out'].$data->qid);
+        }
+        $connection->send(json_encode([
+            'code'    => $MESSAGE_CODE->Success,
+            'type'    => $MESSAGE_TYPE->TestCase,
+            '_t'      => $data->_t
+        ]));
+    } else return;
 }

@@ -46,12 +46,35 @@ $LANGUAGE_TYPE = parseJsonConstant('language_type', true);
 
 //加载服务
 if(CONFIG['server']['websocket']) {
+    //创建目录
+    if(!is_dir(CONFIG['websocket']['in'])) {
+        mkdir(CONFIG['websocket']['in'], 0775, true);
+    }
+    if(!is_dir(CONFIG['websocket']['out'])) {
+        mkdir(CONFIG['websocket']['out'], 0775, true);
+    }
+    if(!is_dir(CONFIG['websocket']['version'])) {
+        mkdir(CONFIG['websocket']['version'], 0775, true);
+    }
     require __DIR__.'/Websocket/websocket.php';
 }
 if(CONFIG['server']['delivery']) {
     require __DIR__.'/Delivery/delivery.php';
 }
 if(CONFIG['server']['judgeServer']) {
+    //创建目录
+    if(!is_dir(CONFIG['judgeServer']['in'])) {
+        mkdir(CONFIG['judgeServer']['in'], 0775, true);
+    }
+    if(!is_dir(CONFIG['judgeServer']['out'])) {
+        mkdir(CONFIG['judgeServer']['out'], 0775, true);
+    }
+    if(!is_dir(CONFIG['judgeServer']['version'])) {
+        mkdir(CONFIG['judgeServer']['version'], 0775, true);
+    }
+    if(!is_dir(CONFIG['judgeServer']['tmp'])) {
+        mkdir(CONFIG['judgeServer']['tmp'], 0775, true);
+    }
     require __DIR__.'/JudgeServer/judgeServer.php';
 }
 

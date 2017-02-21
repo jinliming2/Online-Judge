@@ -4,7 +4,8 @@
     ["Login"],
     ["Logout"],
     ["Judge"],
-    ["JudgeResult"]
+    ["JudgeResult"],
+    ["TestCase"]
   ],
   "judge_status": [
     ["Accepted", "通过"],
@@ -22,7 +23,12 @@
     ["AccessDeny"],
     ["LogonTimeout"],
     ["TooFrequent"],
-    ["StartJudging"]
+    ["StartJudging"],
+    ["FetchTestCase"],
+    ["AddTestCase"],
+    ["InsertTestCase"],
+    ["DeleteTestCase"],
+    ["IODoesNotMatch"]
   ],
   "language_type": [
     ["C", "ace/mode/c_cpp", "#include <stdio.h>\n\nint main() {\n    //your code goes here\n    return 0;\n}\n", 3, 4, 25, "c"],

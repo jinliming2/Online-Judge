@@ -29,6 +29,7 @@ use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
 use stdClass;
+require_once __DIR__.'/../common.php';
 
 /**
  * Class Question
