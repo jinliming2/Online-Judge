@@ -165,4 +165,5 @@ function appendTestCase(string $path, string $text) {
             $flag = true;
         }
     }
+    fclose($file);
 }
