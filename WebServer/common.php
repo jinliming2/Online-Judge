@@ -168,3 +168,16 @@ function appendTestCase(string $path, string $text) {
     fwrite($file, "\n");
     fclose($file);
 }
+
+/**
+ * 更新测试用例版本文件
+ *
+ * @param string $path
+ * @param string $path_in
+ * @param string $path_out
+ */
+function updateVersionFile(string $path, string $path_in, string $path_out) {
+    $file = fopen($path, 'w');
+    fwrite($file, md5_file($path_in)."\n".md5_file($path_out));
+    fclose($file);
+}

@@ -219,6 +219,7 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
         //写到文件
         appendTestCase(CONFIG['websocket']['in'].$data->qid, $data->i);
         appendTestCase(CONFIG['websocket']['out'].$data->qid, $data->o);
+        updateVersionFile(CONFIG['websocket']['version'], CONFIG['websocket']['in'], CONFIG['websocket']['out']);
         $connection->send(json_encode([
             'code'    => $MESSAGE_CODE->Success,
             'type'    => $MESSAGE_TYPE->TestCase,
@@ -237,6 +238,7 @@ function mTestCase(TcpConnection $connection, stdClass $data) {
             }
             deleteFileToBlankLine(CONFIG['websocket']['in'].$data->qid, $data->i);
             deleteFileToBlankLine(CONFIG['websocket']['out'].$data->qid, $data->o);
+            updateVersionFile(CONFIG['websocket']['version'], CONFIG['websocket']['in'], CONFIG['websocket']['out']);
         }
         $connection->send(json_encode([
             'code'    => $MESSAGE_CODE->Success,
