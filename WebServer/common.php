@@ -118,3 +118,51 @@ function deleteFileToBlankLine(string $path, int $position) {
     ftruncate($file, $p1);
     fclose($file);
 }
+
+/**
+ * 计算测试用例数量
+ *
+ * @param string $text
+ *
+ * @return int
+ */
+function getTestCount(string $text) {
+    $lines = explode("\n", $text);
+    $total = 0;
+    $flag = true;
+    foreach($lines as $line) {
+        if(trim($line) != '') {
+            if($flag) {
+                ++$total;
+                $flag = false;
+            }
+        } else {
+            $flag = true;
+        }
+    }
+    return $total;
+}
+
+/**
+ * 追加测试用例到文件尾
+ *
+ * @param string $path
+ * @param string $text
+ */
+function appendTestCase(string $path, string $text) {
+    $lines = explode("\n", $text);
+    $flag = false;
+    $file = fopen($path, 'a');
+    foreach($lines as $line) {
+        $line = trim($line);
+        if($line != '') {
+            if($flag) {
+                fwrite($file, "\n");
+                $flag = false;
+            }
+            fwrite($file, $line."\n");
+        } else {
+            $flag = true;
+        }
+    }
+}

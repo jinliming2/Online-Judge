@@ -99,6 +99,27 @@
 
     //提交
     btnSubmit1.addEventListener('click', () => {
+        btnSubmit1.disabled = window.messageServer.sendMessage({
+            'type': constantIndex(constant['message_type'], 'TestCase'),
+            'code': constantIndex(constant['message_code'], 'InsertTestCase'),
+            'qid': getQuery('id'),
+            'i': input.value,
+            'o': output.value
+        }, (e) => {
+            btnSubmit1.disabled = true;
+            if(e.hasOwnProperty('code')) {
+                switch(constant['message_code'][e.code][0]) {
+                    case 'Success':
+                        location.reload();
+                        break;
+                    case 'IODoesNotMatch':
+                        alert('输入输出不匹配！');
+                        break;
+                    case 'AccessDeny':
+                        break;
+                }
+            }
+        });
     });
     btnSubmit2.addEventListener('click', () => {
     });

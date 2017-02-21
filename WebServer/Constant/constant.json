@@ -27,7 +27,8 @@
     ["FetchTestCase"],
     ["AddTestCase"],
     ["InsertTestCase"],
-    ["DeleteTestCase"]
+    ["DeleteTestCase"],
+    ["IODoesNotMatch"]
   ],
   "language_type": [
     ["C", "ace/mode/c_cpp", "#include <stdio.h>\n\nint main() {\n    //your code goes here\n    return 0;\n}\n", 3, 4, 25, "c"],
