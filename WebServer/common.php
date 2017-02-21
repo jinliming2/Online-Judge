@@ -100,12 +100,13 @@ function deleteFileToBlankLine(string $path, int $position) {
             break;
         }
     }
-    if(ftell($file) == $p1) {
+    $p2 = ftell($file);
+    if($p2 == $p1) {
         return;
     }
     while(true) {
         $buffer = fread($file, 102400);  //最多100KB
-        if($buffer === false) {
+        if($buffer === false || ftell($file) == $p2) {
             break;
         }
         $p2 = ftell($file);
