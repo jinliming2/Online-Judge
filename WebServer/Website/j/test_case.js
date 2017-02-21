@@ -169,7 +169,7 @@
                 'o': e.target.dataset.ol
             }, (msg) => {
                 if(msg.hasOwnProperty('code')) {
-                    switch(constant['judge_status'][msg.code][0]) {
+                    switch(constant['message_code'][msg.code][0]) {
                         case 'Success':
                             e.target.parentNode.parentNode.parentNode.removeChild(e.target.parentNode.parentNode);
                             break;
