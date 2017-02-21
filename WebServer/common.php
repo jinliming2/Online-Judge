@@ -165,5 +165,6 @@ function appendTestCase(string $path, string $text) {
             $flag = true;
         }
     }
+    fwrite($file, "\n");
     fclose($file);
 }
